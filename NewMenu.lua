@@ -14,7 +14,7 @@ local Mouse = LocalPlayer:GetMouse();
 local Font = Enum.Font.Code
 local FontSize = 14;
 
-local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
+local ProtectGui = protectgui or (syn and syn.protect_gui)
 
 shared.mawborn = Instance.new('ScreenGui');
 ProtectGui(shared.mawborn);
