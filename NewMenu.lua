@@ -14,11 +14,10 @@ local Mouse = LocalPlayer:GetMouse();
 local Font = Enum.Font.Code
 local FontSize = 14;
 
-local ProtectGui = protectgui or (syn and syn.protect_gui)
-
 shared.mawborn = Instance.new('ScreenGui');
-ProtectGui(shared.mawborn);
-
+if syn and syn.product_gui then
+    syn.protect_gui(mawborn)
+end
 shared.mawborn.Name = 'mawborn.xml'
 shared.mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 shared.mawborn.Parent = CoreGui;
