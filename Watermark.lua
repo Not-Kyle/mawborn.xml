@@ -135,7 +135,6 @@ task.spawn(function()
     end
 end)
 
-
 function OnRenderStepped(Delta: number)
     FPS = math.round(1 / Delta)
     Ping = math.round(Stats.FindFirstChild(Stats, 'PerformanceStats').Ping:GetValue())
