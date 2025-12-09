@@ -24,7 +24,7 @@ getgenv().OuterWatermark = Instance.new("Frame")
 OuterWatermark.Name = "OuterWatermark"
 OuterWatermark.Parent = mawborn
 OuterWatermark.AnchorPoint = Vector2.new(0.5, 0.5)
-OuterWatermark.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+OuterWatermark.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
 OuterWatermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
 OuterWatermark.BorderSizePixel = 0
 OuterWatermark.Position = UDim2.fromScale(0.848, 0.985)
@@ -143,3 +143,4 @@ function OnRenderStepped(Delta: number)
     TitleWatermark_2.Text = string.format(' | fps: %s | ping: %s ', FPS, Ping)
 end
 
+RunService.RenderStepped:Connect(OnRenderStepped)
