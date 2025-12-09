@@ -15,7 +15,7 @@ local RunService = Trace.RunService;
 local Host = Players.LocalPlayer;
 local Fps;
 
-local Executor, _ = string.sub(tostring(identifyexecutor()), 1, 5) or 'unknown';
+local Executor, _ = string.sub(tostring(identifyexecutor()), 1, 4) or 'unknown';
 
 local _utf8 = {};
 _utf8.__index = _utf8;
