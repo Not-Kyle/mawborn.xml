@@ -1,11 +1,30 @@
-local Stats = game:GetService'Stats';
-local RunService = game:GetService'RunService';
+local Trace = setmetatable({}, {
+    __index = function(self: Instance, ...)
+        local Args = {...};
 
-OuterWatermark = Instance.new("Frame")
+        rawset(self, Args, Args[1])
+
+        return game.GetService(game, Args[1])
+    end
+})
+
+local Stats = Trace.Stats;
+local Players = Trace.Players;
+local RunService = Trace.RunService;
+
+local Host = Players.LocalPlayer;
+local Fps;
+
+local Executor, _ = string.sub(tostring(identifyexecutor()), 1, 5) or 'unknown';
+
+local _utf8 = {};
+_utf8.__index = _utf8;
+
+getgenv().OuterWatermark = Instance.new("Frame")
 OuterWatermark.Name = "OuterWatermark"
 OuterWatermark.Parent = mawborn
 OuterWatermark.AnchorPoint = Vector2.new(0.5, 0.5)
-OuterWatermark.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+OuterWatermark.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
 OuterWatermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
 OuterWatermark.BorderSizePixel = 0
 OuterWatermark.Position = UDim2.fromScale(0.848, 0.985)
@@ -69,35 +88,58 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 4)
 UICorner.Parent = OuterWatermark
 
-function Typewrite(Method: string, Property: string, Text: string, Delay: number, Randomize: boolean)
-    if Property and Text and Delay then 
-        if Method == 'Out' then
-            for i = 1, string.len(Text), 1 do
-                task.wait(Delay)
-                Property.Text = string.sub(Text, 1, i)
-            end
-        elseif Method == 'In' then
-            for i = string.len(Text), 0, -1 do
-                task.wait(Delay)
-                Property.Text = string.sub(Text, 1, i)
-            end
+function _utf8.sub(Text: string, Start: number, End: number)
+    local StartingByte = utf8.offset(Text, Start);
+    local EndingByte = utf8.offset(Text, End + 1);
+
+    if not StartingByte then
+        return ''
+    end
+
+    return string.sub(Text, StartingByte, (EndingByte or (#Text + 1)) - 1)
+end
+
+function Typewrite(Method: string?, Property: Instance?, Text: string?, Delay: number?) -- ? Allows nil processing
+    if not Property or not Text then return end
+
+    Method = Method or 'In';
+    Delay = Delay or 0.1;
+
+    if Method == 'Out' then
+        for Index = 1, utf8.len(Text), 1 do
+
+            task.wait(Delay)
+            Property.Text = _utf8.sub(Text, 1, Index)
+        end
+    end
+
+    if Method == 'In' then
+        for Index = utf8.len(Text), 0, -1 do
+
+            task.wait(Delay)
+            Property.Text = _utf8.sub(Text, 1, Index)
         end
     end
 end
 
-coroutine.resume(coroutine.create(function()
+task.spawn(function()
     while task.wait() do
-    local Executor = tostring(identifyexecutor()) or 'unknown'
-        
-    local PrintLn = ' mawborn.xml | executor: '..Executor..' | '..os.date('%a')..', '..os.date('%b')..' '..os.date('%d')..', '..os.date('%I')..':'..os.date('%M')..' '..os.date('%p')..' '..os.date('%Y')
+        local PrintLn = string.format(' mawborn.xml | executor: %s | %s',
+            Executor,
+            os.date('%a, %b %d, %I:%M %p %Y')
+        )
 
-    Typewrite('Out', TitleWatermark, PrintLn, 0.1)
-    task.wait(30)
-    Typewrite('In', TitleWatermark, PrintLn, 0.1)
-
+        Typewrite('Out', TitleWatermark, PrintLn, 0.1)
+        task.wait(30)
+        Typewrite('In', TitleWatermark, PrintLn, 0.1)
     end
-end))
-
-RunService.RenderStepped:Connect(function(Delta: number) 
-    TitleWatermark_2.Text = ' | fps: '..tonumber(math.round(1 / Delta))..' | ping: '..math.round(Stats:FindFirstChild'PerformanceStats'.Ping:GetValue())
 end)
+
+
+function OnRenderStepped(Delta: number)
+    FPS = math.round(1 / Delta)
+    Ping = math.round(Stats.FindFirstChild(Stats, 'PerformanceStats').Ping:GetValue())
+
+    TitleWatermark_2.Text = string.format(' | fps: %s | ping: %s ', FPS, Ping)
+end
+
