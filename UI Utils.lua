@@ -108,8 +108,8 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
     })
 
     UIProperties.TextBounds(TextLabel, 96, 18);
-    UIProperties.AbsoluteSize(Inner, TextLabel, 98, 18, 2, 0);
-    UIProperties.AbsoluteSize(Outer, TextLabel, 102, 22, 4, 4);
+    UIProperties.AbsoluteSize(Inner, TextLabel, 2, 0);
+    UIProperties.AbsoluteSize(Outer, TextLabel, 4, 4);
 end
 
 return Window
