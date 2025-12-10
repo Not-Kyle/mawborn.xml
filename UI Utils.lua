@@ -36,8 +36,8 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
     })
 
     local UiCorner = NewInstance('Instance', 'UICorner', {
-        UICorner_CornerRadius = UDim.new(0, 4);
-        UICorner_Parent = Outer;
+        CornerRadius = UDim.new(0, 4);
+        Parent = Outer;
     }) 
 
     local Inner = NewInstance('Instance', 'Frame', {
