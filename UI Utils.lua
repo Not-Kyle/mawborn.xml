@@ -107,8 +107,8 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         TextStrokeTransparency = 0;
     })
 
-    UIProperties.TextBounds(TextLabel, 98, 18);
-    UIProperties.AbsoluteSize(Inner, TextLabel, 98, 18, 2, 2);
+    UIProperties.TextBounds(TextLabel, 96, 18);
+    UIProperties.AbsoluteSize(Inner, TextLabel, 98, 18, 2, 0);
     UIProperties.AbsoluteSize(Outer, TextLabel, 102, 22, 4, 4);
 end
 
