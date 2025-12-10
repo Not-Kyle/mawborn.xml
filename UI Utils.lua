@@ -1,8 +1,8 @@
 local mawborn = getgenv().mawborn;
 
 local Window = {};
-local TextProperties = {};
-TextProperties.__index = TextProperties;
+local UIProperties = {};
+UIProperties.__index = UIProperties;
 
 function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
     if Type == 'Draw' and Drawing then
@@ -25,15 +25,36 @@ function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to 
 end
 
 function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
-    local SettingSize = UDim2.fromOffset(math.max(XAxis, Self.TextBounds.X), math.max(YAxis, Self.TextBounds.Y))
+    local SettingSize = UDim2.fromOffset(
+        math.max(XAxis, Self.TextBounds.X), 
+        math.max(YAxis, Self.TextBounds.Y)
+    )
+
     Self.Size = SettingSize
 end
 
-function TextProperties.new(Self: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetTextBounds(Self, XAxis, YAxis)
+function SetAbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number)
+    local Size = UDim2.fromOffset(
+        math.max(XAxis, Child.AbsoluteSize.X + (XAxis or 0)),
+        math.max(YAxis, Child.AbsoluteSize.Y + (YAxis or 0))
+    )
+
+    Self.Size = Size;
+end
+
+function UIProperties.TextBounds(Self: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetTextBounds(Self, XAxis, YAxis);
     
     return Self.GetPropertyChangedSignal(Self, 'TextBounds'):Connect(function()
         SetTextBounds(Self, XAxis, YAxis)
+    end)
+end
+
+function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetAbsoluteSize(Self, Child, XAxis, YAxis)
+
+    return Self.GetPropertyChangedSignal(Self, 'AbsoluteSize'):Connect(function()
+        SetAbsoluteSize(Self, Child, XAxis, YAxis)
     end)
 end
 
@@ -88,7 +109,9 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         TextStrokeTransparency = 0;
     })
 
-    TextProperties.new(TextLabel, 98, 18);
+    UIProperties.TextBounds(TextLabel, 98, 18);
+    UIProperties.AbsoluteSize(Inner, TextLabel, 0, 0);
+    UIProperties.AbsoluteSize(Outer, TextLabel, 4, 4);
 end
 
 return Window
