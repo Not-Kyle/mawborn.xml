@@ -24,12 +24,12 @@ function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to 
     return Class;
 end
 
-function SetTextBounds(Self: string, XAxis: number, YAxis: number)
+function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
     local SettingSize = UDim2.fromOffset(math.max(XAxis, Self.TextBounds.X), math.max(YAxis, Self.TextBounds.Y))
     Self.Size = SettingSize
 end
 
-function TextProperties.new(Self: string, XAxis: number, YAxis: number) : RBXScriptConnection
+function TextProperties.new(Self: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
     return Self.GetPropertyChangedSignal(Self, 'TextBounds'):Connect(function()
         SetTextBounds(Self, XAxis, YAxis)
     end)
