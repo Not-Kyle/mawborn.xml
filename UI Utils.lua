@@ -33,10 +33,10 @@ function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
     Self.Size = SettingSize
 end
 
-function SetAbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number)
+function SetAbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number)
     local Size = UDim2.fromOffset(
-        math.max(XAxis, Child.AbsoluteSize.X + (XAxis or 0)),
-        math.max(YAxis, Child.AbsoluteSize.Y + (YAxis or 0))
+        math.max(MinX, Child.AbsoluteSize.X + (XAxis or 0)),
+        math.max(MinY, Child.AbsoluteSize.Y + (YAxis or 0))
     )
 
     Self.Size = Size;
@@ -50,11 +50,11 @@ function UIProperties.TextBounds(Self: Instance, XAxis: number, YAxis: number) :
     end)
 end
 
-function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetAbsoluteSize(Self, Child, XAxis, YAxis)
+function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
 
     return Self.GetPropertyChangedSignal(Self, 'AbsoluteSize'):Connect(function()
-        SetAbsoluteSize(Self, Child, XAxis, YAxis)
+        SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
     end)
 end
 
@@ -69,7 +69,6 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BorderColor3 = Color3.fromRGB(18, 18, 18);
         BorderSizePixel = 0;
         Position = UDim2.fromScale(PositionX, PositionY);
-        Size = UDim2.new(0, 102, 0, 22);
     })
 
     local UiCorner = NewInstance('Instance', 'UICorner', {
@@ -82,7 +81,6 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BackgroundColor3 = Color3.fromRGB(255, 255, 255);
         BorderColor3 = Color3.fromRGB(0, 0, 0);
         Position = UDim2.new(0.02, 0, 0.1, 0);
-        Size = UDim2.new(0, 98, 0, 18);
     })
 
     local UIGradient = NewInstance('Instance', 'UIGradient', {
@@ -110,8 +108,8 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
     })
 
     UIProperties.TextBounds(TextLabel, 98, 18);
-    UIProperties.AbsoluteSize(Inner, TextLabel, 0, 0);
-    UIProperties.AbsoluteSize(Outer, TextLabel, 4, 4);
+    UIProperties.AbsoluteSize(Inner, TextLabel, 98, 18, 0, 0);
+    UIProperties.AbsoluteSize(Outer, TextLabel, 102, 22, 4, 4);
 end
 
 return Window
