@@ -33,10 +33,10 @@ function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
     Self.Size = SettingSize
 end
 
-function SetAbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number)
+function SetAbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number)
     local Size = UDim2.fromOffset(
-        Child.AbsoluteSize.X + (XAxis or 0),
-        Child.AbsoluteSize.Y + (YAxis or 0)
+        math.max(MinX, Child.AbsoluteSize.X + (XAxis or 0)),
+        math.max(MinY, Child.AbsoluteSize.Y + (YAxis or 0))
     )
 
     Self.Size = Size;
@@ -50,11 +50,11 @@ function UIProperties.TextBounds(Self: Instance, XAxis: number, YAxis: number) :
     end)
 end
 
-function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetAbsoluteSize(Self, Child, XAxis, YAxis)
+function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
 
     return Self.GetPropertyChangedSignal(Self, 'AbsoluteSize'):Connect(function()
-        SetAbsoluteSize(Self, Child, XAxis, YAxis)
+        SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
     end)
 end
 
@@ -108,8 +108,8 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
     })
 
     UIProperties.TextBounds(TextLabel, 96, 18);
-    UIProperties.AbsoluteSize(Inner, TextLabel, 2, 0);
-    UIProperties.AbsoluteSize(Outer, TextLabel, 4, 4);
+    UIProperties.AbsoluteSize(Inner, TextLabel, 98, 18, 2, 0);
+    UIProperties.AbsoluteSize(Outer, TextLabel, 102, 22, 4, 4);
 end
 
 return Window
