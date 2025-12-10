@@ -23,8 +23,8 @@ end
 
 function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY: number)
     Text = Text or 'Label';
-    PositionX = PositionX or 0.34;
-    PositionY = PositionY or 0.83;
+    PositionX = PositionX or 0.3;
+    PositionY = PositionY or 0.88;
 
     local Outer = NewInstance('Instance', 'Frame', {
         Parent = mawborn;
@@ -32,7 +32,7 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BorderColor3 = Color3.fromRGB(18, 18, 18);
         BorderSizePixel = 0;
         Position = UDim2.fromScale(PositionX, PositionY);
-        Size = UDim2.new(0, 100, 0, 20);
+        Size = UDim2.new(0, 102, 0, 22);
     })
 
     local UiCorner = NewInstance('Instance', 'UICorner', {
@@ -44,7 +44,7 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         Parent = Outer;
         BackgroundColor3 = Color3.fromRGB(255, 255, 255);
         BorderColor3 = Color3.fromRGB(0, 0, 0);
-        Position = UDim2.new(0.01, 0, 0.05, 0);
+        Position = UDim2.new(0.02, 0, 0.1, 0);
         Size = UDim2.new(0, 98, 0, 18);
     })
 
