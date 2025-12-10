@@ -30,6 +30,8 @@ function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
 end
 
 function TextProperties.new(Self: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetTextBounds(Self, XAxis, YAxis)
+    
     return Self.GetPropertyChangedSignal(Self, 'TextBounds'):Connect(function()
         SetTextBounds(Self, XAxis, YAxis)
     end)
