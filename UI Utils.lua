@@ -1,5 +1,8 @@
 local mawborn = getgenv().mawborn;
+
 local Window = {};
+local TextProperties = {};
+TextProperties.__index = TextProperties;
 
 function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
     if Type == 'Draw' and Drawing then
@@ -19,6 +22,17 @@ function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to 
     end
 
     return Class;
+end
+
+function SetTextBounds(Self: string, XAxis: number, YAxis: number)
+    local SettingSize = UDim2.fromOffset(math.max(XAxis, Self.TextBounds.X), math.max(YAxis, Self.TextBounds.Y))
+    Self.Size = SettingSize
+end
+
+function TextProperties.new(Self: string, XAxis: number, YAxis: number) : RBXScriptConnection
+    return Self.GetPropertyChangedSignal(Self, 'TextBounds'):Connect(function()
+        SetTextBounds(Self, XAxis, YAxis)
+    end)
 end
 
 function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY: number)
