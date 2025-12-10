@@ -79,7 +79,6 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BorderColor3 = Color3.fromRGB(0, 0, 0);
         BorderSizePixel = 0;
         Position = UDim2.new(0, 0, -0.08, 0);
-        Size = UDim2.new(0, 98, 0, 18);
         Font = Enum.Font.Code;
         Text = Text;
         TextColor3 = Color3.fromRGB(225, 225, 225);
