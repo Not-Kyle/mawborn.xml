@@ -46,7 +46,6 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BorderColor3 = Color3.fromRGB(18, 18, 18);
         BorderSizePixel = 0;
         Position = UDim2.fromScale(PositionX, PositionY);
-        Size = UDim2.new(0, 102, 0, 22);
     })
 
     local UiCorner = NewInstance('Instance', 'UICorner', {
@@ -59,7 +58,6 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BackgroundColor3 = Color3.fromRGB(255, 255, 255);
         BorderColor3 = Color3.fromRGB(0, 0, 0);
         Position = UDim2.new(0.02, 0, 0.1, 0);
-        Size = UDim2.new(0, 98, 0, 18);
     })
 
     local UIGradient = NewInstance('Instance', 'UIGradient', {
@@ -79,13 +77,16 @@ function Window:MakeInformationLabel(Text: string, PositionX: number, PositionY:
         BorderColor3 = Color3.fromRGB(0, 0, 0);
         BorderSizePixel = 0;
         Position = UDim2.new(0, 0, -0.08, 0);
-        Size = UDim2.new(0, 98, 0, 18);
         Font = Enum.Font.Code;
         Text = Text;
         TextColor3 = Color3.fromRGB(225, 225, 225);
         TextSize = 13;
         TextStrokeTransparency = 0;
     })
+
+    TextProperties.new(Outer, 102, 22);
+    TextProperties.new(Inner, 98, 18);
+    TextProperties.new(TextLabel, 98, 18);
 end
 
 return Window
