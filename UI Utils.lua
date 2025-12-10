@@ -33,10 +33,10 @@ function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
     Self.Size = SettingSize
 end
 
-function SetAbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number)
+function SetAbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number)
     local Size = UDim2.fromOffset(
-        math.max(MinX, Child.AbsoluteSize.X + (XAxis or 0)),
-        math.max(MinY, Child.AbsoluteSize.Y + (YAxis or 0))
+        Child.AbsoluteSize.X + (XAxis or 0),
+        Child.AbsoluteSize.Y + (YAxis or 0)
     )
 
     Self.Size = Size;
@@ -50,11 +50,11 @@ function UIProperties.TextBounds(Self: Instance, XAxis: number, YAxis: number) :
     end)
 end
 
-function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
+function UIProperties.AbsoluteSize(Self: Instance, Child: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
+    SetAbsoluteSize(Self, Child, XAxis, YAxis)
 
     return Self.GetPropertyChangedSignal(Self, 'AbsoluteSize'):Connect(function()
-        SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
+        SetAbsoluteSize(Self, Child, XAxis, YAxis)
     end)
 end
 
