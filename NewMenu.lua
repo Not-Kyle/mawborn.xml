@@ -20,7 +20,7 @@ if syn and syn.product_gui then
 end
 shared.mawborn.Name = 'mawborn.xml'
 shared.mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-shared.mawborn.Parent = CoreGui;
+shared.mawborn.Parent = gethui() or CoreGui;
 shared.mawborn.ResetOnSpawn = false
 shared.mawborn.IgnoreGuiInset = true
 
