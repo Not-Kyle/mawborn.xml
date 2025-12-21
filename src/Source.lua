@@ -5056,7 +5056,7 @@ Host.OnTeleport:Connect(function()
     if Queueonteleport and Data.AutoExecute then
         repeat RunService.Heartbeat:Wait() until game:IsLoaded()
 
-        Queueonteleport('loadstring(game:HttpGet("https://pastebin.com/raw/0AVkmiDQ"))()') -- Updated to verison 0.9.95
+        Queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua"))();')
         clearteleportqueue();
     end
 end)
