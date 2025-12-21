@@ -42,7 +42,7 @@ CommandList.BorderSizePixel = 0
 CommandList.Position = UDim2.new(0.0175438598, 0, 0.0530973449, 0)
 CommandList.Size = UDim2.new(0, 335, 0, 107)
 CommandList.BottomImage = 'http://www.roblox.com/asset/?id=86927157225558'
-CommandList.CanvasSize = UDim2.new(3, 0, 8, 0)
+CommandList.CanvasSize = UDim2.new(3, 0, 6, 0)
 CommandList.MidImage = 'http://www.roblox.com/asset/?id=95591733073455'
 CommandList.ScrollBarThickness = 4
 CommandList.TopImage = 'http://www.roblox.com/asset/?id=115122166951013'
