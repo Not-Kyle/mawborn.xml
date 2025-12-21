@@ -21,7 +21,7 @@
  <br />
  
  > ### How long did it take, who were the developers? <br />
- > 1. Mawborn.xml was always going to be an open source admin script. I started in January 2024. Left for an entire year all the way up until October 2025, did I pick up mawborn.xml again.
+ > 1. Mawborn.xml was always going to be an open source admin script. I started in January 2024. Left for an entire year all the way up until October 2025, would I pick up mawborn.xml again.
  > 2. The developers are hellokittysouljia and mawborn <br />
  <br />
   
