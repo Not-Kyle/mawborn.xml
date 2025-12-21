@@ -12,6 +12,7 @@
 # Helpful Tips <br />
  >[!TIP]\
   > To use command bar, press period. You can change this keybind in the Misc Tab on the UI <br />
+  > When going over a player and it tells you their details, hold Left Alt to see more info <br />
   > Features like Kick Playes and TpBypass were taken out due to their nature of still being 0days on The Streets (They are still usable) <br />
 
 # Q&A <br />
