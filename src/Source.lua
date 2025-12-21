@@ -203,7 +203,7 @@ local VehicleSeats = {};
 local WhitelistedItems = {};
 
 local AuthorizedSessions = {Streets = Place == 455366377; Prison = Place == 15852982099;}
-local Data = {AutoExecute = true; Prefix = ''}
+local Data = {AutoExecute = true;}
 local ScriptNames = {[1] = 'mawborn'; [2] = 'mawborn.xml'; [3] = 'Mawborn'}
 
 local TagSystem = AuthorizedSessions.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem')) -- // Temp spot
@@ -311,7 +311,6 @@ task.spawn(function()
     if Connection then
         local JSON_Decode = HttpService:JSONDecode(Contents)
         Data.AutoExecute = JSON_Decode.AutoExecute;
-        Data.Prefix = JSON_Decode.Prefix;
         writefile(Contents, HttpService:JSONEncode(Data))
     else
         writefile(Contents, HttpService:JSONEncode(Data))
@@ -3135,17 +3134,6 @@ do
         Notify('Copy Name','Copied name '..tostring(ClipboardTarget))
     end)
 
-
-    Command('prefix', {}, 'A custom character infront of the command to active the command', '', true, function(Arguments)
-
-        if Arguments[1] then
-            Data.Prefix = Arguments[1]
-            UpdateFile();
-        end
-
-        Notify('Prefix', 'Prefix is now ' .. tostring(Data.Prefix))
-    end)
-    
 
     Command('stealaudio', {}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
         
