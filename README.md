@@ -13,8 +13,11 @@
 
 > [!TIP]
 > 1. To use command bar, press period. You can change this keybind in the Misc Tab on the UI
+>
 > 2. When going over a player and it tells you their details, hold Left Alt to see more info
+>
 > 3. Features like Kick Players and TpBypass were taken out due to their nature of still being 0days on The Streets (They are still usable)
+>
 > 4. To close UI or Menu, press Right Ctrl
 
 # Q&A <br />
