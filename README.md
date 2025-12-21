@@ -15,7 +15,6 @@
   > Features like Kick Playes and TpBypass were taken out due to their nature of still being 0days on The Streets (They are still usable) <br />
 
 # Q&A <br />
- > [!NOTE]\
  > ### Why did I release this? <br />
  > 1. I released the script due to the new anti-cheats on prison which I assume will slowly lead into The Streets <br />
  > 2. Another reason I released the script is due to not wanting to continue and doing other things. <br />
