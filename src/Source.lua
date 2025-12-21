@@ -212,6 +212,7 @@ local TagSystem = AuthorizedSessions.Streets and ReplicatedStorage and require(R
 local Creators = {
     [5388525718]  = {Name = 'hellokittysouljia'},
     [7705935312]  = {Name = 'mawborn'},
+    [4433899828]  = {Name = 'pollythefirstt'},
 }
 
 local Items = {
@@ -1474,7 +1475,7 @@ function UpdateEsp()
                 end
 
                 if Creator then
-                    Index.TopText.Text = string.format('👑 %s [%s]', Property.DisplayName, StudDistance(EspHead))
+                    Index.TopText.Text = string.format('DEVELOPER: %s [%s]', Property.DisplayName, StudDistance(EspHead))
                 end
 
                 Index.SideText.Text = Raycast and '[visible]' or '[not visible]';
