@@ -32,3 +32,13 @@
  > ### Will I be updating this? <br />
  > 1. Short answer, No <br />
  <br />
+
+  > ### How to contact me <br />
+  > 1. @killserver on discord, or add me on RBLX @hellokittysouljia <br />
+  <br />
+
+# Loadstring <br />
+
+ ```md
+  loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua'))();
+  ```
