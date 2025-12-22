@@ -28,7 +28,7 @@
 > 2. Another reason I released the script is due to not wanting to continue and doing other things.
 >
 > ### How long did it take, who were the developers?
-> 1. Mawborn.xml was always going to be an open source admin script. I started in January 2024. Left for an entire year all the way up until October 2025, where I picked up mawborn.xml again.
+> 1. Mawborn.xml was always going to be an open source admin script. I started in January 2025. Left for a while all the way up until October 2025, where I picked up mawborn.xml again.
 > 2. The developers are hellokittysouljia and mawborn
 >
 > ### Why does it exist?
