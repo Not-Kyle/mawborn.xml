@@ -1039,7 +1039,7 @@ function FindPlayer(Target: string) : table
         return string.sub(string.lower(tostring(Index[Property])), 1, string.len(Target))
     end
 
-    if Target == 'host' or Target == 'myself' or Target == 'client' then
+    if table.find({'myself', 'client', 'self', 'host', 'me'}, Target) then
         return {Host};
     end
 
