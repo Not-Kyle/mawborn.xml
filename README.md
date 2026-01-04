@@ -35,7 +35,7 @@
 > 1. I wanted to make a fully fledged script in Luau to help master the language and learn optimization
 >
 > ### Will I be updating this?
-> 1. Short answer, No
+> 1. Short answer, No (Maybe?)
 >
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia
