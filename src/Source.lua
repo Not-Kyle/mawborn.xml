@@ -24,10 +24,19 @@ Change calls to being OOP
 
     Ponyhook - for being a reference
 -- \\
+
+-- REMOTE NAMES IN "REMAKE"
+
+> Stomp (Stomps players)
+> Update (Updates your FOV)
+> Drag (Starts drag)
+> Touch (Used for melee)
+> Shoot (Used for guns)
+> Groups (Used for groups)
 ]]--
 
-if shared.Mawborn then 
-    return 
+if getgenv().MawbornLoaded then 
+    return
 end
 
 
@@ -72,7 +81,7 @@ local Std = {
     end
 }
 
-shared.Mawborn = true;
+getgenv().MawbornLoaded = true;
 
 local Stats = Trace.Stats;
 local CoreGui = Trace.CoreGui;
@@ -115,17 +124,14 @@ local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpac
     Stank = Backpack and Backpack:FindFirstChild('Stank')
 end
 
-local Place, Job, SetChat, ChatFrame, ColorCorrection, StaminaBar, KoBar, SnaplineMethod, SetClipboard, HttpRequest, Messagebox, Queueonteleport, DeathPosition do
+local Place, Job, ExperienceChat, ChatFrame, ColorCorrection, StaminaBar, KoBar, SnaplineMethod, SetClipboard, HttpRequest, Messagebox, Queueonteleport, DeathPosition do
     Place = game.PlaceId;
     Job = game.JobId;
 
-    SetChat = CoreGui and CoreGui:FindFirstChild('ExperienceChat').appLayout or PlayerGui and PlayerGui.Chat.Frame;
-    ChatFrame = TextChatService and TextChatService.ChatWindowConfiguration;
+    ExperienceChat = CoreGui and CoreGui:FindFirstChild('ExperienceChat')
+    ChatFrame = TextChatService and TextChatService:FindFirstChild('ChatWindowConfiguration');
 
     ColorCorrection = Lighting and Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
-
-    StaminaBar = Body and Body:WaitForChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina')
-    KoBar = Hud and Hud.KO.Bar
 
     SnaplineMethod = UserInputService and UserInputService:GetMouseLocation()
 
@@ -137,12 +143,6 @@ local Place, Job, SetChat, ChatFrame, ColorCorrection, StaminaBar, KoBar, Snapli
     DeathPosition = CFrame.new()
 end
 
-for _, Connection in next, getconnections(ScriptContext.Error) do
-    if getfenv(Connection.Function).script == PlayerGui.LocalScript then
-        Connection:Disable() -- // Creds to Ponyhook
-    end
-end
-
 local AimlockTarget;
 local AudioTarget;
 local CamlockTarget;
@@ -150,7 +150,6 @@ local ClipboardTarget;
 local EspTarget;
 local JumpConnection;
 local KickPlayerTarget;
-local LastMouseTarget;
 local Ping;
 local TeleportTarget;
 local UserIdTarget;
@@ -159,7 +158,6 @@ local WatchRejoinTarget;
 local Weapon;
 local UnespTarget;
 
-local TacoGuy = 'Spedsshed';
 local TagBoomboxes = 'Hooked::Boomboxes';
 local TagTools = 'Hooked::Items';
 local TagTrails = 'Hooked::Trails';
@@ -179,6 +177,7 @@ local MouseColorOn = Color3.fromRGB(255, 0, 0);
 local MouseColorOnTint = Color3.fromRGB(200, 0, 0);
 
 local OrginialGravity = Workspace and Workspace.Gravity;
+local OrginialFOV = Camera and Camera.FieldOfView;
 local OrginialZoom = Host and Host.CameraMaxZoomDistance;
 local OrginialWalkSpeed = Humanoid and Humanoid.WalkSpeed;
 local OrginialHipHeight = Humanoid and Humanoid.HipHeight;
@@ -190,7 +189,6 @@ local Debounce = {};
 local EspConfig = {};
 local GradientCache = {};
 local Hash = {};
-local Humanoids = {};
 local ItemEspConfig = {};
 local Lights = {};
 local Movement = {};
@@ -202,12 +200,18 @@ TextProperties.__index = TextProperties;
 local VehicleSeats = {};
 local WhitelistedItems = {};
 
-local AuthorizedSessions = {Streets = Place == 455366377; Prison = Place == 15852982099;}
 local Data = {AutoExecute = true;}
 local ScriptNames = {[1] = 'mawborn'; [2] = 'mawborn.xml'; [3] = 'Mawborn'}
 
-local TagSystem = AuthorizedSessions.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem')) -- // Temp spot
--- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
+local AuthorizedSessions = {
+    Streets = Place == 455366377,
+    Prison = Place == 15852982099,
+    Remake = Place == 104558503688829,
+
+    Both = Place == 455366377 or Place == 15852982099,
+    BothPrisons = Place == 15852982099 or Place == 104558503688829,
+    All = Place == 455366377 or Place == 15852982099 or Place == 104558503688829,
+}
 
 local Creators = {
     [5388525718]  = {Name = 'hellokittysouljia'},
@@ -245,6 +249,7 @@ local Moderators = {
     [57372642]  = {Name = 'Kotojo', Level = 5},
     [155145543] = {Name = 'Kaiits', Level = 4},
     [853076852] = {Name = 'Kaiits', Level = 4},
+    [5162665695] = {Name = 'Cyrus', Level = 4},
     [14321011]  = {Name = 'AfroVs', Level = 4},
 
     -- Unknown Game Mods []
@@ -293,6 +298,15 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [648643534]  = {Name = 'meowingforjes', Reason = 'Jes bf? Whoever Jes is but funny to make mad', Level = 0},
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
+
+local TagSystem = AuthorizedSessions.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem')) -- // Temp spot
+-- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
+
+for _, Connection in next, getconnections(ScriptContext.Error) do
+    if AuthorizedSessions.Streets and getfenv(Connection.Function).script == PlayerGui.LocalScript then
+        Connection:Disable() -- // Creds to Ponyhook
+    end
+end
 
 task.spawn(function()
     local Folder = 'mawborn';
@@ -366,7 +380,7 @@ local Circle = NewInstance('Draw', 'Circle', {
 local Network = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Network.lua'))();
 local Watermark = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Watermark.lua'))();
 --local Menu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/OldMenu.lua'))(); -- Old UI
-local UI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI%20Utils.lua'))();
+--local UI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI%20Utils.lua'))();
 local Menu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/NewMenu.lua'))();
 local FileMenu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Files.lua'))();
 local ThemeMenu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Themes.lua'))();
@@ -398,7 +412,6 @@ local UICorner = NewInstance('Instance', 'UICorner', {
     Parent = OuterConfig,
 })
 
-
 local BorderInner = NewInstance('Instance', 'Frame', {
     Name = 'InnerConfig',
     Parent = OuterConfig,
@@ -408,7 +421,6 @@ local BorderInner = NewInstance('Instance', 'Frame', {
     Position = UDim2.fromScale(0.012, 0.007),
     Size = UDim2.fromOffset(172, 362),
 })
-
 
 local InnerConfig = NewInstance('Instance', 'Frame', {
     Name = 'InnerConfig',
@@ -421,13 +433,11 @@ local InnerConfig = NewInstance('Instance', 'Frame', {
     Size = UDim2.fromOffset(172, 362),
 })
 
-
 local UIGradient = NewInstance('Instance', 'UIGradient', {
     Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(12, 12, 12)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(18, 18, 18))},
     Rotation = -90,
     Parent = InnerConfig,
 })
-
 
 local Health = NewInstance('Instance', 'TextLabel', {
     Parent = mawborn,
@@ -443,7 +453,6 @@ local Health = NewInstance('Instance', 'TextLabel', {
     TextSize = 13,
     TextStrokeTransparency = 0;
 })
-
 
 local Ko = NewInstance('Instance', 'TextLabel', {
     Parent = mawborn,
@@ -538,7 +547,6 @@ local OtherAmmo = NewInstance('Instance', 'TextLabel', {
     TextXAlignment = Enum.TextXAlignment.Left;
     Visible = false;
 })
-
 
 local OtherClip = NewInstance('Instance', 'TextLabel', {
     Parent = mawborn;
@@ -822,22 +830,19 @@ end
 
 
 function ChatSpy()
-    local Chat = PlayerGui and PlayerGui:FindFirstChild('Chat')
-    local ExperienceChat = CoreGui and CoreGui:FindFirstChild('ExperienceChat')
-
-    if Chat then
-        SetChat.ChatChannelParentFrame.Visible = true 
-        SetChat.ChatBarParentFrame.Position = SetChat.ChatChannelParentFrame.Position + UDim2.new(UDim.new(), SetChat.ChatChannelParentFrame.Size.Y)
+    if not ExperienceChat and ExperienceChat:FindFirstChild('appLayout') then
+        Std:Warn('Chat not found')
+        
+        return
     end
 
-    if ExperienceChat and ExperienceChat.appLayout then
-        local HasChatWindow = SetChat and SetChat:FindFirstChild('chatWindow')
-        ChatFrame.Enabled = true
+    local AppLayout = ExperienceChat:FindFirstChild('appLayout');
+    local HasChatWindow = AppLayout:FindFirstChild('chatWindow')
+    ChatFrame.Enabled = true
 
-        if HasChatWindow then
-            HasChatWindow.Visible = true;
-            HasChatWindow.Size = UDim2.fromScale(1, 0.8);
-        end
+    if HasChatWindow then
+        HasChatWindow.Visible = true;
+        HasChatWindow.Size = UDim2.fromScale(1, 0.8);
     end
 end
 
@@ -912,7 +917,7 @@ end
 function MessageBox(Message: string, Title: string, Flag: number, Function: any)
     Function = Function or function() end
 
-    if shared.MessageIsUsable then
+    if getgenv().MessageIsUsable then
         return Messagebox(Message, Title, Flag)
 
     else
@@ -976,7 +981,7 @@ function MessageBox(Message: string, Title: string, Flag: number, Function: any)
 
     --[[
         MessageBox('Text', 'Title', 0, function()
-            if not shared.MessageIsUsable then
+            if not getgenv().MessageIsUsable then
                 Std:Warning('No Messageboxasync')
             end
         end)
@@ -1089,7 +1094,7 @@ function GrabItem(Table: table, Radius: number) : CFrame
     for _, Item in next, ItemsArray do
         if Item then
             local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Item.Position)
-            local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - shared.MousePosition).Magnitude
+            local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - getgenv().MousePosition).Magnitude
 
             if OnScreen and Distance < ClosestDistance and Distance <= Radius then
                 ClosestDistance = Distance;
@@ -1132,7 +1137,7 @@ function TargetPlayer(Radius: number) : Player?
         local _Root = _Character and _Character:FindFirstChild('HumanoidRootPart') or _Humanoid and _Humanoid.RootPart;
 
         local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(_Root.Position)
-        local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - shared.MousePosition).Magnitude
+        local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - getgenv().MousePosition).Magnitude
 
         if OnScreen and Distance < ClosestDistance and Distance <= Radius then
             ClosestDistance = Distance;
@@ -1423,9 +1428,9 @@ function UpdateEsp()
             local Raycast = RaycastToHost(Player, EspHead)
 
             if Creator then
-                Index.Box.Color = shared.CycleHSV
-                Index.Tracer.Color = shared.CycleHSV
-                Index.Chams.FillColor = shared.CycleHSV
+                Index.Box.Color = getgenv().CycleHSV
+                Index.Tracer.Color = getgenv().CycleHSV
+                Index.Chams.FillColor = getgenv().CycleHSV
 
             elseif Moderator then
                 Index.Box.Color = Select.ModeratorColor.Value
@@ -1757,7 +1762,6 @@ function FindPartsOnMap(Index: Instance)
 end
 
 
-
 function GameData()
     for _, Index in next, Workspace:GetDescendants() do
         if Index:IsA('Seat') then
@@ -1766,10 +1770,6 @@ function GameData()
 
         if Index:IsA('VehicleSeat') then
             table.insert(VehicleSeats, Index);
-        end
-
-        if Index:IsA('Model') and Index:FindFirstChild('Poncho') then
-            Humanoids.TacoStand = Index;
         end
 
         if Index:IsA('Part') and Index.Material == Enum.Material.Neon then
@@ -1941,7 +1941,7 @@ function UpdateInfoCursor()
             return
         end
 
-        if AuthorizedSessions.Streets and (MouseName == TacoGuy or MouseName == 'Afro' or not Hash.BodyColors) then
+        if AuthorizedSessions.Streets and (MouseName == 'Spedsshed' or MouseName == 'Afro' or not Hash.BodyColors) then
             return
         end
 
@@ -1986,7 +1986,8 @@ function UpdateInfoCursor()
 
             if AuthorizedSessions.Streets then
                 Hash.Cred = 'Cred: ' .. _Player.leaderstats:FindFirstChild('Cred').Value
-            else
+                
+            elseif AuthorizedSessions.Prison then
                 Hash.Cred = 'Stomps: ' .. _Player.leaderstats:FindFirstChild('Stomps').Value
             end
 
@@ -1997,14 +1998,14 @@ function UpdateInfoCursor()
             if not Keybind then
                 Text ..= '\nMore Info..';
             else
-                Text ..= string.format('\nAge: %s\n%s', Age, Hash.Cred);
+                Text ..= string.format('\nAge: %s\n%s', Age, Hash.Cred or '');
             end 
 
             InfoCursor.Text = Text or ''
         end
     end
 
-    InfoCursor.Position = UDim2.fromOffset(shared.MousePosition.X + 40, shared.MousePosition.Y - 24.5)
+    InfoCursor.Position = UDim2.fromOffset(getgenv().MousePosition.X + 40, getgenv().MousePosition.Y - 24.5)
 end
 
 
@@ -2031,8 +2032,8 @@ function BulletColors(Object: Instance)
 
     if Boolean.TrailRainbow.Value then
         Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, shared.CycleHSV), 
-            ColorSequenceKeypoint.new(1.00, shared.CycleHSV)
+            ColorSequenceKeypoint.new(0.00, getgenv().CycleHSV), 
+            ColorSequenceKeypoint.new(1.00, getgenv().CycleHSV)
         }
 
     elseif Boolean.TrailColorOne.Value and not Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
@@ -2136,7 +2137,16 @@ end
 
 
 function SetClan(String: string, ClanId: number)
-    if not Stank then return end
+    if AuthorizedSessions.Remake then
+        local FiringRemote = ReplicatedStorage:FindFirstChild('Game', true)
+
+        FiringRemote:FireServer('Groups', 'Join', ClanId or 1)
+        return
+    end
+
+    if not Stank then
+        return
+    end
 
     for _, Index in ipairs ({'pick', 'join'}) do -- ipairs because I want it to use 'pick' first
         local Success, Error = pcall(function()
@@ -2158,9 +2168,18 @@ end
 
 
 function LeaveClan()
-    if not Stank then return end
+    if AuthorizedSessions.Remake then
+        local FiringRemote = ReplicatedStorage:FindFirstChild('Game', true)
 
-    Stank:FireServer('leave')
+        FiringRemote:FireServer('Groups', 'Leave');
+        return
+    end
+
+    if not Stank then 
+        return 
+    end
+    
+    Stank:FireServer('leave');
 end
 
 
@@ -2624,22 +2643,18 @@ function OnRenderStepped(Delta: number)
     local HostTorsoToWorld = Camera:WorldToViewportPoint(Torso.Position);
 
     local CountTicks = os.clock() * ((Boolean.ToolRainbow.Value and Select.RainbowSpeed.Value) or 0.3)
-    shared.CycleHSV = Color3.fromHSV(CountTicks % 1, 1, 1) -- Thanks to devforums
+    getgenv().CycleHSV = Color3.fromHSV(CountTicks % 1, 1, 1) -- Thanks to devforums
 
-    shared.MousePosition = UserInputService and UserInputService:GetMouseLocation()
+    getgenv().MousePosition = UserInputService and UserInputService:GetMouseLocation()
 
-    LogoFirst.Position = UDim2.fromOffset(shared.MousePosition.X - 85, shared.MousePosition.Y + 40);
-    LogoSecond.Position = UDim2.fromOffset(shared.MousePosition.X + 15, shared.MousePosition.Y + 40);
-    CursorImage.Position = UDim2.fromOffset(shared.MousePosition.X, shared.MousePosition.Y);
-    CircleCursor.Position = UDim2.fromOffset(shared.MousePosition.X, shared.MousePosition.Y);
+    LogoFirst.Position = UDim2.fromOffset(getgenv().MousePosition.X - 85, getgenv().MousePosition.Y + 40);
+    LogoSecond.Position = UDim2.fromOffset(getgenv().MousePosition.X + 15, getgenv().MousePosition.Y + 40);
+    CursorImage.Position = UDim2.fromOffset(getgenv().MousePosition.X, getgenv().MousePosition.Y);
+    CircleCursor.Position = UDim2.fromOffset(getgenv().MousePosition.X, getgenv().MousePosition.Y);
 
     CircleInner.Size = UDim2.fromOffset(Select.CursorSize.Value + 10, Select.CursorSize.Value + 10);
     CursorImage.Size = UDim2.fromOffset(Select.CursorSize.Value, Select.CursorSize.Value);
     CircleCursor.Size = UDim2.fromOffset(CursorImage.Size.X.Offset + 10, CursorImage.Size.Y.Offset + 10);
-
-    if AuthorizedSessions.Streets then
-        Humanoids.TacoStand.Name = TacoGuy or 'Speddshed' -- might delete this shit
-    end
 
     if Circle then
         Circle.Visible = Boolean.FOVCircle.Value
@@ -2650,7 +2665,7 @@ function OnRenderStepped(Delta: number)
         if Boolean.FOVMiddleCircle.Value then
             Circle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2);
         else
-            Circle.Position = shared.MousePosition 
+            Circle.Position = getgenv().MousePosition 
         end
     end
 
@@ -2684,7 +2699,7 @@ function OnRenderStepped(Delta: number)
     if Boolean.ItemColors.Value then
         for _, Index in next, ProcessedItems do
             if Index then
-                Index.Color = Boolean.ToolRainbow.Value and shared.CycleHSV or Select.ItemColoring.Value;
+                Index.Color = Boolean.ToolRainbow.Value and getgenv().CycleHSV or Select.ItemColoring.Value;
             end
         end
     end
@@ -2697,12 +2712,12 @@ function OnRenderStepped(Delta: number)
         Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
     end
 
-    if not Boolean.TintColor.Value and AuthorizedSessions.Prison then
+    if not Boolean.TintColor.Value and AuthorizedSessions.BothPrisons then
         ColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
     end
 
     if Select.SnaplineDirection.Value == 'From Mouse' then
-        SnaplineMethod = shared.MousePosition;
+        SnaplineMethod = getgenv().MousePosition;
     end
 
     if Select.SnaplineDirection.Value == 'From Screen' then
@@ -2737,14 +2752,14 @@ function OnHeartbeat(Delta: number)
         Torso.CanCollide = false; 
         Head.CanCollide = false;
 
-        if AuthorizedSessions.Prison and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if AuthorizedSessions.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     else
         Torso.CanCollide = true;
         Head.CanCollide = true;
 
-        if AuthorizedSessions.Prison and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if AuthorizedSessions.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     end
@@ -2778,6 +2793,10 @@ function OnHeartbeat(Delta: number)
         if Select.BlinkMethod.Value == 'Lookvector' and Root then
             Root.AssemblyLinearVelocity = Root.CFrame.LookVector * (Select.BlinkSpeed.Value * 25)
         end
+    end
+
+    if AuthorizedSessions.Remake and Boolean.InfiniteStam.Value then
+        Host:SetAttribute('Stamina', 100);
     end
 end
 
@@ -2843,13 +2862,27 @@ end
 function FireAimlock()
     if not AimlockTarget then return end
 
-    local Arguments = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit
+    local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait()
+
+    if not AimlockCharacter then 
+        Std:Warn('No Aimlock Character found')
+        return 
+    end
+
+    local AimlockOnTarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+    local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
 
     if AuthorizedSessions.Streets then
-        local Input = Host:FindFirstChild('Input', true)
+        local Input = Backpack:FindFirstChild('Input', true)
 
         if Input and Input:IsA('RemoteEvent') then
-            Input:FireServer('I', {})
+            Input:FireServer('I', {
+                velo = 16;
+                shift = false;
+
+                mousehit = AimlockOnHit;
+                mousetarget = AimlockOnTarget;
+            })
         end
 
         return
@@ -2859,8 +2892,16 @@ function FireAimlock()
         local Remote =  Weapon.Tool.Name..'Fire';
         local FiringEvent = ReplicatedStorage:FindFirstChild(Remote, true)
 
-        if FiringEvent and FiringEvent.IsA(FiringEvent, 'RemoteEvent') then
-            FiringEvent:FireServer(Arguments)
+        if FiringEvent and FiringEvent:IsA('RemoteEvent') then
+            FiringEvent:FireServer(AimlockOnHit, AimlockOnTarget);
+        end
+    end
+
+    if AuthorizedSessions.Remake then
+        local FiringEvent = ReplicatedStorage:FindFirstChild('Game', true)
+
+        if FiringEvent and FiringEvent:IsA('RemoteEvent') then
+            FiringEvent:FireServer('Shoot', AimlockOnHit, AimlockOnTarget);
         end
     end
 end
@@ -2879,35 +2920,43 @@ function HookData()
     local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(self: Instance, Index: any)
         local Self = tostring(self)
 
-        if not checkcaller() then
-            if Boolean.InfiniteStam.Value then
-                if Self == 'Stamina' and Index == 'Value' then
-                    return 100;
-                end
+        if typeof(self) ~= 'Instance' or checkcaller() then
+            return GetIndex(self, Index);
+        end
+
+        if AuthorizedSessions.Both and Boolean.InfiniteStam.Value then
+            if Self == 'Stamina' and Index == 'Value' then
+                return 100;
+            end
+        end
+
+        if self == ScriptContext and Index == 'Error' then
+            return {connect = function() end} -- // PlayerGui.LocalScript
+        end
+
+        if self == Humanoid then
+            if Index == 'WalkSpeed' then
+                return OrginialWalkSpeed;
             end
 
-            if self == ScriptContext and Index == 'Error' then
-                return {connect = function() end} -- // PlayerGui.LocalScript
+            if Index == 'JumpPower' then
+                return OrginialJumpPower;
             end
 
-            if self == Humanoid then
-                if Index == 'WalkSpeed' then
-                    return OrginialWalkSpeed;
-                end
-
-                if Index == 'JumpPower' then
-                    return OrginialJumpPower;
-                end
-
-                if Index == 'HipHeight' then
-                    return OrginialHipHeight;
-                end
+            if Index == 'HipHeight' then
+                return OrginialHipHeight;
             end
+        end
 
-            if self == Workspace then
-                if Index == 'Gravity' then
-                    return OrginialGravity;
-                end
+        if self == Workspace then
+            if Index == 'Gravity' then
+                return OrginialGravity;
+            end
+        end
+
+        if self == Camera then 
+            if Index == 'FieldOfView' then
+                return OrginialFOV;
             end
         end
 
@@ -2916,82 +2965,84 @@ function HookData()
 
 
     local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(self: Instance, Index: any, Value: any)
+        if typeof(self) ~= 'Instance' or checkcaller() then
+           return GetNewIndex(self, Index, Value);
+        end
 
-        if AuthorizedSessions.Streets or AuthorizedSessions.Prison then
-            if not checkcaller() then
-                StarterGui.SetCore(StarterGui, 'ResetButtonCallback', true)
+        StarterGui:SetCore('ResetButtonCallback', true)
 
-                if self == Humanoid then
-                    if Index == 'JumpPower' then
-                        Value = Select.JumpPower.Value or OrginialJumpPower;
-                    end
+        if self == Humanoid then
+            if Index == 'JumpPower' then
+                Value = Select.JumpPower.Value or OrginialJumpPower;
+            end
 
-                    if Index == 'Jump' and Boolean.InfiniteStam.Value and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                        Value = true;
-                    end
+            if Index == 'Jump' and Boolean.InfiniteStam.Value and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                Value = true;
+            end
 
-                    if Index == 'Health' then
-                        return;
-                    end
+            if Index == 'Health' then -- Detectable
+                return;
+            end
 
-                    if Index == 'AutoRotate' then
-                        Value = true;
-                    end
+            if Index == 'AutoRotate' then
+                Value = true;
+            end
 
-                    if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
-                        if Value == 0 or Value == 2 then
-                            return Select.WalkSpeed.Value or OrginialWalkSpeed;
-                        end
-
-                        if Debounce.Crouching then
-                            Value = Select.CrouchSpeed.Value or 8 or 7.9;
-                        end
-
-                        if Movement.W or Movement.A or Movement.S or Movement.D then
-                            if not Debounce.Crouching then
-                                Value = Select.WalkSpeed.Value or OrginialWalkSpeed;
-                            
-                            elseif Debounce.Crouching then
-                                Value = Select.CrouchSpeed.Value or 8 or 7.9;
-                            end
-                        end
-                        
-                        if not Boolean.InfiniteStam.Value and Body:FindFirstChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina').Value < 0.1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                            Value = OrginialWalkSpeed;
-
-                        elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                            Value = Select.WalkSpeed.Value;
-                        end
-                    end
+            if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
+                if Value == 0 or Value == 2 then
+                    return Select.WalkSpeed.Value or OrginialWalkSpeed;
                 end
 
-                if self == Root then
-                    if Index == 'CFrame' or Index == 'Position' then
-                        return
-                    end
+                if Debounce.Crouching then
+                    Value = Select.CrouchSpeed.Value or 8 or 7.9;
                 end
 
-                if self == Workspace then
-                    if Index == 'Gravity' and Boolean.Gravity.Value then
-                        Value = Select.Gravity.Value or OrginialGravity;
+                if Movement.W or Movement.A or Movement.S or Movement.D then
+                    if not Debounce.Crouching then
+                        Value = Select.WalkSpeed.Value or OrginialWalkSpeed;
+                    
+                    elseif Debounce.Crouching then
+                        Value = Select.CrouchSpeed.Value or 8 or 7.9;
                     end
                 end
+                
+                if AuthorizedSessions.Both and not Boolean.InfiniteStam.Value and Body:FindFirstChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina').Value < 0.1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    Value = OrginialWalkSpeed;
 
-                if Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then
-                    if Index == 'Value' then
-                        return 100;
-                    end
-                end
+                elseif AuthorizedSessions.Remake and not Boolean.InfiniteStam.Value and Host:GetAttribute('Stamina') < 0.1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    Value = OrginialWalkSpeed;
 
-                if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then -- Creds to Ponyhook because I'm not that great with hookfunction
-                    Value = HookMouse;
+                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    Value = Select.WalkSpeed.Value;
                 end
+            end
+        end
 
-                if self == Camera then 
-                    if Index == 'FieldOfView' then -- Because of the new chat commands
-                        Value = Select.FOV.Value
-                    end
-                end
+        if self == Root then -- Detectable
+            if Index == 'CFrame' or Index == 'Position' then
+                return
+            end
+        end
+
+        if self == Workspace then
+            if Index == 'Gravity' and Boolean.Gravity.Value then
+                Value = Select.Gravity.Value or OrginialGravity;
+            end
+        end
+
+        if AuthorizedSessions.Both and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then -- Detectable if InfiniteStam is true
+            if Index == 'Value' then
+                return 100;
+            end
+        end
+
+        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then -- Creds to Ponyhook because I'm not that great with hookfunction
+            Value = HookMouse;
+        end -- Detectable
+
+        if self == Camera then 
+            if Index == 'FieldOfView' then -- Because of the new chat commands
+                Value = Select.FOV.Value or OrginialFOV;
             end
         end
 
@@ -3008,10 +3059,15 @@ function HookData()
 
         if SetMethod == 'FireServer' then
             if AuthorizedSessions.Prison then
-                if table.find({ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) then
-                    if Boolean.Aimlock.Value and AimlockTarget then
+                if table.find({ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
+                    Arguments[1] = Mouse.Hit;
+                    Arguments[2] = Mouse.Target;
+
+                    if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                        local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
                         Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
-                        Arguments[2] = Mouse.Target;
+                        Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                     end
                 end
 
@@ -3020,19 +3076,38 @@ function HookData()
                 end
             end
 
+            if AuthorizedSessions.Remake then
+                if table.find({ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
+                    if Arguments[1] == 'Shoot' then
+                        Arguments[2] = Mouse.Hit;
+                        Arguments[3] = Mouse.Target;
+
+                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
+                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                        end
+                    end
+                end
+            end
+
             if AuthorizedSessions.Streets then
                 local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
                 local Dragging = {'e', 'drag', 'dragoff'}
 
-                if self.Name == 'Input' then
+                if self.Name == 'Input' and self.ClassName == 'RemoteEvent' then
                     if table.find({'I', 'm1', 'moff1'}, Arguments[1]) then
                         Arguments[2].mousehit = Mouse.Hit;
                         Arguments[2].velo = 16;
                         Arguments[2].shift = false;
                         Arguments[2].mousetarget = Mouse.Target;
 
-                        if Boolean.Aimlock.Value and AimlockTarget then
+                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
                             Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
 
                         os.clock();
@@ -3059,26 +3134,22 @@ function HookData()
             end
         end
 
-        if self == Body then
+        if self == Body then -- Detectable
             if SetMethod == 'BreakJoints' or SetMethod == 'Destroy' or SetMethod == 'ClearAllChildren' then
                 return;
             end
         end
 
-        if self == Workspace then
+        if self == Workspace then -- Detectable
             if SetMethod == 'ClearAllChildren' then
                 return;
             end
         end
 
-        if SetMethod == 'FindFirstChild' or SetMethod == 'WaitForChild' then -- (PlayerGui.LocalScript)
+        if SetMethod == 'FindFirstChild' or SetMethod == 'WaitForChild' then -- (PlayerGui.LocalScript) -- Detectable
             --[[if AuthorizedSessions.Prison and Boolean.NoSlow.Value and Arguments[1] == 'Action' then
                 --return; -- If NoSlow in prison does not work, uncomment this and it should work
             end]]
-
-            if self == Body and Arguments[1] == Root then
-                Arguments[1] = Torso
-            end
         end
     
         return GetNameCalls(self, unpack(Arguments));
@@ -3135,7 +3206,7 @@ do
     end)
 
 
-    Command('stealaudio', {}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
+    Command('stealaudio', {'steala', 'sa'}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
         
         if Arguments[1] then
             AudioTarget = FindPlayer(Arguments[1])[1]
@@ -3221,7 +3292,7 @@ do
     Command('flyspeed', {'flightspeed', 'fs'}, 'Changes your flightspeed', '', true, function(Arguments)
 
         if Arguments[1] then
-            assert(typeof(Arguments[1]) == 'number', 'Fly Speed must be a number')
+            assert(tonumber(Arguments[1]), 'Fly Speed must be a number')
         end
 
         Select.FlySpeed.Value = Arguments[1] or 4
@@ -3253,7 +3324,7 @@ do
     end)
 
 
-    Command('view', {}, 'Changes your camera view onto a players perspective', '', true, function(Arguments)
+    Command('view', {'watch', 'spectate', 'eye'}, 'Changes your camera view onto a players perspective', '', true, function(Arguments)
 
         if Arguments[1] then
             ViewTarget = FindPlayer(Arguments[1])[1]
@@ -3301,7 +3372,7 @@ do
     Command('aimlockvelocity', {'aimvelocity', 'av'}, 'Changes your aimlocks velocity', '', true, function(Arguments)
 
         if Arguments[1] then
-            assert(typeof(Arguments[1]) == 'number', 'Aimlock Velocity must be a number')
+            assert(tonumber(Arguments[1]), 'Aimlock Velocity must be a number')
         end
 
         Select.AimlockVelocity.Value = Arguments[1]
@@ -3329,7 +3400,7 @@ do
     Command('ponyhookvelocity', {'pv'}, 'Toggles on Ponyhooks Velocity Multiplier (Must be using AimlockMethod Ponyhook)', '', true, function(Arguments)
 
         if Arguments[1] then
-            assert(typeof(Arguments[1]) == 'number', 'Ponyhook Velocity must be a number')
+            assert(tonumber(Arguments[1]), 'Ponyhook Velocity must be a number')
         end
 
         Select.PonyhookVelocity.Value = Arguments[1]
@@ -3346,7 +3417,7 @@ do
     Command('blinkspeed', {'bs'}, 'Changes your blink speed', '', true, function(Arguments)
 
         if Arguments[1] then
-            assert(typeof(Arguments[1]) == 'number', 'Blink Speed must be a number')
+            assert(tonumber(Arguments[1]), 'Blink Speed must be a number')
         end
 
         Select.BlinkSpeed.Value = Arguments[1];
@@ -3374,7 +3445,7 @@ do
     Command('fov', {'fieldofview'}, 'Changes your FOV', '', true, function(Arguments)
 
         if Arguments[1] then
-            assert(typeof(Arguments[1]) == 'number', 'Field Of View must be a number')
+            assert(tonumber(Arguments[1]), 'Field Of View must be a number')
         end
 
         Select.FOV.Value = Arguments[1]
@@ -3386,7 +3457,7 @@ do
         if getfpscap and setfpscap then
 
             if Arguments[1] then
-                assert(typeof(Arguments[1]) == 'number', 'FPS Cap must be a number')
+                assert(tonumber(Arguments[1]), 'FPS Cap must be a number')
             end
 
             Std:Cout(getfpscap())
@@ -3495,14 +3566,6 @@ do
 
     Command('crosshair', {'rotcursor'}, 'Toggles your crosshair on and off', '', true, function()
         CursorImage.Visible = not CursorImage.Visible
-    end)
-
-
-    Command('tacostand', {}, 'Changes the tacoguys name', '', true, function(Arguments)
-        if AuthorizedSessions.Streets then
-            Humanoids.TacoStand.Name = Arguments[1]
-            TacoGuy = Humanoids.TacoStand.Name
-        end
     end)
 
 
@@ -3669,9 +3732,15 @@ ThemeMenu:ApplyToTab(Tabs.Data);
 
 -- Combat [] Aimlock Box
 
-CombatTab.AimlockTab:AddToggle('Aimlock', { Text = 'Aimlock', Tooltip = 'Turns on aimlock' }):AddKeyPicker('AimlockKeybind', { Default = 'Q', SyncToggleState = true, Mode = 'Toggle', Text = 'Aimlock' }); Boolean.Aimlock:OnChanged(function()
+CombatTab.AimlockTab:AddToggle('Aimlock', { Text = 'Aimlock', Tooltip = 'Turns on aimlock (DONT USE ON PRISON)' }):AddKeyPicker('AimlockKeybind', { Default = 'Q', SyncToggleState = true, Mode = 'Toggle', Text = 'Aimlock' }); Boolean.Aimlock:OnChanged(function()
     UpdateLabel()
+
+    if AuthorizedSessions.Prison then
+        Boolean.Aimlock.Value = false;
+    end
 end)
+
+CombatTab.AimlockTab:AddToggle('CameraAimbot', { Text = 'Camera Aimbot', Tooltip = 'Aimbots the selected player', Default = true})
 
 CombatTab.AimlockTab:AddLabel('Aimlock Target', false):AddKeyPicker('AimlockTargetKeybind', { Default = 'E', SyncToggleState = true, Mode = 'Toggle', Text = 'AimlockTarget' });
 
@@ -3689,7 +3758,7 @@ CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Too
     UpdateLabel()
 end)
 
-CombatTab.AimlockTab:AddDropdown('AimlockMode', { Text = 'Aimlock Mode', Tooltip = 'Changes the way your aimlock fires (RECOMMEND USING AUTO-RELOAD)', Values = {'Manual', 'Automatic', 'Ciazware'}, Default = 'Manual', Multi = false })
+CombatTab.AimlockTab:AddDropdown('AimlockMode', { Text = 'Aimlock Mode', Tooltip = 'Changes the way your aimlock fires (RECOMMEND USING AUTO-RELOAD)', Values = {'Manual', 'New Manual', 'Automatic', 'Ciazware'}, Default = 'Manual', Multi = false })
 
 CombatTab.AimlockTab:AddBlank(3);
 
@@ -3880,7 +3949,7 @@ VisualsTab.CameraTab:AddToggle('NoCameraShake', {Text = 'No Camera Shake', Toolt
 
 VisualsTab.CameraTab:AddBlank(3)
 
-VisualsTab.CameraTab:AddSlider('FOV', {Text = 'Field Of View', Tooltip = 'Changes your field of view', Default = 70, Min = 1, Max = 120, Rounding = 0}):OnChanged(function() 
+VisualsTab.CameraTab:AddSlider('FOV', {Text = 'Field Of View', Tooltip = 'Changes your field of view', Default = OrginialFOV, Min = 1, Max = 120, Rounding = 0}):OnChanged(function() 
     Camera.FieldOfView = Select.FOV.Value
 end)
 
@@ -3965,7 +4034,7 @@ end);
 
 MovementTab.PlayerTab:AddDivider();
 
-MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed (Only On TS, I\'ll update maybe)', Default = math.round(Humanoid.WalkSpeed), Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed (Only On TS, I\'ll update maybe)', Default = Humanoid.WalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
     UpdateLabel()
 end);
 
@@ -3977,11 +4046,11 @@ MovementTab.PlayerTab:AddSlider('CrouchSpeed', {Text = 'Crouch Speed', Tooltip =
     UpdateLabel()
 end);
 
-MovementTab.PlayerTab:AddSlider('HipHeight', {Text = 'Hip Height', Tooltip = 'Changes your hip height', Default = math.round(Humanoid.HipHeight), Min = 0, Max = 50, Rounding = 1}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('HipHeight', {Text = 'Hip Height', Tooltip = 'Changes your hip height', Default = Humanoid.HipHeight, Min = 0, Max = 50, Rounding = 1}):OnChanged(function()
     Humanoid.HipHeight = Select.HipHeight.Value or OrginialHipHeight
 end);
 
-MovementTab.PlayerTab:AddSlider('JumpPower', {Text = 'Jump Power', Tooltip = 'Changes your jump power', Default = math.round(Humanoid.JumpPower), Min = 0, Max = 500, Rounding = 0})
+MovementTab.PlayerTab:AddSlider('JumpPower', {Text = 'Jump Power', Tooltip = 'Changes your jump power', Default = Humanoid.JumpPower, Min = 0, Max = 500, Rounding = 0})
 
 -- [] Blink Box
 
@@ -4143,8 +4212,8 @@ MiscTab.MiscBox:AddToggle('LowCashIndicator', {Text = 'Low Cash Indicator', Tool
 MiscTab.MiscBox:AddBlank(3)
 
 MiscTab.MiscBox:AddSlider('ChatSize', {Text = 'ChatSize', Default = 0.8, Min = 0.1, Max = 1.2, Rounding = 1}):OnChanged(function()
-    if SetChat:FindFirstChild('chatWindow') then
-        SetChat.chatWindow.Size = UDim2.fromScale(1, Select.ChatSize.Value);
+    if ExperienceChat:FindFirstChild('chatWindow') then
+        ExperienceChat.chatWindow.Size = UDim2.fromScale(1, Select.ChatSize.Value);
     end
 end)
 
@@ -4224,8 +4293,6 @@ Select.AimlockKeybind:OnClick(function()
     local ProcessedInput = DebounceFunc('ProcessedInput', true, Select.AutofireDelay.Value, FireAimlock)
 
     if Select.AimlockMode.Value == 'Ciazware' then
-        Boolean.Aimlock.Value = true;
-
         task.spawn(function()
             while RunService.Heartbeat:Wait() do
 
@@ -4269,7 +4336,7 @@ end)
 
 
 Boolean.AutomaticReload:OnChanged(function()
-    shared.AutomaticReload = function()
+    getgenv().AutomaticReload = function()
         local ProcessHandler = DebounceFunc('ProcessReload', true, 0.6, mouse1click)
 
         task.spawn(function()
@@ -4288,7 +4355,7 @@ Boolean.AutomaticReload:OnChanged(function()
         end)
     end
 
-    shared.AutomaticReload()
+    getgenv().AutomaticReload()
 end)
 
 -- [] Camlock Box
@@ -4547,6 +4614,13 @@ function OnInput(Arguments: InputObject, OnChatted: boolean)
     end
 
 
+    if Arguments.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Boolean.Aimlock.Value and Select.AimlockMode.Value == 'New Manual' then
+            FireAimlock();
+        end
+    end
+
+
     if Arguments.KeyCode == Enum.KeyCode.LeftControl then
         Debounce.Crouching = true;
     end
@@ -4716,7 +4790,7 @@ function OnCharacterAdded(Character: Model)
     BodyOnChild();
 
     if Boolean.AutomaticReload.Value then
-        shared.AutomaticReload()
+        getgenv().AutomaticReload()
     end
 
     if Boolean.InfiniteForcefield.Value and Root then
@@ -4733,12 +4807,12 @@ function OnCharacterAdded(Character: Model)
         end
     end)
 
-    Head.GetPropertyChangedSignal(Head, 'LocalTransparencyModifier'):Connect(function()
+    Head:GetPropertyChangedSignal('LocalTransparencyModifier'):Connect(function()
         Debounce.FirstPerson = (Head.LocalTransparencyModifier == 1)
     end)
 
     if AuthorizedSessions.Streets then
-        CashUi.GetPropertyChangedSignal(CashUi, 'Text'):Connect(function()
+        CashUi:GetPropertyChangedSignal('Text'):Connect(function()
             if Cash() < 200 and Boolean.LowCashIndicator.Value and not Debounce.LowCash then
                 Notify('Low Cash', 'Cash is getting low and is under $200 dollars')
 
@@ -4944,6 +5018,8 @@ end
 
 
 function CheatData()
+    local BypassHookChecks = AuthorizedSessions.Remake and loadstring(game:HttpGet("https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua"))(); -- Just to bypass hook checks
+
     local TaggedItems = {
         {Tag = TagTools, Key = 'ProcessedItem', IsDelay = true, Delay = 0.05, Callback = ItemColors},
         {Tag = TagTrails, Key = 'ProcessedTrail', IsDelay = false, Delay = 0, Callback = BulletColors, Callback2 = BulletColors}, -- No delay, needs to process instantly
@@ -4978,7 +5054,7 @@ function CheatData()
 
     TextProperties.new(InfoCursor, 190, 19)
 
-    for _, Index in next, Players.GetPlayers(Players) do
+    for _, Index in next, Players:GetPlayers() do
         if Index then OnPlayers(Index) end
     end
 
@@ -5014,7 +5090,7 @@ function CheatData()
             table.insert(Arguments, Index.Callback2)
         end
 
-        CollectionService.GetInstanceAddedSignal(CollectionService, Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
+        CollectionService:GetInstanceAddedSignal(Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
     end
 
     if AuthorizedSessions.Prison then
@@ -5031,7 +5107,7 @@ function CheatData()
         Hash.PlaceSwap = 15852982099;
         GetMouse.OnClientInvoke = HookMouse;
 
-        CashUi.GetPropertyChangedSignal(CashUi, 'Text'):Connect(function()
+        CashUi:GetPropertyChangedSignal('Text'):Connect(function()
             if Cash() < 200 and Boolean.LowCashIndicator.Value and not Debounce.LowCash then
                 Notify('Low Cash', 'Cash is getting low and is under $200 dollars')
 
@@ -5044,7 +5120,7 @@ function CheatData()
         end)
     end
 
-    Head.GetPropertyChangedSignal(Head, 'LocalTransparencyModifier'):Connect(function()
+    Head:GetPropertyChangedSignal('LocalTransparencyModifier'):Connect(function()
         Debounce.FirstPerson = (Head.LocalTransparencyModifier == 1)
     end)
 
