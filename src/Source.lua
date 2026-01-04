@@ -1398,7 +1398,7 @@ function UpdateEsp()
         local UserId = Property and Property.UserId;
 
         local Creator = CreatorCheck(UserId)
-        local Moderator = Boolean.AdminDetection.Value and AdminCheck(UserId)
+        local Moderator = Boolean.AdminDetection.Value and AdminCheck(UserId, Property)
         local KosCheck = Boolean.KosCheck.Value and KosCheck(UserId)
 
         local EspHumanoid = Player and Player:FindFirstChildOfClass('Humanoid')
@@ -2187,8 +2187,12 @@ function TeleportBypass()
 end
 
 
-function AdminCheck(UserId: number) : boolean
-    if Moderators[UserId] or ((AuthorizedSessions.Prison and Moderators.Prison[UserId]) or (AuthorizedSessions.Streets and Moderators.Streets[UserId])) then
+function AdminCheck(UserId: number, Player: Player) : boolean
+    if not AuthorizedSessions.Remake and Moderators[UserId] or ((AuthorizedSessions.Prison and Moderators.Prison[UserId]) or (AuthorizedSessions.Streets and Moderators.Streets[UserId])) then
+        return true
+    end
+
+    if AuthorizedSessions.Remake and Player:IsInGroupAsync(34316646) then
         return true
     end
 end
@@ -4527,16 +4531,16 @@ Boolean.AdminDetection:OnChanged(function()
 
         local UserId = Player.UserId
 
-        if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
-        if not Boolean.AdminDetection.Value and AdminCheck(UserId) then
+        if not Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
             RemoveEsp(Player)
         end
 
         Player.CharacterAdded:Connect(function()
-            if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+            if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
                 AddEsp(Player)
             end
         end)
@@ -4839,7 +4843,7 @@ function OnPlayerAdded(Player: Player)
 
     Player:SetAttribute('Knocked', false);
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
         AddEsp(Player)
 
         Notify('Admin Detection', 'Admin: '.. Player.Name .. ' has joined')
@@ -4897,7 +4901,7 @@ function OnPlayerAdded(Player: Player)
     end
 
     Player.CharacterAdded:Connect(function(Character: Model)
-        if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
@@ -4920,7 +4924,7 @@ function OnPlayerRemoving(Player: Player)
     local _Player = Player and tostring(Player);
     local UserId = Player and Player.UserId;
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
         Notify('Admin Detection', 'Admin: '.. tostring(Player.Name) .. ' has left')
     end
 
@@ -4969,7 +4973,7 @@ function OnPlayers(Player: Player)
     if not Player then return end
     local UserId = Player and Player.UserId;
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
         AddEsp(Player)
 
         Notify('Admin Detection', 'Admin: ' .. tostring(Player.Name) .. ' is in game')
@@ -5000,7 +5004,7 @@ function OnPlayers(Player: Player)
     SendKnockedAttributes(Player, _Character)
 
     Player.CharacterAdded:Connect(function(Character: Model)
-        if Boolean.AdminDetection.Value and AdminCheck(UserId) then
+        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
