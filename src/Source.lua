@@ -206,11 +206,11 @@ local ScriptNames = {[1] = 'mawborn'; [2] = 'mawborn.xml'; [3] = 'Mawborn'}
 local AuthorizedSessions = {
     Streets = Place == 455366377,
     Prison = Place == 15852982099,
-    Remake = Place == 104558503688829,
+    Remake = Place == 81769606750513,
 
     Both = Place == 455366377 or Place == 15852982099,
-    BothPrisons = Place == 15852982099 or Place == 104558503688829,
-    All = Place == 455366377 or Place == 15852982099 or Place == 104558503688829,
+    BothPrisons = Place == 15852982099 or Place == 81769606750513,
+    All = Place == 455366377 or Place == 15852982099 or Place == 81769606750513,
 }
 
 local Creators = {
