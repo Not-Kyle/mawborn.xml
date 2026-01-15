@@ -1,3 +1,22 @@
+local Service = setmetatable({}, {
+    __index = function(self: Instance, ...)
+        local Arguments = {...}
+        local Key = select(1, Arguments);
+
+        local Result = game:GetService(Key);
+        
+        if cloneref then
+            return cloneref(Result);
+        end
+
+        rawset(self, Arguments, Result);
+        return Result;
+    end
+})
+
+local StarterGui = Service.StarterGui;
+local Messagebox = messagebox or messageboxasync;
+
 local Std = {};
 Std.__index = Std;
 
@@ -14,6 +33,79 @@ end
 function Std:Error(...)
     self.LastMessage = select(1, ...);
     error(select(1, ...));
+end
+
+function Std:MessageBox(Message: string, Title: string, Flag: number, Notify: boolean, Function: any)
+    Function = Function or function() end
+
+    if getgenv().MessageIsUsable then
+        return Messagebox(Message, Title, Flag)
+
+    else
+        local function NotifyMessageBox(Title: string, Text: string, Flag: number, Func: any)
+            Func = Func or function() end
+            local Options = {};
+
+            local BindableFunction = Instance.new('BindableFunction')
+            BindableFunction.OnInvoke = Func;
+
+            if Flag == 0 or nil then
+                Options.One = 'OK'
+
+            elseif Flag == 1 then
+                Options.One = 'OK'
+                Options.Two = 'Cancel'
+
+            elseif Flag == 2 then
+                Options.One = 'Abort'
+                Options.Two = 'Retry'
+                Options.Three = 'Ignore'
+
+            elseif Flag == 3 then
+                Options.One = 'Yes'
+                Options.Two = 'No'
+                Options.Three = 'Cancel'
+
+            elseif Flag == 4 then
+                Options.One = 'Yes'
+                Options.Two = 'No'
+
+            elseif Flag == 5 then
+                Options.One = 'Retry'
+                Options.Two = 'Cancel'
+
+            elseif Flag == 6 then
+                Options.One = 'Cancel'
+                Options.Two = 'Try Again'
+                Options.Three = 'Continue'
+            
+            elseif Flag == 7 then
+                return
+            end
+
+            if Notify then
+                StarterGui:SetCore('SendNotification', {
+                    Title = Title;
+                    Text = Text;
+                    Duration = 20;
+                    Button1 = Options.One;
+                    Button2 = Options.Two;
+                    Button3 = Options.Three;
+                    Callback = BindableFunction;
+                })
+            end
+        end
+
+        return NotifyMessageBox(Title, Message, Flag, Function)
+    end
+
+    --[[
+        MessageBox('Text', 'Title', 0, true, function()
+            if not getgenv().MessageIsUsable then
+                Logger:Warning('No Messageboxasync')
+            end
+        end)
+    ]]--
 end
 
 return Std;
