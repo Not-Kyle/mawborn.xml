@@ -41,11 +41,11 @@ task.spawn(function()
     local Connection, Contents = pcall(readfile, File)
 
     if Connection then
-        local JSON_Decode = HttpService:JSONDecode(Contents)
+        local Decode = HttpService:JSONDecode(Contents)
 
         for Index, _ in next, Config do
-            if JSON_Decode[Index] then
-                Config[Index] = JSON_Decode[Index]
+            if Decode[Index] then
+                Config[Index] = Decode[Index]
             end
         end
 
