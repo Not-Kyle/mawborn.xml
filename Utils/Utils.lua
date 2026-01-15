@@ -15,6 +15,7 @@ local Service = setmetatable({}, {
 })
 
 local Workspace = Service.Workspace;
+local MarketplaceService = Service.MarketplaceService;
 
 local Place = game.PlaceId;
 local Camera = Workspace and Workspace.CurrentCamera;
@@ -33,6 +34,18 @@ local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/re
 
 function Logger:FWarning(Name: string, Message: string)
     return Logger:Warning(string.format('[%s]: %'), Name, Message)
+end
+
+
+function Utils.GameTitle()
+    return MarketplaceService and Place and MarketplaceService:GetProductInfo(Place).Name or 'N/A';
+end
+
+
+function Utils.Title(State: number, CustomText: string) : string
+    local ScriptNames = {[1] = 'mawborn', [2] = 'mawborn.xml', [3] = 'Mawborn'};
+
+    return ScriptNames[State] or CustomText;
 end
 
 
