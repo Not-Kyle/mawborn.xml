@@ -54,3 +54,5 @@ task.spawn(function()
         UpdateFile();
     end
 end)
+
+return Config;
