@@ -1,4 +1,5 @@
 local Std = {};
+Std.__index = Std;
 
 function Std:Cout(...)
     self.LastMessage = select(1, ...);
