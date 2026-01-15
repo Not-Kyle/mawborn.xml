@@ -15,6 +15,7 @@ local Service = setmetatable({}, {
 })
 
 local Workspace = Service.Workspace;
+local ReplicatedStorage = Service.ReplicatedStorage;
 local MarketplaceService = Service.MarketplaceService;
 
 local Place = game.PlaceId;
@@ -30,6 +31,73 @@ Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
+local Creators = {
+    [5388525718]  = {Name = 'hellokittysouljia'},
+    [7705935312]  = {Name = 'mawborn'},
+}
+
+local Moderators = { -- Don't care about remake, gets taken down in 30 mins xd
+    -- Level Definitions:
+    -- 5 = Owner
+    -- 4 = Close with Owner
+    -- 3 = Mod (Can Ban)
+    -- 2 = Kick Only
+    -- 1 = Grey Loot Commands
+
+    -- Global Moderators
+    [57372642]  = {Name = 'Kotojo', Level = 5},
+    [155145543] = {Name = 'Kaiits', Level = 4},
+    [853076852] = {Name = 'Kaiits', Level = 4},
+    [5162665695] = {Name = 'Cyrus', Level = 4},
+    [14321011]  = {Name = 'AfroVs', Level = 4},
+
+    -- Unknown Game Mods []
+    [3631092729] = {Name = 'pawscribble', Level = 3},
+    [680122427]  = {Name = 'chibisanu', Level = 3},
+
+    Prison = {
+        --[4370541]     = {Name = 'Chosen', Level = 3},
+        [2323183756] = {Name = 'e8llie', Level = 3},
+        [74287496]   = {Name = 'ImmScarrr', Level = 3},
+        --[1189253064]  = {Name = 'digitalbows', Level = 3}, -- Unconfirmed but was in godmode when trying to kill
+        --[7763803027]  = {Name = 'dttmfocus', Level = 3}, -- Also Unconfirmed but told by a player
+        --[1395662432]  = {Name = 'randosewru', Level = 3},
+        --[7118197747]  = {Name = 'running50fpsoneu', Level = 3}, -- No longer a mod
+        --[5836017791]  = {Name = 'Momentshaspast', Level = 3},
+        --[79746858]    = {Name = 'digitalboyheart', Level = 3},
+        --[50098375]    = {Name = 'restwellkris', Level = 3},
+    },
+
+    Streets = {
+        [90384746]    = {Name = 'Futures_Society', Level = 3},
+        [141968373]   = {Name = 'OG_Thechosenone', Level = 3},
+        [2830267496]  = {Name = 'lxxlikeheaven', Level = 3},
+        [428555337]   = {Name = 'progamerpvp137', Level = 3},
+        [8942221725]  = {Name = 'livemassacre', Level = 3},
+    }
+}
+
+local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs through files, will add someone automatically if I say so, by notification? Still thinking of ideas
+    -- Levels:
+    -- Level 3: Kill on sight or for a friend
+    -- Level 2: Should probably kill this person
+    -- Level 1: A bit annoying but can live
+    -- Level 0: Troll or make mad
+
+    [43377200]  = {Name = 'cosmicman233', Reason = 'A complete spurg', Level = 2},
+
+    [105026789]  = {Name = 'dnd01092', Reason = 'Legit fight, big mouth (Funny when mad)', Level = 1},
+    [202232476]  = {Name = 'Moxris', Reason = 'Being a sped', Level = 1},
+    [5579968613]  = {Name = 'coastalgroove', Reason = 'Being a sped', Level = 1},
+
+    [1372774669] = {Name = 'aacidbathfan', Reason = 'Funny to get mad', Level = 0},
+    [1925953479] = {Name = 'vcsxadf AKA Bot', Reason = 'Call him a pedophile and he will crumble like a cookie, funny to mess with', Level = 0}, -- "Watches The Streets for pedophiles" he says. What a hero
+    [1114660918] = {Name = 'meowingforzay', Reason = 'Extremly funny', Level = 0},
+    [648643534]  = {Name = 'meowingforjes', Reason = 'Jes bf? Whoever Jes is but funny to make mad', Level = 0},
+    [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
+}
+
+
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
 
 function Logger:FWarning(Name: string, Message: string)
@@ -37,7 +105,32 @@ function Logger:FWarning(Name: string, Message: string)
 end
 
 
-function Utils.GameTitle()
+function Utils.Mods(Specific: boolean) : table
+    Specific = Specific or true; -- Usually true
+
+    if Specific then
+        if Utils.Streets then
+            return Moderators.Streets;
+        end
+
+        return Moderators.Prison;
+    end
+
+    return Moderators;
+end
+
+
+function Utils.Kos() : table
+    return TempKos;
+end
+
+
+function Utils.Creators() : table
+    return Creators;
+end
+
+
+function Utils.GameTitle() : string
     return MarketplaceService and Place and MarketplaceService:GetProductInfo(Place).Name or 'N/A';
 end
 
@@ -47,6 +140,11 @@ function Utils.Title(State: number, CustomText: string) : string
 
     return ScriptNames[State] or CustomText;
 end
+
+
+function Utils.TagSystem() : ModuleScript
+    return Utils.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem'))
+end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
 
 
 function Utils.Body(Player: Player, Name: string) : Model
