@@ -15,9 +15,19 @@ local Service = setmetatable({}, {
 })
 
 local Workspace = Service.Workspace;
+
+local Place = game.PlaceId;
 local Camera = Workspace and Workspace.CurrentCamera;
 
 local Utils = {};
+
+Utils.Streets = Place == 455366377;
+Utils.Prison = Place == 15852982099;
+Utils.Remake = Place == 81769606750513;
+
+Utils.BothOriginal = Utils.Streets or Utils.Prison;
+Utils.BothPrisons = Utils.Prison or Utils.Remake;
+Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
 
