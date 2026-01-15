@@ -1,24 +1,18 @@
 local Std = {};
 
 function Std:Cout(...)
-    local Arguments = { ... }
-
-    self.LastMessage = select(1, Arguments);
-    print(select(1, Arguments));
+    self.LastMessage = select(1, ...);
+    print(select(1, ...));
 end
 
 function Std:Warning(...)
-    local Arguments = { ... }
-
-    self.LastMessage = select(1, Arguments);
-    warn(select(1, Arguments));
+    self.LastMessage = select(1, select(1, ...));
+    warn(select(1, select(1, ...)));
 end
 
 function Std:Error(...)
-    local Arguments = { ... }
-
-    self.LastMessage = select(1, Arguments);
-    error(select(1, Arguments));
+    self.LastMessage = select(1, select(1, ...));
+    error(select(1, select(1, ...)));
 end
 
 return Std;
