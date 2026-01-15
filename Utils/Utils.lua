@@ -14,14 +14,28 @@ local Service = setmetatable({}, {
     end
 })
 
-local Workspace = Service.Workspace;
-local ReplicatedStorage = Service.ReplicatedStorage;
-local MarketplaceService = Service.MarketplaceService;
+local Utils = {
+    Stats = Service.Stats,
+    CoreGui = Service.CoreGui,
+    Players = Service.Players,
+    Lighting = Service.Lighting,
+    Workspace = Service.Workspace,
+    GuiService = Service.GuiService,
+    RunService = Service.RunService,
+    StarterGui = Service.StarterGui,
+    HttpService = Service.HttpService,
+    TweenService = Service.TweenService,
+    ScriptContext = Service.ScriptContext,
+    TeleportService = Service.TeleportService,
+    TextChatService = Service.TextChatService,
+    UserInputService = Service.UserInputService,
+    CollectionService = Service.CollectionService,
+    ReplicatedStorage = Service.ReplicatedStorage,
+    ProximityPromptService = Service.ProximityPromptService,
+};
 
 local Place = game.PlaceId;
-local Camera = Workspace and Workspace.CurrentCamera;
-
-local Utils = {};
+local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
 
 Utils.Streets = Place == 455366377;
 Utils.Prison = Place == 15852982099;
@@ -131,9 +145,13 @@ end
 
 
 function Utils.GameTitle() : string
-    return MarketplaceService and Place and MarketplaceService:GetProductInfo(Place).Name or 'N/A';
+    return Utils.MarketplaceService and Place and Utils.MarketplaceService:GetProductInfo(Place).Name or 'N/A';
 end
 
+
+function Utils.Clipboard(Message: string)
+    return (setclipboard or syn.write_clipboard or set_clipboard)(Message);
+end
 
 function Utils.Title(State: number, CustomText: string) : string
     local ScriptNames = {[1] = 'mawborn', [2] = 'mawborn.xml', [3] = 'Mawborn'};
@@ -143,7 +161,7 @@ end
 
 
 function Utils.TagSystem() : ModuleScript
-    return Utils.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem'))
+    return Utils.Streets and Utils.ReplicatedStorage and require(Utils.ReplicatedStorage:FindFirstChild('TagSystem'))
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
 
 
@@ -198,9 +216,9 @@ function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolea
     RaycastParmam.FilterDescendantsInstances = {Camera, Body, Character};
 
     local Direction = (Part.Position - Camera.CFrame.Position);
-    local Result = Workspace:Raycast(Camera.CFrame.Position, Direction, RaycastParmam);
+    local Result = Utils.Workspace:Raycast(Camera.CFrame.Position, Direction, RaycastParmam);
 
     return not Result;
-end
+end -- Body = Myself, Character = Other Player
 
 return Utils;
