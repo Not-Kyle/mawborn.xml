@@ -4,6 +4,8 @@ local LastCommandTime = 0;
 local Commands = {};
 local CommandHandler = {};
 
+local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua')
+
 function CommandHandler.Add(...) -- Reworked version of Ciazware command handler
     local Arguments = { ... };
     local CommandNet = {};
@@ -24,7 +26,6 @@ function CommandHandler.Add(...) -- Reworked version of Ciazware command handler
     Commands[#Commands + 1] = CommandNet;
 end
 
-
 function CommandHandler.Index(Arguments: string)
     for _, Index in next, Commands do
         if Index.Name == Arguments or (Index.Alias and table.find(Index.Alias, Arguments)) then
@@ -32,7 +33,6 @@ function CommandHandler.Index(Arguments: string)
         end
     end
 end
-
 
 function CommandHandler.Execute(Arguments: string)
     local Success, Error = pcall(function()
@@ -54,7 +54,7 @@ function CommandHandler.Execute(Arguments: string)
     end)
 
     if not Success then
-        warn(Error);
+        Logger:Warning(Error);
     end
 end
 
