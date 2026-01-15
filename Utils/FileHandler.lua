@@ -21,7 +21,7 @@ local File = Folder .. '/source.xml';
 
 local Config = {AutoExecute = true};
 
-local function UpdateFile()
+function Config:UpdateFile()
     return writefile and writefile(File, HttpService:JSONEncode(Config));
 end
 
@@ -49,9 +49,9 @@ task.spawn(function()
             end
         end
 
-        UpdateFile();
+        Config:UpdateFile();
     else
-        UpdateFile();
+        Config:UpdateFile();
     end
 end)
 
