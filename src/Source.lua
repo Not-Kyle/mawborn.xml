@@ -53,7 +53,11 @@ local Trace = setmetatable({}, {
         local Arguments = {...}
         rawset(self, Arguments, Arguments[1])
         
-        return game:GetService(Arguments[1]);
+        if not cloneref then
+            return game:GetService(Arguments[1]);
+        end
+
+        return cloneref(game:GetService(Arguments[1]));
     end
 })
 
