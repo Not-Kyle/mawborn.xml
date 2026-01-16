@@ -1,3 +1,4 @@
+local HapticService = game:GetService("HapticService")
 --[[ TODO:
 Add A damage meter (Maybe a calculation that will tell you how many more hits out of the item you're holding to KO the player)
 Add an Autostomp (Add whitelist to it)
@@ -1197,10 +1198,10 @@ local function Fly()
     local Att0 = Torso:FindFirstChild('Att0')
     local Att1 = Torso:FindFirstChild('Att1')
 
-    if Boolean.Flying.Value 
-        and not AlignOrientation 
-        and not BodyVelocity 
-        and not Float 
+    if Boolean.Flying.Value
+        and not AlignOrientation
+        and not BodyVelocity
+        and not Float
         and not Att0
         and not Att1 then
             
@@ -1250,47 +1251,52 @@ local function Fly()
             Parent = Torso;
         })
 
-        getgenv().UpdateFly = function()
-            local FlySpeed = (Select.FlySpeed.Value or 4) * 25;
+        Hash.BodyVelocity = BodyVelocity;
+        Hash.AlignOrientation = AlignOrientation;
+        Hash.Float = Float;
+        Hash.Att0 = Att0;
+        Hash.Att1 = Att1;
+    end
+end
 
-            local YAxis = math.atan2(-Camera.CFrame.LookVector.X, -Camera.CFrame.LookVector.Z)
-            local TorsoAngles = CFrame.new(Torso.Position) * CFrame.Angles(0, YAxis, 0);
-            local FlyVelocity = -Vector3.yAxis
-            
-            Humanoid.PlatformStand = false;
-            FloatPart.CFrame = Torso.CFrame * CFrame.new(0,-3.5,0)
 
-            if Movement.W then FlyVelocity += Camera.CFrame.LookVector * FlySpeed end
-            if Movement.A then FlyVelocity += Camera.CFrame.RightVector * -FlySpeed end
-            if Movement.S then FlyVelocity += Camera.CFrame.LookVector * -FlySpeed end
-            if Movement.D then FlyVelocity += Camera.CFrame.RightVector * FlySpeed end
+local function UpdateFly()
+    if not (Hash.BodyVelocity or Hash.AlignOrientation or Hash.Float or Hash.Att0 or Hash.Att1) then
+        return
+    end
 
-            if not (Movement.W or Movement.A or Movement.S or Movement.D) then
-                FlyVelocity = Vector3.zero
-            end
+    local FlySpeed = (Select.FlySpeed.Value or 4) * 25;
 
-            FlightVelocity.Velocity = FlyVelocity
-            Attachment1.CFrame = TorsoAngles:ToObjectSpace(FloatPart.CFrame)
+    local YAxis = math.atan2(-Camera.CFrame.LookVector.X, -Camera.CFrame.LookVector.Z)
+    local TorsoAngles = CFrame.new(Torso.Position) * CFrame.Angles(0, YAxis, 0);
+    local FlyVelocity = -Vector3.yAxis
+    
+    Humanoid.PlatformStand = false;
+    Hash.Float.CFrame = Torso.CFrame * CFrame.new(0,-3.5,0)
 
-            if Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
-                Torso.CFrame += Vector3.new(0, 0.2, 0)
-            end
-        end
+    if Movement.W then FlyVelocity += Camera.CFrame.LookVector * FlySpeed end
+    if Movement.A then FlyVelocity += Camera.CFrame.RightVector * -FlySpeed end
+    if Movement.S then FlyVelocity += Camera.CFrame.LookVector * -FlySpeed end
+    if Movement.D then FlyVelocity += Camera.CFrame.RightVector * FlySpeed end
+
+    if not (Movement.W or Movement.A or Movement.S or Movement.D) then
+        FlyVelocity = Vector3.zero
+    end
+
+    Hash.BodyVelocity.Velocity = FlyVelocity
+    Hash.Att1.CFrame = TorsoAngles:ToObjectSpace(Hash.Float.CFrame)
+
+    if Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
+        Torso.CFrame += Vector3.new(0, 0.2, 0)
     end
 end
 
 
 local function KillFly()
     if not (Torso or Humanoid) then return end
-
-    local BodyVelocity = Torso and Torso:FindFirstChildOfClass('BodyVelocity')
-    local AlignOrientation = Torso and Torso:FindFirstChildOfClass('AlignOrientation')
-    local Float = Body and Body:FindFirstChild('Float')
-    local Att0 = Torso and Torso:FindFirstChild('Att0')
-    local Att1 = Torso and Torso:FindFirstChild('Att1')
     
-    if not (BodyVelocity or AlignOrientation or Att0 or Att1 or Float) then 
-        return 
+    if not (Hash.BodyVelocity or Hash.AlignOrientation or Hash.Float or Hash.Att0 or Hash.Att1) then
+        return
     end
     
     if Debounce.HadLoopBlinkOn then 
@@ -1300,11 +1306,11 @@ local function KillFly()
 
     Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 
-    BodyVelocity.Parent = nil;
-    AlignOrientation.Parent = nil;
-    Att0.Parent = nil;
-    Att1.Parent = nil;
-    Float.Parent = nil;
+    Hash.BodyVelocity.Parent = nil;
+    Hash.AlignOrientation.Parent = nil;
+    Hash.Att0.Parent = nil;
+    Hash.Att1.Parent = nil;
+    Hash.Float.Parent = nil;
 end
 
 
@@ -1911,10 +1917,6 @@ local function FindPlayersPart(Player: Player, Type: string, Part: string, Desce
     end
 
     Logger:Cout(debug.traceback())
-end
-
-
-function TeleportBypass()
 end
 
 
@@ -3022,14 +3024,6 @@ do
     end)
 
 
-    CommandHandler.Add('tpbypass', {'tpb', 'bypass'}, 'Bypasses anti-teleportation anticheats', '', true, function()
-        Boolean.TpBypass.Value = not Boolean.TpBypass.Value
-        TeleportBypass();
-
-        Notify('Teleport Bypass','Teleport Bypass is now '..tostring(Boolean.TpBypass.Value))
-    end)
-
-
     CommandHandler.Add('infzoom', {'infinitezoom'}, 'Allows you to zoom out into infinity', '', true, function()
         SetInfinityZoom(Boolean.InfiniteZoom.Value)
         Notify('Infinite Zoom','Infinite Zoom is now '..tostring(Boolean.InfiniteZoom.Value))
@@ -4031,9 +4025,7 @@ end)
 -- Movement [] TpBypass Box
 
 Boolean.TpBypass:OnChanged(function()
-    TeleportBypass();
-
-    Notify('Teleport Bypass','Teleport Bypass is now '..tostring(Boolean.TpBypass.Value))
+    Notify('Teleport Bypass', 'Teleport Bypass does not exist in public verison')
 end)
 
 -- [] Auto Execute
