@@ -37,20 +37,6 @@ Change calls to being OOP
 
 print('Debugging Test 0'); -- hoyl fuck i forgot
 
-if getgenv().MawbornLoaded then
-    return
-end
-
-
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-
-local OsTime = (tick or os and os.time)()
-
-getgenv().MawbornLoaded = true;
-
 print('Debugging Test 1'); -- hoyl fuck i forgot
 local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
 print('Debugging Test 2');
@@ -66,6 +52,8 @@ local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawbor
 print('Debugging Test 7');
 local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 print('Debugging Test 8');
+
+local OsTime = (tick or os and os.time)()
 
 local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse do
     Host = Utils.Players and Utils.Players.LocalPlayer;
