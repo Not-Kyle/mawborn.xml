@@ -244,11 +244,11 @@ task.delay(2, function()
     end
 end)
 
-local Network = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Network.lua');
-local Watermark = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Watermark.lua')
-local Menu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/NewMenu.lua')
-local FileMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Files.lua')
-local ThemeMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Themes.lua')
+local Network = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Network.lua');
+local Watermark = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Watermark.lua')
+local Menu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/NewMenu.lua')
+local FileMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Files.lua')
+local ThemeMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Themes.lua')
 
 local mawborn = mawborn;
 
