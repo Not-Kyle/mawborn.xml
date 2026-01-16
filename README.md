@@ -43,7 +43,7 @@
 # Updates <br />
 
 >[!NOTE]
-> ### 0.9.97
+> ### Version: 0.9.97
 > 1. Converted script into OOP, now safer, faster and fixed some bugs
 >
 > 2. Reverted almost all globals into locals
