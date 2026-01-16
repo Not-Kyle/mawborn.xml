@@ -1,16 +1,13 @@
 local Service = setmetatable({}, {
     __index = function(self: Instance, ...)
         local Arguments = {...}
-        local Key = select(1, Arguments);
-
-        local Result = game:GetService(Key);
+        rawset(self, Arguments, Arguments[1])
         
-        if cloneref then
-            return cloneref(Result);
+        if not cloneref then
+            return game:GetService(Arguments[1]);
         end
 
-        rawset(self, Arguments, Result);
-        return Result;
+        return cloneref(game:GetService(Arguments[1]));
     end
 })
 
@@ -133,14 +130,38 @@ function Utils.Mods(Specific: boolean) : table
     return Moderators;
 end
 
+function Utils.AdminCheck(UserId: number, Player: Player) : boolean
+    if not Utils.Remake and Utils.Mods()[UserId] or ((Utils.Prison and Utils.Mods().Prison[UserId]) or (Utils.Streets and Utils.Mods().Streets[UserId])) then
+        return true
+    end
+
+    if Utils.Remake and Player:IsInGroupAsync(34316646) then
+        return true
+    end
+end
+
 
 function Utils.Kos() : table
     return TempKos;
 end
 
 
+function Utils.KosCheck(UserId: number) : boolean
+    if TempKos[UserId] then
+        return true
+    end
+end
+
+
 function Utils.Creators() : table
     return Creators;
+end
+
+
+function Utils.CreatorCheck(UserId: number) : boolean
+    if Creators[UserId] then
+        return true
+    end
 end
 
 
@@ -210,6 +231,7 @@ function Utils.Head(Player: Player) : BasePart
     return Character:FindFirstChild('Head')
 end
 
+
 function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolean
     local RaycastParmam = RaycastParams.new();
     RaycastParmam.FilterType = Enum.RaycastFilterType.Blacklist;
@@ -220,5 +242,16 @@ function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolea
 
     return not Result;
 end -- Body = Myself, Character = Other Player
+
+
+function Utils.KnockedCheck(Player: Player)
+    if not Player then return end
+
+    Player:SetAttribute('Knocked', false)
+
+    if Utils.Head(Player):FindFirstChild('Bone', true) then
+        Player:SetAttribute('Knocked', true)
+    end
+end
 
 return Utils;
