@@ -109,11 +109,7 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
 
-print('UTILS NOT LOADED')
-
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
-
-print('UTILS NOT LOADED 1')
 
 function Logger:FWarning(Name: string, Message: string)
     return Logger:Warning(string.format('[%s]: %'), Name, Message)
@@ -124,7 +120,7 @@ function Utils.AddService(Service: string)
     return Service[Service];
 end
 
-print('UTILS NOT LOADED 2')
+
 function Utils.Mods(Specific: boolean) : table
     Specific = Specific or true; -- Usually true
 
@@ -149,7 +145,7 @@ function Utils.AdminCheck(UserId: number, Player: Player) : boolean
     end
 end
 
-print('UTILS NOT LOADED 3')
+
 function Utils.Kos() : table
     return TempKos;
 end
@@ -161,7 +157,7 @@ function Utils.KosCheck(UserId: number) : boolean
     end
 end
 
-print('UTILS NOT LOADED 4')
+
 function Utils.Creators() : table
     return Creators;
 end
@@ -172,7 +168,7 @@ function Utils.CreatorCheck(UserId: number) : boolean
         return true
     end
 end
-print('UTILS NOT LOADED 5')
+
 
 function Utils.GameTitle() : string
     return Utils.MarketplaceService and Place and Utils.MarketplaceService:GetProductInfo(Place).Name or 'N/A';
@@ -183,7 +179,7 @@ function Utils.Clipboard(Message: string)
     return (setclipboard or syn.write_clipboard or set_clipboard)(Message);
 end
 
-print('UTILS NOT LOADED 6')
+
 function Utils.Title(State: number, CustomText: string) : string
     local ScriptNames = {[1] = 'mawborn', [2] = 'mawborn.xml', [3] = 'Mawborn'};
 
@@ -195,7 +191,7 @@ function Utils.TagSystem() : ModuleScript
     return Utils.Streets and Utils.ReplicatedStorage and require(Utils.ReplicatedStorage:FindFirstChild('TagSystem'))
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
 
-print('UTILS NOT LOADED 7')
+
 function Utils.GetName(Player: Player) : string
     return Player and Player.Name;
 end
@@ -215,7 +211,7 @@ function Utils.Body(Player: Player, Name: string) : Model
     return Player.Character or Player.CharacterAdded:Wait();
 end
 
-print('UTILS NOT LOADED 8')
+
 function Utils.Root(Player: Player) : BasePart
     local Character = Utils.Body(Player, 'Utils.Root')
 
@@ -240,7 +236,7 @@ function Utils.Humanoid(Player: Player) : Humanoid
     return Character:FindFirstChildOfClass('Humanoid')
 end
 
- print('UTILS NOT LOADED 9')
+
 function Utils.Head(Player: Player) : BasePart
     local Character = Utils.Body(Player, 'Utils.Head')
 
@@ -273,7 +269,5 @@ function Utils.KnockedCheck(Player: Player)
         Player:SetAttribute('Knocked', true)
     end
 end
-
-print('UTILS LOADED')
 
 return Utils;
