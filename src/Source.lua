@@ -122,7 +122,6 @@ local ClipboardTarget;
 local CycleHSV;
 local EspTarget;
 local JumpConnection;
-local KickPlayerTarget;
 local Ping;
 local TeleportTarget;
 local UserIdTarget;
@@ -159,7 +158,7 @@ local Colors = {
     MouseColorOff = Color3.fromRGB(170, 170, 255),
     MouseColorOffTint = Color3.fromRGB(120, 120, 255),
     MouseColorOn = Color3.fromRGB(255, 0, 0),
-    MxouseColorOnTint = Color3.fromRGB(200, 0, 0),
+    MouseColorOnTint = Color3.fromRGB(200, 0, 0),
 }
 
 local Items = {
