@@ -4638,7 +4638,7 @@ Host.OnTeleport:Connect(function()
     if QueueOnTeleport and FileHandler.AutoExecute then
         repeat Utils.RunService.Heartbeat:Wait() until game:IsLoaded()
 
-        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Loadstring.lua"))()');
+        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/batch/5e18153/Lua/MawbornLoader.lua"))();');
         clearteleportqueue();
     end
 end)
