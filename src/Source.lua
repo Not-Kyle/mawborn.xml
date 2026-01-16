@@ -62,7 +62,7 @@ getgenv().Mawborn.Commands = true;
 getgenv().Mawborn.FileHandler = true;
 getgenv().Mawborn.TextProperties = true;
 getgenv().Mawborn.Library.String = true;
-getgenv().Mawborn.Library.Commands = true;
+getgenv().Mawborn.Library.Enumerations = true;
 
 local Host = Utils.Players and Utils.Players.LocalPlayer
 local Body, Head, Humanoid, Root, Torso
