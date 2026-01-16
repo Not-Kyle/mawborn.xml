@@ -621,7 +621,7 @@ end)
 -- Functions []
 
 local function Notify(Title: string, Text: string, Time: number)
-    if Menu.NotificationsEnabled and (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
+    if (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
         Menu:Notify(string.format('[%]: %s', Title, Text), Time or 2);
     end
 end
