@@ -1,17 +1,4 @@
-local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-        
-        if not cloneref then
-            return game:GetService(Arguments[1]);
-        end
-
-        return cloneref(game:GetService(Arguments[1]));
-    end
-})
-
-local HttpService = Service.HttpService;
+local HttpService = Utils.AddService('HttpService');
 
 local Folder = 'mawborn';
 local File = Folder .. '/source.xml';
