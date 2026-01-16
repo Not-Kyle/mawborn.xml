@@ -1,4 +1,4 @@
-if getgenv().Mawborn.Library.Commands then
+if getgenv().Mawborn.Library.Enumerations then
     return
 end
 
