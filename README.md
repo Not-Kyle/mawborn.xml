@@ -48,9 +48,9 @@
 >
 > 2. Reverted almost all globals into locals
 >
-> 3. Removed prison combatiblity (You will be kicked if you execute on prison for your own safety)
+> 3. Removed Prison combatiblity (You will be kicked if you execute on Prison for your own safety)
 >
-> 4. Prison has been rewritten and I will not be attempting a rewrite on mawborn for prison
+> 4. Prison has been rewritten and I will not be attempting a rewrite on Mawborn.xml for Prison
 
 
 # Loadstring <br />
