@@ -1,3 +1,5 @@
+local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
+
 local HttpService = Utils.AddService('HttpService');
 
 local Folder = 'mawborn';
