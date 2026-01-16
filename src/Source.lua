@@ -35,10 +35,9 @@ Change calls to being OOP
 > Groups (Used for groups)
 ]]--
 
-if getgenv().MawbornLoaded then
+if getgenv().Mawborn.Source then
     return
 end
-
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -47,7 +46,7 @@ end
 
 local OsTime = (tick or os and os.time)()
 
-getgenv().MawbornLoaded = true;
+getgenv().Mawborn.Source = true;
 
 local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
 local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
@@ -57,6 +56,12 @@ local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.x
 local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
 local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 
+getgenv().Mawborn.Utils = true;
+getgenv().Mawborn.Logger = true;
+getgenv().Mawborn.Commands = true;
+getgenv().Mawborn.FileHandler = true;
+getgenv().Mawborn.TextProperties = true;
+getgenv().Mawborn.Library.Commands = true;
 
 local Host = Utils.Players and Utils.Players.LocalPlayer
 local Body, Head, Humanoid, Root, Torso
@@ -212,15 +217,6 @@ local Circle = NewInstance('Draw', 'Circle', {
     ZIndex = 1;
     NumSides = 250;
 })
-
-task.delay(2, function()
-    while task.wait(0.5) do 
-        Import('https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua');
-
-        task.wait(10)
-        break;
-    end
-end)
 
 local Network = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Network.lua');
 local Watermark = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Watermark.lua')
