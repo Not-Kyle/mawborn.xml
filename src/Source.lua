@@ -1718,9 +1718,9 @@ local function UpdateInfoCursor()
     end
     
     if MouseTarget then
-        Hash.Head = MouseParent and Utils.Head(MouseParent.Parent);
-        Hash.Humanoid = MouseParent and Utils.Humanoid(MouseParent.Parent);
-        Hash.Root = MouseParent and Utils.Root(MouseParent.Parent);
+        Hash.Head = MouseParent and Utils.Head(MouseParent);
+        Hash.Humanoid = MouseParent and Utils.Humanoid(MouseParent);
+        Hash.Root = MouseParent and Utils.Root(MouseParent);
         Hash.BodyColors = MouseParent and MouseParent:FindFirstChild('Body Colors'); -- For those grey lifeless bodies at spawns
 
         if not (Hash.Head and Hash.Humanoid and Hash.Root) or MouseName == Host.Name then
