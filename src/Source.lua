@@ -43,24 +43,24 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
-
 local OsTime = (tick or os and os.time)()
 
 getgenv().Mawborn.Source = true;
 
-local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
-local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
-local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
-local String = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/String%20Lib.lua');
-local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/FileHandler.lua');
-local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
-local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
+local Enums = Import('Utils/Library/Enums.lua');
+local Utils = Import('Utils/Utils.lua');
+local Logger = Import('Utils/Logging.lua');
+local String = Import('Utils/Library/String Lib.lua');
+local FileHandler = Import('Utils/FileHandler.lua');
+local TextProperties = Import('Utils/TextProperties.lua');
+local CommandHandler = Import('Utils/Comands.lua');
 
 getgenv().Mawborn.Utils = true;
 getgenv().Mawborn.Logger = true;
 getgenv().Mawborn.Commands = true;
 getgenv().Mawborn.FileHandler = true;
 getgenv().Mawborn.TextProperties = true;
+
 getgenv().Mawborn.Library.String = true;
 getgenv().Mawborn.Library.Enumerations = true;
 
@@ -219,11 +219,11 @@ local Circle = NewInstance('Draw', 'Circle', {
     NumSides = 250;
 })
 
-local Network = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Network.lua');
-local Watermark = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Watermark.lua')
-local Menu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/NewMenu.lua')
-local FileMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Files.lua')
-local ThemeMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI/Themes.lua')
+local Network = Import('UI/Network.lua');
+local Watermark = Import('UI/Watermark.lua');
+local Menu = Import('UI/NewMenu.lua');
+local FileMenu = Import('UI/Files.lua');
+local ThemeMenu = Import('UI/Themes.lua');
 
 local mawborn = mawborn;
 
@@ -3029,12 +3029,12 @@ do
 
 
     CommandHandler.Add('remotespy', {'rspy'}, 'Allows you to spy on remotes', '', true, function() -- Just in here so I don't have to load IY
-        Import('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua');
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
     end)
 
 
     CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY 
-        Import('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'); -- If you saw my last comment, you're done
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))()
     end)
 
 
