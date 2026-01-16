@@ -47,23 +47,6 @@ end
 
 local OsTime = (tick or os and os.time)()
 
-
-local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        local Key = select(1, Arguments);
-
-        local Result = game:GetService(Key);
-        
-        if cloneref then
-            return cloneref(Result);
-        end
-
-        rawset(self, Arguments, Result);
-        return Result;
-    end
-})
-
 getgenv().MawbornLoaded = true;
 
 local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
