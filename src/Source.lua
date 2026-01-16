@@ -72,9 +72,9 @@ local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/re
 local String = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
 local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/FileHandler.lua');
 local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
-local CommandHandler, Commands = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
+local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 
-local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse, Stank do
+local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse do
     Host = Utils.Players and Utils.Players.LocalPlayer;
     Body = Host and Host.Character or Host.CharacterAdded:Wait();
     Head = Body and Body:WaitForChild('Head');
@@ -93,7 +93,6 @@ local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpac
     CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo');
 
     GetMouse = Body and Body:FindFirstChild('GetMouse');
-    Stank = Backpack and Backpack:FindFirstChild('Stank')
 end
 
 local Place, Job, MousePosition, ExperienceChat, ChatFrame, ColorCorrection, SnaplineMethod, HttpRequest, Queueonteleport, DeathPosition do
@@ -4602,8 +4601,12 @@ local function CheatData()
         if Index then Index.Disabled = Boolean.NoSit.Value end
     end
 
-    for Index, _ in next, Commands do
-        Network:AddLabel('['..Commands[Index].Name..']: Arguments: {'..Commands[Index].Arguments..'} '..Commands[Index].Description)
+    for Index, _ in next, CommandHandler.Commands do
+        Network:AddLabel(string.format('[%s]: Arguments: {%s} %s',
+            CommandHandler.Commands[Index].Name,
+            CommandHandler.Commands[Index].Arguments,
+            CommandHandler.Commands[Index].Description
+        ))
     end
 
     for _, Index in next, getinstances() do
@@ -4685,4 +4688,4 @@ end)
 
 
 CheatData();
-Notify(Utils.Title(2),'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with '..#Commands..' Commands!')
+Notify(Utils.Title(2),'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
