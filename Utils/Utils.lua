@@ -117,7 +117,7 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
 
-local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
+local Logger = Import('Utils/Logging.lua');
 
 function Logger:FWarning(Name: string, Message: string)
     return Logger:Warning(string.format('[%s]: %'), Name, Message)
