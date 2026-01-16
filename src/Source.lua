@@ -36,14 +36,14 @@ Change calls to being OOP
 ]]--
 
 if getgenv().Mawborn.Source then
-    return
+    return;
 end
 
 if not game:IsLoaded() then
-    game.Loaded:Wait()
+    game.Loaded:Wait();
 end
 
-local OsTime = (tick or os and os.time)()
+local OsTime = (tick or os and os.time)();
 
 getgenv().Mawborn.Source = true;
 
@@ -64,40 +64,40 @@ getgenv().Mawborn.TextProperties = true;
 getgenv().Mawborn.Library.String = true;
 getgenv().Mawborn.Library.Enumerations = true;
 
-local Host = Utils.Players and Utils.Players.LocalPlayer
-local Body, Head, Humanoid, Root, Torso
+local Host = Utils.Players and Utils.Players.LocalPlayer;
+local Body, Head, Humanoid, Root, Torso;
 
 if Host then
-    Body = Host.Character or Host.CharacterAdded:Wait()
-    Head = Body and Body:WaitForChild('Head')
-    Humanoid = Body and (Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid'))
-    Root = Body and (Body:WaitForChild('HumanoidRootPart') or (Humanoid and Humanoid.RootPart))
-    Torso = Body and Body:FindFirstChild('Torso')
+    Body = Host.Character or Host.CharacterAdded:Wait();
+    Head = Body and Body:WaitForChild('Head');
+    Humanoid = Body and (Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid'));
+    Root = Body and (Body:WaitForChild('HumanoidRootPart') or (Humanoid and Humanoid.RootPart));
+    Torso = Body and Body:FindFirstChild('Torso');
 end
 
-local Mouse = Host and Host:GetMouse()
-local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera
+local Mouse = Host and Host:GetMouse();
+local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
 
-local PlayerGui = Host and Host:WaitForChild('PlayerGui')
-local Backpack = Host and Host:WaitForChild('Backpack')
-local Hud = PlayerGui and PlayerGui:WaitForChild('HUD')
-local CashUi = Hud and Hud:FindFirstChild('Cash')
-local AmmoUi = Hud and Hud:FindFirstChild('Ammo')
-local CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo')
+local PlayerGui = Host and Host:WaitForChild('PlayerGui');
+local Backpack = Host and Host:WaitForChild('Backpack');
+local Hud = PlayerGui and PlayerGui:WaitForChild('HUD');
+local CashUi = Hud and Hud:FindFirstChild('Cash');
+local AmmoUi = Hud and Hud:FindFirstChild('Ammo');
+local CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo');
 
-local GetMouse = Body and Body:FindFirstChild('GetMouse')
-local Place = game.PlaceId
-local Job = game.JobId
-local DeathPosition = CFrame.new()
-local MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
-local SnaplineMethod = MousePosition
+local GetMouse = Body and Body:FindFirstChild('GetMouse');
+local Place = game.PlaceId;
+local Job = game.JobId;
+local DeathPosition = CFrame.new();
+local MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation();
+local SnaplineMethod = MousePosition;
 
-local ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat')
-local ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration')
-local ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
+local ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat');
+local ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration');
+local ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect');
 
-local HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request
-local QueueOnTeleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport)
+local HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request;
+local QueueOnTeleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport);
 
 local AimlockTarget;
 local AudioTarget;
@@ -175,21 +175,21 @@ local Originals = {
 
 for _, Connection in next, getconnections(Utils.ScriptContext.Error) do
     if Utils.Streets and getfenv(Connection.Function).script == PlayerGui.LocalScript then
-        Connection:Disable() -- // Creds to Ponyhook
+        Connection:Disable(); -- // Creds to Ponyhook
     end
 end
 
 -- UI's []
 
-getgenv().mawborn = Instance.new('ScreenGui')
+getgenv().mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
-    syn.protect_gui(mawborn)
+    syn.protect_gui(mawborn);
 end
-mawborn.Name = 'mawborn.xml'
+mawborn.Name = 'mawborn.xml';
 mawborn.Parent = gethui() or Utils.CoreGui;
-mawborn.ResetOnSpawn = false
-mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-mawborn.IgnoreGuiInset = true
+mawborn.ResetOnSpawn = false;
+mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
+mawborn.IgnoreGuiInset = true;
 
 
 local function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
@@ -645,44 +645,6 @@ local function RefreshPlayer()
         Humanoid.Health = 0
         Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
     end
-end
-
-
-local function FindPlayer(Target: string) : table
-    local Target = string.lower(Target)
-    local GetPlayers = Utils.Players:GetPlayers();
-
-    local PlayerTable = {};
-
-    local function Name(Index: Player, Property: string)
-        return string.sub(string.lower(tostring(Index[Property])), 1, string.len(Target))
-    end
-
-    if table.find({'myself', 'client', 'self', 'host', 'me'}, Target) then
-        return {Host};
-    end
-
-    if Target == 'all' or Target == 'users' then
-        for _, Index in next, GetPlayers do
-            if Index.Name ~= Host.Name then
-                table.insert(PlayerTable, Index)
-            end
-        end
-
-        return PlayerTable
-    end
-
-    for _, Index in next, GetPlayers do
-        if Name(Index, 'Name') == Target or Name(Index, 'DisplayName') == Target then
-            table.insert(PlayerTable, Index)
-        end
-    end
-
-    if #PlayerTable == 0 then
-        return
-    end
-
-    return PlayerTable
 end
 
 
@@ -2706,7 +2668,7 @@ do
 
         if Arguments[1] then
             Boolean.Aimlock.Value = true
-            AimlockTarget = FindPlayer(Arguments[1])[1]
+            AimlockTarget = Utils.FindPlayer(Arguments[1])[1]
 
             if Boolean.EspOnTargetted.Value then
                 AddEsp(AimlockTarget)
@@ -2723,7 +2685,7 @@ do
     CommandHandler.Add('camlock', {'cam', 'cl'}, 'Locks your Camera onto a player', '', true, function(Arguments)
 
         if Arguments[1] then
-            CamlockTarget = FindPlayer(Arguments[1])[1]
+            CamlockTarget = Utils.FindPlayer(Arguments[1])[1]
             Boolean.Camlock.Value = true;
             Notify('Camlock Target', 'Camlock Target is now '..CamlockTarget.DisplayName)
         else
@@ -2736,7 +2698,7 @@ do
     CommandHandler.Add('copyname', {}, 'Copys a players name to your clipboard so you do not have to struggle with typing or you can steal a display name', '', true, function(Arguments)
 
         if Arguments[1] then
-            ClipboardTarget = FindPlayer(Arguments[1])[1].Name
+            ClipboardTarget = Utils.FindPlayer(Arguments[1])[1].Name
             Utils.Clipboard(tostring(ClipboardTarget))
         end
 
@@ -2747,7 +2709,7 @@ do
     CommandHandler.Add('stealaudio', {'steala', 'sa'}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
         
         if Arguments[1] then
-            AudioTarget = FindPlayer(Arguments[1])[1]
+            AudioTarget = Utils.FindPlayer(Arguments[1])[1]
 
             if not (AudioTarget or AudioTarget.Character) then 
                 Notify('Steal Audio','Player not found')
@@ -2770,9 +2732,9 @@ do
     CommandHandler.Add('esp', {}, 'Traces the player specifiied', '', true, function(Arguments)
 
         if Arguments[1] then
-            EspTarget = FindPlayer(Arguments[1])
+            EspTarget = Utils.FindPlayer(Arguments[1])
 
-            if FindPlayer(Arguments[1]) == string.lower('all') then
+            if Utils.FindPlayer(Arguments[1]) == string.lower('all') then
                 Debounce.EspAll = true;
             end
 
@@ -2780,7 +2742,7 @@ do
                 AddEsp(Index);
             end
 
-            EspTarget = FindPlayer(Arguments[1])[1] or 'nil'
+            EspTarget = Utils.FindPlayer(Arguments[1])[1] or 'nil'
             Notify('Esp','Esp\'d player '..tostring(EspTarget.DisplayName))
         end
     end)
@@ -2789,9 +2751,9 @@ do
     CommandHandler.Add('unesp', {}, 'Deletes the esp on the specified player', '', true, function(Arguments)
 
         if Arguments[1] then
-            UnespTarget = FindPlayer(Arguments[1])
+            UnespTarget = Utils.FindPlayer(Arguments[1])
 
-            if FindPlayer(Arguments[1]) == string.lower('all') then
+            if Utils.FindPlayer(Arguments[1]) == string.lower('all') then
                 Debounce.EspAll = false;
             end
 
@@ -2799,7 +2761,7 @@ do
                 RemoveEsp(Index);
             end
 
-            UnespTarget = FindPlayer(Arguments[1])[1] or 'nil'
+            UnespTarget = Utils.FindPlayer(Arguments[1])[1] or 'nil'
 
             Notify('Unesp','Unesp\'d player '..tostring(UnespTarget.DisplayName))
         end
@@ -2809,9 +2771,9 @@ do
     CommandHandler.Add('watchforrejoin', {'rejoinwatch', 'wfr'}, 'Watches for the specified target to rejoin', '', true, function(Arguments)
 
         if Arguments[1] then
-            WatchRejoinTarget = FindPlayer(Arguments[1])[1] or Arguments[1]
+            WatchRejoinTarget = Utils.FindPlayer(Arguments[1])[1] or Arguments[1]
 
-            if not FindPlayer(Arguments[1])[1] then
+            if not Utils.FindPlayer(Arguments[1])[1] then
                 Notify('Watch On Rejoin', 'Player not found in game, you can type out their full name (Ignore if you typed their name)')
             end
         end
@@ -2841,7 +2803,7 @@ do
     CommandHandler.Add('to', {'goto', 'tp', 'teleport'}, 'Teleports you to the targetted player', '', true, function(Arguments)
 
         if Arguments[1] then
-            TeleportTarget = FindPlayer(Arguments[1])[1]
+            TeleportTarget = Utils.FindPlayer(Arguments[1])[1]
         end
 
         local TeleportToCFrame = FindPlayersPart(TeleportTarget, 'Class', 'Humanoid')
@@ -2852,7 +2814,7 @@ do
     CommandHandler.Add('url', {}, 'Copys a players profile URL so you can search them up', '', true, function(Arguments)
 
         if Arguments[1] then
-            UserIdTarget = FindPlayer(Arguments[1])[1]
+            UserIdTarget = Utils.FindPlayer(Arguments[1])[1]
 
             local SearchPlayer = tostring(UserIdTarget.UserId)
             Utils.Clipboard('https://www.roblox.com/users/'..SearchPlayer..'/profile')
@@ -2865,7 +2827,7 @@ do
     CommandHandler.Add('view', {'watch', 'spectate', 'eye'}, 'Changes your camera view onto a players perspective', '', true, function(Arguments)
 
         if Arguments[1] then
-            ViewTarget = FindPlayer(Arguments[1])[1]
+            ViewTarget = Utils.FindPlayer(Arguments[1])[1]
             Boolean.Viewing.Value = true;
         else
             Boolean.Viewing.Value = not Boolean.Viewing.Value;
@@ -4638,7 +4600,7 @@ Host.OnTeleport:Connect(function()
     if QueueOnTeleport and FileHandler.AutoExecute then
         repeat Utils.RunService.Heartbeat:Wait() until game:IsLoaded()
 
-        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua"))();');
+        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua"))()');
         clearteleportqueue();
     end
 end)
