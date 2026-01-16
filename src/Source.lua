@@ -1705,8 +1705,8 @@ local function UpdateInfoCursor()
 
     Lerping += Speed
 
-    if Lerping > 1 then 
-        Lerping = 0; 
+    if Lerping > 1 then
+        Lerping = 0;
     end
 
     local MouseTarget = Mouse and Mouse.Target;
@@ -1718,9 +1718,9 @@ local function UpdateInfoCursor()
     end
     
     if MouseTarget then
-        Hash.Head = MouseParent and MouseParent:FindFirstChild('Head');
-        Hash.Humanoid = MouseParent and MouseParent:FindFirstChildOfClass('Humanoid');
-        Hash.Root = MouseParent and MouseParent:FindFirstChild('HumanoidRootPart');
+        Hash.Head = MouseParent and Utils.Head(MouseParent.Parent);
+        Hash.Humanoid = MouseParent and Utils.Humanoid(MouseParent.Parent);
+        Hash.Root = MouseParent and Utils.Root(MouseParent.Parent);
         Hash.BodyColors = MouseParent and MouseParent:FindFirstChild('Body Colors'); -- For those grey lifeless bodies at spawns
 
         if not (Hash.Head and Hash.Humanoid and Hash.Root) or MouseName == Host.Name then
@@ -1742,8 +1742,8 @@ local function UpdateInfoCursor()
             Hash.Player = MouseName and Utils.Players[MouseName];
         end
 
-        local _Head = Hash.Head or (MouseParent and MouseParent:FindFirstChild('Head'));
-        local _Humanoid = Hash.Humanoid or (MouseParent and MouseParent:FindFirstChildOfClass('Humanoid'));
+        local _Head = Hash.Head or (MouseParent and Utils.Head(MouseParent));
+        local _Humanoid = Hash.Humanoid or (MouseParent and Utils.Humanoid(MouseParent));
         local _Player = Hash.Player or (Utils.Players and MouseName and Utils.Players[MouseName]);
 
         local _Tool;
@@ -2051,7 +2051,7 @@ end
 
 
 local function SendKnockedAttributes(Player: Player, Character: Model)
-    local _Head = Character:WaitForChild('Head')
+    local _Head = Utils.Head(Player)
     if not _Head then return end
 
     Player:SetAttribute('Knocked', _Head:FindFirstChild('Bone') ~= nil)
@@ -2280,7 +2280,7 @@ local function OnRenderStepped(Delta: number)
         Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
     end
 
-    if not Boolean.TintColor.Value and Utils.BothOriginalPrisons then
+    if not Boolean.TintColor.Value and Utils.BothPrisons then
         ColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
     end
 
@@ -2316,14 +2316,14 @@ local function OnHeartbeat(Delta: number)
         Torso.CanCollide = false; 
         Head.CanCollide = false;
 
-        if Utils.BothOriginalPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if Utils.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     else
         Torso.CanCollide = true;
         Head.CanCollide = true;
 
-        if Utils.BothOriginalPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if Utils.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     end
@@ -2336,7 +2336,7 @@ local function OnHeartbeat(Delta: number)
         end
     end
 
-    if (Boolean.Blink.Value and Debounce.Blink) or Boolean.LoopBlink.Value then
+    if Boolean.Blink.Value and (Debounce.Blink or Boolean.LoopBlink.Value) then
         local BlinkSpeed = Select.BlinkSpeed.Value / 6.5
 
         if Select.BlinkMethod.Value == 'Movedirection' and MoveDirection then
@@ -4528,10 +4528,10 @@ local function OnPlayers(Player: Player)
         Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' is in game')
     end
 
-    local _Character = Player.Character
+    local _Character = Utils.Body(Player)
     if not _Character then return end;
 
-    local _Head = _Character:WaitForChild('Head');
+    local _Head = Utils.Head(Player);
     if not _Head then return end;
 
     Player:SetAttribute('Knocked', false)
