@@ -3032,12 +3032,12 @@ do
 
 
     CommandHandler.Add('remotespy', {'rspy'}, 'Allows you to spy on remotes', '', true, function() -- Just in here so I don't have to load IY
-        Import('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua')
+        Import('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua');
     end)
 
 
     CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY
-        Import('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua')
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))(); -- Problems with dex and using Import? I dont care just loadstring the bitch
     end)
 
 
