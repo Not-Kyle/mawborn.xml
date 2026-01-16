@@ -131,7 +131,7 @@ function Utils.Mods(Specific: boolean) : table
 end
 
 function Utils.AdminCheck(UserId: number, Player: Player) : boolean
-    if not Utils.Remake and Utils.Mods()[UserId] or ((Utils.Prison and Utils.Mods().Prison[UserId]) or (Utils.Streets and Utils.Mods().Streets[UserId])) then
+    if not Utils.Remake and Utils.Mods()[UserId] then
         return true
     end
 
