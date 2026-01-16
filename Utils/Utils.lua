@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 if getgenv().Mawborn.Utils then
     return
 end
@@ -35,6 +36,8 @@ local Utils = {
     MarketplaceService = Service.MarketplaceService;
     ProximityPromptService = Service.ProximityPromptService,
 };
+
+local Host = Utils.Players and Utils.Players.LocalPlayer;
 
 local Place = game.PlaceId;
 local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
@@ -124,13 +127,13 @@ function Logger:FWarning(Name: string, Message: string)
 end
 
 
-function Utils.AddService(Service: string)
-    return Service[Service];
+function Utils.AddService(ServiceName: string)
+    return Service[ServiceName]
 end
 
 
 function Utils.Mods(Specific: boolean) : table
-    Specific = Specific or true; -- Usually true
+    if not Specific then Specific = true end
 
     if Specific then
         if Utils.Streets then
@@ -198,6 +201,44 @@ end
 function Utils.TagSystem() : ModuleScript
     return Utils.Streets and Utils.ReplicatedStorage and require(Utils.ReplicatedStorage:FindFirstChild('TagSystem'))
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
+
+
+function Utils.FindPlayer(Target: string) : table
+    local Target = string.lower(Target)
+    local GetPlayers = Utils.Players:GetPlayers();
+
+    local PlayerTable = {};
+
+    local function Name(Index: Player, Property: string)
+        return string.sub(string.lower(tostring(Index[Property])), 1, string.len(Target))
+    end
+
+    if table.find({'myself', 'client', 'self', 'host', 'me'}, Target) then
+        return {Host};
+    end
+
+    if Target == 'all' or Target == 'users' then
+        for _, Index in next, GetPlayers do
+            if Index.Name ~= Host.Name then
+                table.insert(PlayerTable, Index)
+            end
+        end
+
+        return PlayerTable
+    end
+
+    for _, Index in next, GetPlayers do
+        if Name(Index, 'Name') == Target or Name(Index, 'DisplayName') == Target then
+            table.insert(PlayerTable, Index)
+        end
+    end
+
+    if #PlayerTable == 0 then
+        return
+    end
+
+    return PlayerTable
+end
 
 
 function Utils.GetName(Player: Player) : string
