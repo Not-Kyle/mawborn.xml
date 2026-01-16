@@ -44,5 +44,5 @@
 # Loadstring <br />
 
  ```md
-  loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua'))();
+  loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Loadstring.lua'))();
   ```
