@@ -117,6 +117,11 @@ function Logger:FWarning(Name: string, Message: string)
 end
 
 
+function Utils.AddService(Service: string)
+    return Service[Service];
+end
+
+
 function Utils.Mods(Specific: boolean) : table
     Specific = Specific or true; -- Usually true
 
@@ -175,6 +180,7 @@ function Utils.Clipboard(Message: string)
     return (setclipboard or syn.write_clipboard or set_clipboard)(Message);
 end
 
+
 function Utils.Title(State: number, CustomText: string) : string
     local ScriptNames = {[1] = 'mawborn', [2] = 'mawborn.xml', [3] = 'Mawborn'};
 
@@ -185,6 +191,16 @@ end
 function Utils.TagSystem() : ModuleScript
     return Utils.Streets and Utils.ReplicatedStorage and require(Utils.ReplicatedStorage:FindFirstChild('TagSystem'))
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
+
+
+function Utils.GetName(Player: Player) : string
+    return Player and Player.Name;
+end
+
+
+function Utils.GetDisplay(Player: Player) : string
+    return Player and Player.DisplayName;
+end
 
 
 function Utils.Body(Player: Player, Name: string) : Model
