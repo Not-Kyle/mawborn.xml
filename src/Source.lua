@@ -776,7 +776,7 @@ local function TargetPlayer(Radius: number) : Player?
     for _, Index in next, PlayerTable do
         if not Index then return end
 
-        local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Utils.Root().Position)
+        local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Utils.Root(Index).Position)
         local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
 
         if OnScreen and Distance < ClosestDistance and Distance <= Radius then
