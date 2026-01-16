@@ -1,3 +1,7 @@
+if getgenv().Mawborn.Library.Commands then
+    return
+end
+
 local Enumerations = {};
 
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
