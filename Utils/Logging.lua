@@ -1,17 +1,6 @@
-local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-        
-        if not cloneref then
-            return game:GetService(Arguments[1]);
-        end
+local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
 
-        return cloneref(game:GetService(Arguments[1]));
-    end
-})
-
-local StarterGui = Service.StarterGui;
+local StarterGui = Utils.AddService('StarterGui');
 local Messagebox = messagebox or messageboxasync;
 
 local Std = {};
@@ -97,7 +86,7 @@ function Std:MessageBox(Message: string, Title: string, Flag: number, Notify: bo
     end
 
     --[[
-        MessageBox('Text', 'Title', 0, true, function()
+        Std:MessageBox('Text', 'Title', 0, true, function()
             if not getgenv().MessageIsUsable then
                 Logger:Warning('No Messageboxasync')
             end
