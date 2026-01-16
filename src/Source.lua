@@ -35,7 +35,7 @@ Change calls to being OOP
 > Groups (Used for groups)
 ]]--
 
-if getgenv().MawbornLoaded then 
+if getgenv().MawbornLoaded then
     return
 end
 
@@ -48,66 +48,34 @@ end
 local OsTime = (tick or os and os.time)()
 
 
-local Trace = setmetatable({}, {
+local Service = setmetatable({}, {
     __index = function(self: Instance, ...)
         local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
+        local Key = select(1, Arguments);
+
+        local Result = game:GetService(Key);
         
-        if not cloneref then
-            return game:GetService(Arguments[1]);
+        if cloneref then
+            return cloneref(Result);
         end
 
-        return cloneref(game:GetService(Arguments[1]));
+        rawset(self, Arguments, Result);
+        return Result;
     end
 })
 
-
-local Std = {
-    Cout = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-
-        return print(Arguments[1])
-    end,
-
-    Warning = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-
-        return warn(Arguments[1])
-    end,
-
-    Error = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-
-        return error(Arguments[1], 0)
-    end
-}
-
 getgenv().MawbornLoaded = true;
 
-local Stats = Trace.Stats;
-local CoreGui = Trace.CoreGui;
-local Players = Trace.Players;
-local Lighting = Trace.Lighting;
-local Workspace = Trace.Workspace;
-local GuiService = Trace.GuiService;
-local RunService = Trace.RunService;
-local StarterGui = Trace.StarterGui;
-local HttpService = Trace.HttpService;
-local TweenService = Trace.TweenService;
-local ScriptContext = Trace.ScriptContext;
-local TeleportService = Trace.TeleportService;
-local TextChatService = Trace.TextChatService;
-local UserInputService = Trace.UserInputService;
-local CollectionService = Trace.CollectionService;
-local ReplicatedStorage = Trace.ReplicatedStorage;
-local MarketplaceService = Trace.MarketplaceService;
-local ProximityPromptService = Trace.ProximityPromptService;
+local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
+local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
+local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
+local String = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
+local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/FileHandler.lua');
+local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
+local CommandHandler, Commands = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 
 local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse, Stank do
-    Host = Players and Players.LocalPlayer;
+    Host = Utils.Players and Utils.Players.LocalPlayer;
     Body = Host and Host.Character or Host.CharacterAdded:Wait();
     Head = Body and Body:WaitForChild('Head');
     Humanoid = Body and Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid');
@@ -115,7 +83,7 @@ local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpac
     Torso = Body and Body:WaitForChild('Torso');
 
     Mouse = Host and Host:GetMouse()
-    Camera = Workspace and Workspace.CurrentCamera;
+    Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
 
     PlayerGui = Host and Host:WaitForChild('PlayerGui');
     Backpack = Host and Host:WaitForChild('Backpack');
@@ -128,20 +96,20 @@ local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpac
     Stank = Backpack and Backpack:FindFirstChild('Stank')
 end
 
-local Place, Job, ExperienceChat, ChatFrame, ColorCorrection, StaminaBar, KoBar, SnaplineMethod, SetClipboard, HttpRequest, Messagebox, Queueonteleport, DeathPosition do
+local Place, Job, MousePosition, ExperienceChat, ChatFrame, ColorCorrection, SnaplineMethod, HttpRequest, Queueonteleport, DeathPosition do
     Place = game.PlaceId;
     Job = game.JobId;
 
-    ExperienceChat = CoreGui and CoreGui:FindFirstChild('ExperienceChat')
-    ChatFrame = TextChatService and TextChatService:FindFirstChild('ChatWindowConfiguration');
+    MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation();
 
-    ColorCorrection = Lighting and Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
+    ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat');
+    ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration');
 
-    SnaplineMethod = UserInputService and UserInputService:GetMouseLocation()
+    ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
 
-    SetClipboard = setclipboard or syn.write_clipboard or set_clipboard;
+    SnaplineMethod = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
+
     HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request;
-    Messagebox = messagebox or messageboxasync;
     Queueonteleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport);
 
     DeathPosition = CFrame.new()
@@ -151,6 +119,7 @@ local AimlockTarget;
 local AudioTarget;
 local CamlockTarget;
 local ClipboardTarget;
+local CycleHSV;
 local EspTarget;
 local JumpConnection;
 local KickPlayerTarget;
@@ -165,30 +134,11 @@ local UnespTarget;
 local TagBoomboxes = 'Hooked::Boomboxes';
 local TagTools = 'Hooked::Items';
 local TagTrails = 'Hooked::Trails';
-local Verison = '0.9.95';
 
-local CommandCooldown = 0.75;
-local LastCommandTime = 0;
 local Lerping = 0;
 local Speed = 0.01;
 
-local ScriptColor = Color3.fromRGB(225, 225, 225);
-local AccentColor = Color3.fromRGB(170, 170, 255);
-local ModeratorColor = Color3.fromRGB(255, 170, 170);
-local MouseColorOff = Color3.fromRGB(170, 170, 255);
-local MouseColorOffTint = Color3.fromRGB(120, 120, 255);
-local MouseColorOn = Color3.fromRGB(255, 0, 0);
-local MouseColorOnTint = Color3.fromRGB(200, 0, 0);
-
-local OrginialGravity = Workspace and Workspace.Gravity;
-local OrginialFOV = Camera and Camera.FieldOfView;
-local OrginialZoom = Host and Host.CameraMaxZoomDistance;
-local OrginialWalkSpeed = Humanoid and Humanoid.WalkSpeed;
-local OrginialHipHeight = Humanoid and Humanoid.HipHeight;
-local OrginialJumpPower = Humanoid and Humanoid.JumpPower;
-
 local Boomboxes = {};
-local Commands = {};
 local Debounce = {};
 local EspConfig = {};
 local GradientCache = {};
@@ -199,27 +149,17 @@ local Movement = {};
 local ProcessedItems = {};
 local Pumpkins = {};
 local Seats = {};
-local TextProperties = {};
-TextProperties.__index = TextProperties;
 local VehicleSeats = {};
 local WhitelistedItems = {};
 
-local Data = {AutoExecute = true;}
-local ScriptNames = {[1] = 'mawborn'; [2] = 'mawborn.xml'; [3] = 'Mawborn'}
-
-local AuthorizedSessions = {
-    Streets = Place == 455366377,
-    Prison = Place == 15852982099,
-    Remake = Place == 81769606750513,
-
-    Both = Place == 455366377 or Place == 15852982099,
-    BothPrisons = Place == 15852982099 or Place == 81769606750513,
-    All = Place == 455366377 or Place == 15852982099 or Place == 81769606750513,
-}
-
-local Creators = {
-    [5388525718]  = {Name = 'hellokittysouljia'},
-    [7705935312]  = {Name = 'mawborn'},
+local Colors = {
+    ScriptColor = Color3.fromRGB(225, 225, 225),
+    AccentColor = Color3.fromRGB(170, 170, 255),
+    ModeratorColor = Color3.fromRGB(255, 170, 170),
+    MouseColorOff = Color3.fromRGB(170, 170, 255),
+    MouseColorOffTint = Color3.fromRGB(120, 120, 255),
+    MouseColorOn = Color3.fromRGB(255, 0, 0),
+    MxouseColorOnTint = Color3.fromRGB(200, 0, 0),
 }
 
 local Items = {
@@ -241,102 +181,19 @@ local Items = {
     }
 }
 
-local Moderators = {
-    -- Level Definitions:
-    -- 5 = Owner
-    -- 4 = Close with Owner
-    -- 3 = Mod (Can Ban)
-    -- 2 = Kick Only
-    -- 1 = Grey Loot Commands
-
-    -- Global Moderators
-    [57372642]  = {Name = 'Kotojo', Level = 5},
-    [155145543] = {Name = 'Kaiits', Level = 4},
-    [853076852] = {Name = 'Kaiits', Level = 4},
-    [5162665695] = {Name = 'Cyrus', Level = 4},
-    [14321011]  = {Name = 'AfroVs', Level = 4},
-
-    -- Unknown Game Mods []
-    [3631092729] = {Name = 'pawscribble', Level = 3},
-    [680122427]  = {Name = 'chibisanu', Level = 3},
-
-    Prison = {
-        [4370541]     = {Name = 'Chosen', Level = 3},
-        [2323183756]  = {Name = 'e8llie', Level = 3},
-        [1189253064]  = {Name = 'digitalbows', Level = 3}, -- Unconfirmed but was in godmode when trying to kill
-        [7763803027]  = {Name = 'dttmfocus', Level = 3}, -- Also Unconfirmed but told by a player
-        [1395662432]  = {Name = 'randosewru', Level = 3},
-        --[7118197747]  = {Name = 'running50fpsoneu', Level = 3}, -- No longer a mod
-        [5836017791]  = {Name = 'Momentshaspast', Level = 3},
-        [79746858]    = {Name = 'digitalboyheart', Level = 3},
-        [50098375]    = {Name = 'restwellkris', Level = 3},
-    },
-
-    Streets = {
-        [90384746]    = {Name = 'Futures_Society', Level = 3},
-        [141968373]   = {Name = 'OG_Thechosenone', Level = 3},
-        [2830267496]  = {Name = 'lxxlikeheaven', Level = 3},
-        [428555337]   = {Name = 'progamerpvp137', Level = 3},
-        [8942221725]  = {Name = 'livemassacre', Level = 3},
-    }
-
-    -- 70 - 120 Players on a good day, 19 mods. 20% of the population is mods xd 
+local Originals = {
+    Gravity = Utils.Workspace and Utils.Workspace.Gravity,
+    FOV = Camera and Camera.FieldOfView,
+    Zoom = Host and Host.CameraMaxZoomDistance,
+    WalkSpeed = Humanoid and Humanoid.WalkSpeed,
+    HipHeight = Humanoid and Humanoid.HipHeight,
+    JumpPower = Humanoid and Humanoid.JumpPower,
 }
 
-local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs through files, will add someone automatically if I say so, by notification? Still thinking of ideas
-    -- Levels:
-    -- Level 3: Kill on sight or for a friend
-    -- Level 2: Should probably kill this person
-    -- Level 1: A bit annoying but can live
-    -- Level 0: Troll or make mad
-
-    [43377200]  = {Name = 'cosmicman233', Reason = 'A complete spurg', Level = 2},
-
-    [105026789]  = {Name = 'dnd01092', Reason = 'Legit fight, big mouth (Funny when mad)', Level = 1},
-    [202232476]  = {Name = 'Moxris', Reason = 'Being a sped', Level = 1},
-    [5579968613]  = {Name = 'coastalgroove', Reason = 'Being a sped', Level = 1},
-
-    [1372774669] = {Name = 'aacidbathfan', Reason = 'Funny to get mad', Level = 0},
-    [1925953479] = {Name = 'vcsxadf AKA Bot', Reason = 'Call him a pedophile and he will crumble like a cookie, funny to mess with', Level = 0}, -- "Watches The Streets for pedophiles" he says. What a hero
-    [1114660918] = {Name = 'meowingforzay', Reason = 'Extremly funny', Level = 0},
-    [648643534]  = {Name = 'meowingforjes', Reason = 'Jes bf? Whoever Jes is but funny to make mad', Level = 0},
-    [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
-}
-
-local TagSystem = AuthorizedSessions.Streets and ReplicatedStorage and require(ReplicatedStorage:FindFirstChild('TagSystem')) -- // Temp spot
--- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
-
-for _, Connection in next, getconnections(ScriptContext.Error) do
-    if AuthorizedSessions.Streets and getfenv(Connection.Function).script == PlayerGui.LocalScript then
+for _, Connection in next, getconnections(Utils.ScriptContext.Error) do
+    if Utils.Streets and getfenv(Connection.Function).script == PlayerGui.LocalScript then
         Connection:Disable() -- // Creds to Ponyhook
     end
-end
-
-task.spawn(function()
-    local Folder = 'mawborn';
-    local File = Folder .. '.xml';
-
-    if makefolder and not isfolder(Folder) then 
-        makefolder(Folder);
-    end
-
-    if not readfile and not writefile then
-        return;
-    end
-
-    local Connection, Contents = pcall(readfile, File)
-
-    if Connection then
-        local JSON_Decode = HttpService:JSONDecode(Contents)
-        Data.AutoExecute = JSON_Decode.AutoExecute;
-        writefile(Contents, HttpService:JSONEncode(Data))
-    else
-        writefile(Contents, HttpService:JSONEncode(Data))
-    end
-end)
-
-function ScriptName(State: number, CustomText: string)
-    return ScriptNames[State] or CustomText
 end
 
 -- UI's []
@@ -346,13 +203,13 @@ if syn and syn.product_gui then
     syn.protect_gui(mawborn)
 end
 mawborn.Name = 'mawborn.xml'
-mawborn.Parent = gethui() or CoreGui;
+mawborn.Parent = gethui() or Utils.CoreGui;
 mawborn.ResetOnSpawn = false
 mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 mawborn.IgnoreGuiInset = true
 
 
-function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
+local function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
     if Type == 'Draw' and Drawing then
         Class = Drawing.new(Class);
     end
@@ -380,16 +237,22 @@ local Circle = NewInstance('Draw', 'Circle', {
     NumSides = 250;
 })
 
+task.delay(2, function()
+    while task.wait(0.5) do 
+        Import('https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua'); 
 
-local Network = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Network.lua'))();
-local Watermark = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Watermark.lua'))();
---local Menu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/OldMenu.lua'))(); -- Old UI
---local UI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/UI%20Utils.lua'))();
-local Menu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/NewMenu.lua'))();
-local FileMenu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Files.lua'))();
-local ThemeMenu = loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Themes.lua'))();
+        task.wait(10)
+        break;
+    end
+end)
 
-local GameTitle = MarketplaceService and Place and MarketplaceService:GetProductInfo(Place).Name or 'The Streets'
+local Network = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Network.lua');
+local Watermark = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Watermark.lua')
+local Menu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/NewMenu.lua')
+local FileMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Files.lua')
+local ThemeMenu = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Themes.lua')
+
+local mawborn = mawborn;
 
 local Select = Select;
 local Boolean = Boolean;
@@ -453,7 +316,7 @@ local Health = NewInstance('Instance', 'TextLabel', {
     Size = UDim2.fromOffset(162, 18),
     Font = Enum.Font.Code,
     Text = '',
-    TextColor3 = ScriptColor,
+    TextColor3 = Colors.ScriptColor,
     TextSize = 13,
     TextStrokeTransparency = 0;
 })
@@ -469,7 +332,7 @@ local Ko = NewInstance('Instance', 'TextLabel', {
     Font = Enum.Font.Code,
     TextStrokeTransparency = 0;
     Text = '',
-    TextColor3 = ScriptColor,
+    TextColor3 = Colors.ScriptColor,
     TextSize = 13,
 })
 
@@ -484,7 +347,7 @@ local Stam = NewInstance('Instance', 'TextLabel', {
     Font = Enum.Font.Code,
     TextStrokeTransparency = 0;
     Text = '',
-    TextColor3 = ScriptColor,
+    TextColor3 = Colors.ScriptColor,
     TextSize = 13,
 })
 
@@ -730,89 +593,27 @@ local Info = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In
 local TweenCursor = TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 1)
 local InfoSize = TweenInfo.new(0.85, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 0.8)
 
-Tween = TweenService:Create(CursorImage, Info, {Rotation = 360}):Play()
-TweenSize = TweenService:Create(CursorImage, InfoSize, {Size = UDim2.fromScale(0.045, 0.045)}):Play()
-OuterUIGradient = TweenService:Create(UIGradientStroke, TweenCursor, {Rotation = -360}):Play()
-InnerUIGradient = TweenService:Create(UIGradientInner, TweenCursor, {Rotation = 360}):Play()
+Utils.TweenService:Create(CursorImage, Info, {Rotation = 360}):Play()
+Utils.TweenService:Create(CursorImage, InfoSize, {Size = UDim2.fromScale(0.045, 0.045)}):Play()
+Utils.TweenService:Create(UIGradientStroke, TweenCursor, {Rotation = -360}):Play()
+Utils.TweenService:Create(UIGradientInner, TweenCursor, {Rotation = 360}):Play()
 
 local OffGradient = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, MouseColorOnTint:Lerp(MouseColorOffTint, 1)),
-    ColorSequenceKeypoint.new(0.3, MouseColorOn:Lerp(MouseColorOff, 1)),
+    ColorSequenceKeypoint.new(0, Colors.MouseColorOnTint:Lerp(Colors.MouseColorOffTint, 1)),
+    ColorSequenceKeypoint.new(0.3, Colors.MouseColorOn:Lerp(Colors.MouseColorOff, 1)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(225,225,225))
 }
 
-function UpdateLabel() -- Don't feel like deleting all of them
+local function UpdateLabel() -- Don't feel like deleting all of them
 end
-
--- Command Handler []
-function Command(...) -- Reworked version of Ciazware command handler
-    local Arguments = { ... };
-    local CommandNet = {};
-
-    if typeof(...) == 'table' then
-        CommandNet = ...
-    else
-        CommandNet.Name = Arguments[1]
-        CommandNet.Alias = Arguments[2]
-        CommandNet.Description = Arguments[3]
-        CommandNet.Arguments = Arguments[4]
-        CommandNet.Status = Arguments[5]
-        CommandNet.Function = Arguments[6]
-    end
-    
-    Commands[#Commands + 1] = {
-        Name = CommandNet.Name, -- Just incase shit heads use numbers
-        Alias = CommandNet.Alias, 
-        Description = CommandNet.Description, 
-        Arguments = CommandNet.Arguments,
-        Status = CommandNet.Status, 
-        Function = CommandNet.Function,
-    }
-end
-
-
-function IndexCommand(Arguments: string)
-    for _, Index in next, Commands do
-        if Index.Name == Arguments or table.find(Index.Alias, Arguments) then
-
-            if not Index.Status and not Boolean.DevMode.Value and Debounce.ScriptLoaded and MessageBox then
-                return MessageBox('Command is not working properly or does not work. {Please wait for an update}', ScriptName(2), 0)
-            else
-                return Index.Function
-            end
-        end
-    end
-end
-
-
-function ExecuteCommand(Arguments: string)
-    pcall(function()
-        local Time = os.clock();
-
-        if Time - LastCommandTime < CommandCooldown then -- Stops double chat commands
-            return
-        end
-
-        local SplitArgs = string.split(string.lower(Arguments), ' ')
-        local IndexedCommand = IndexCommand(table.remove(SplitArgs, 1))
-
-        if not IndexedCommand then
-            return
-        end
-
-        IndexedCommand(SplitArgs)
-        LastCommandTime = Time
-    end)
-end
-
 
 CommandBar.FocusLost:Connect(function()
     if utf8.len(CommandBar.Text) > 0 then
 
         local _Info = TweenInfo.new( 0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-        TweenService:Create(OuterCommand, _Info, {Position = UDim2.fromOffset(775, -300)}):Play()
+        Utils.TweenService:Create(OuterCommand, _Info, {Position = UDim2.fromOffset(775, -300)}):Play()
 
-        ExecuteCommand(CommandBar.Text)
+        CommandHandler.Execute(CommandBar.Text)
 
         CommandBar.Text = ''; 
         Debounce.CommandState = false;
@@ -821,21 +622,16 @@ end)
 
 -- Functions []
 
-function Notify(Title: string, Text: string, Icon: string, Duration: number)
-    if (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
-        StarterGui:SetCore('SendNotification', {
-            Title = Title;
-            Text = Text;
-            Icon = Icon;
-            Duration = Duration;
-        })
+local function Notify(Title: string, Text: string, Time: number)
+    if Menu.NotificationsEnabled and (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
+        Menu:Notify(string.format('[%]: %s', Title, Text), Time or 2);
     end
 end
 
 
-function ChatSpy()
+local function ChatSpy()
     if not ExperienceChat and ExperienceChat:FindFirstChild('appLayout') then
-        Std:Warn('Chat not found')
+        Logger:Warning('Chat not found')
         
         return
     end
@@ -851,191 +647,36 @@ function ChatSpy()
 end
 
 
-function UpdateFile()
-    return writefile('mawborn/source.xml', HttpService:JSONEncode(Data));
-end
-
-
-function SentenceCase(Arguments: string) : string
-    return string.upper(string.sub(Arguments, 1, 1))..string.sub(Arguments, 2)
-end
-
-
-function Clipboard(Message: string)
-    return SetClipboard(Message)
-end
-
-
-function SetTextBounds(Self: Instance, XAxis: number, YAxis: number)
-    local SettingSize = UDim2.fromOffset(
-        math.max(XAxis, Self.TextBounds.X), 
-        math.max(YAxis, Self.TextBounds.Y)
-    )
-
-    Self.Size = SettingSize
-end
-
-
-function SetAbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number)
-    local Size = UDim2.fromOffset(
-        math.max(MinX, Child.AbsoluteSize.X + (XAxis or 0)),
-        math.max(MinY, Child.AbsoluteSize.Y + (YAxis or 0))
-    )
-
-    Self.Size = Size;
-end
-
-
-function TextProperties.new(Self: Instance, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetTextBounds(Self, XAxis, YAxis);
-    
-    return Self:GetPropertyChangedSignal('TextBounds'):Connect(function()
-        SetTextBounds(Self, XAxis, YAxis)
-    end)
-end
-
-
-function TextProperties.AbsoluteSize(Self: Instance, Child: Instance, MinX: number, MinY: number, XAxis: number, YAxis: number) : RBXScriptConnection
-    SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
-
-    return Self:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-        SetAbsoluteSize(Self, Child, MinX, MinY, XAxis, YAxis)
-    end)
-end
-
-
-function StudDistance(Object: Instance, Object2: Instance) : number
+local function StudDistance(Object: Instance, Object2: Instance) : number
     Object2 = Object2 or Root;
 
     return math.round((Object.Position - Object2.Position).Magnitude)
 end
 
 
-function NoScale(Size: number, Part: Instance, Divided: number) : number
+local function NoScale(Size: number, Part: Instance, Divided: number) : number
     Divided = Divided or 1.1
 
     return math.max(1, (Size - (StudDistance(Part) / 2000)) / Divided)
 end
 
 
-function MessageBox(Message: string, Title: string, Flag: number, Function: any)
-    Function = Function or function() end
-
-    if getgenv().MessageIsUsable then
-        return Messagebox(Message, Title, Flag)
-
-    else
-        local function NotifyMessageBox(Title: string, Text: string, Flag: number, Func: any)
-            Func = Func or function() end
-            local Options = {};
-
-            local BindableFunction = NewInstance('Instance', 'BindableFunction', {
-                OnInvoke = Func;
-            })
-
-            if Flag == 0 or nil then
-                Options.One = 'OK'
-
-            elseif Flag == 1 then
-                Options.One = 'OK'
-                Options.Two = 'Cancel'
-
-            elseif Flag == 2 then
-                Options.One = 'Abort'
-                Options.Two = 'Retry'
-                Options.Three = 'Ignore'
-
-            elseif Flag == 3 then
-                Options.One = 'Yes'
-                Options.Two = 'No'
-                Options.Three = 'Cancel'
-
-            elseif Flag == 4 then
-                Options.One = 'Yes'
-                Options.Two = 'No'
-
-            elseif Flag == 5 then
-                Options.One = 'Retry'
-                Options.Two = 'Cancel'
-
-            elseif Flag == 6 then
-                Options.One = 'Cancel'
-                Options.Two = 'Try Again'
-                Options.Three = 'Continue'
-            
-            elseif Flag == 7 then
-                return
-            end
-
-            if Boolean.Notifications.Value then
-                StarterGui:SetCore('SendNotification', {
-                    Title = Title;
-                    Text = Text;
-                    Duration = 20;
-                    Button1 = Options.One;
-                    Button2 = Options.Two;
-                    Button3 = Options.Three;
-                    Callback = BindableFunction;
-                })
-            end
-        end
-
-        return NotifyMessageBox(Title, Message, Flag, Function)
-    end
-
-    --[[
-        MessageBox('Text', 'Title', 0, function()
-            if not getgenv().MessageIsUsable then
-                Std:Warning('No Messageboxasync')
-            end
-        end)
-    ]]--
-end
-
-
-function RefreshPlayer()
-    if not Humanoid and Torso and Torso.Destroy then
+local function RefreshPlayer()
+    if not Humanoid or Utils.Remake and Torso and Torso.Destroy then
         Torso:Destroy()
     end
 
-    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-    Humanoid.Health = 0
-    Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-end
-
-
-function TeleportTo(Position: CFrame, Delay: number)
-    if not (Root and TweenService) then return end
-
-    local Info = TweenInfo.new(Delay or Select.TeleportDelay.Value, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
-    local TweenCreate = TweenService:Create(Root, Info, {CFrame = Position * Root.CFrame.Rotation + Vector3.new(0, 3, 0)})
-
-    Debounce.TeleportCompleted = false
-    Debounce.NoClip = false;
-
-    if not Boolean.NoClip.Value then
-        Boolean.NoClip.Value = true;
-        NoclipAddons(true)
-    else
-        Debounce.NoClip = true;
+    if not Utils.Remake then
+        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+        Humanoid.Health = 0
+        Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
     end
-
-    TweenCreate.Completed:Connect(function()
-        Debounce.TeleportCompleted = true
-
-        if not Debounce.NoClip then
-            Boolean.NoClip.Value = false;
-            NoclipAddons(false)
-        end
-    end)
-
-    TweenCreate:Play()
 end
 
 
-function FindPlayer(Target: string) : table
+local function FindPlayer(Target: string) : table
     local Target = string.lower(Target)
-    local GetPlayers = Players:GetPlayers();
+    local GetPlayers = Utils.Players:GetPlayers();
 
     local PlayerTable = {};
 
@@ -1071,7 +712,7 @@ function FindPlayer(Target: string) : table
 end
 
 
-function InsertItem(Table: table, Item: Instance)
+local function InsertItem(Table: table, Item: Instance)
     Table[Item] = true;
 
     Item.Destroying:Once(function()
@@ -1080,7 +721,7 @@ function InsertItem(Table: table, Item: Instance)
 end
 
 
-function GrabItem(Table: table, Radius: number) : CFrame
+local function GrabItem(Table: table, Radius: number) : CFrame
     if not Root or not Table then return end
     Radius = (Radius or 50) * 3;
     
@@ -1098,7 +739,7 @@ function GrabItem(Table: table, Radius: number) : CFrame
     for _, Item in next, ItemsArray do
         if Item then
             local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Item.Position)
-            local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - getgenv().MousePosition).Magnitude
+            local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
 
             if OnScreen and Distance < ClosestDistance and Distance <= Radius then
                 ClosestDistance = Distance;
@@ -1113,7 +754,7 @@ function GrabItem(Table: table, Radius: number) : CFrame
 end
 
 
-function TargetPlayer(Radius: number) : Player?
+local function TargetPlayer(Radius: number) : Player?
     if not Root then return end
     Radius = (Radius or 50) * 3;
 
@@ -1121,7 +762,7 @@ function TargetPlayer(Radius: number) : Player?
     local ClosestDistance = math.huge;
 
     local PlayerTable = {};
-    local GetPlayers = Players:GetPlayers();
+    local GetPlayers = Utils.Players:GetPlayers();
 
     for _, Index in next, GetPlayers do
         if Index.Name ~= Host.Name then
@@ -1136,12 +777,8 @@ function TargetPlayer(Radius: number) : Player?
     for _, Index in next, PlayerTable do
         if not Index then return end
 
-        local _Character = Index.Character or Index.CharacterAdded:Wait();
-        local _Humanoid = _Character and _Character:FindFirstChildOfClass('Humanoid');
-        local _Root = _Character and _Character:FindFirstChild('HumanoidRootPart') or _Humanoid and _Humanoid.RootPart;
-
-        local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(_Root.Position)
-        local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - getgenv().MousePosition).Magnitude
+        local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Utils.Root().Position)
+        local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
 
         if OnScreen and Distance < ClosestDistance and Distance <= Radius then
             ClosestDistance = Distance;
@@ -1157,19 +794,33 @@ function TargetPlayer(Radius: number) : Player?
 end
 
 
-function RaycastToHost(Player: Model, Part: BasePart) : boolean
-    local RaycastParmam = RaycastParams.new()
-    RaycastParmam.FilterType = Enum.RaycastFilterType.Blacklist
-    RaycastParmam.FilterDescendantsInstances = {Camera, Body, Player}
+local function RemoveItemEsp(Object: Instance)
+    if not ItemEspConfig[Object] then return end
 
-    local Direction = (Part.Position - Camera.CFrame.Position)
-    local Result = Workspace:Raycast(Camera.CFrame.Position, Direction, RaycastParmam)
+    for _, Index in next, ItemEspConfig[Object] do
+        if Index.Remove then
+            Index:Remove()
+        end
+    end
 
-    return not Result
+    ItemEspConfig[Object] = nil
 end
 
 
-function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
+local function RemoveEsp(Player: Player)
+    if not EspConfig[Player] then return end
+
+    for _, Index in next, EspConfig[Player] do
+        if Index.Remove then
+            Index:Remove()
+        end
+    end
+
+    EspConfig[Player] = nil
+end
+
+
+local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
     if not Player then return end
     RemoveEsp(Player)
 
@@ -1177,7 +828,7 @@ function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
         TopText = NewInstance('Draw', 'Text', {
             Center = true,
             Outline = true,
-            Color = ScriptColor,
+            Color = Colors.ScriptColor,
             OutlineColor = Color3.new(0, 0, 0),
             Font = Drawing.Fonts.Monospace;
             Size = 12,
@@ -1188,7 +839,7 @@ function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
         BottomText = NewInstance('Draw', 'Text', {
             Center = true,
             Outline = true,
-            Color = ScriptColor,
+            Color = Colors.ScriptColor,
             OutlineColor = Color3.new(0, 0, 0),
             Font = Drawing.Fonts.Monospace;
             Size = 12,
@@ -1211,7 +862,7 @@ function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
             Filled = false,
-            Color = ScriptColor,
+            Color = Colors.ScriptColor,
             ZIndex = 2,
         }),
 
@@ -1263,14 +914,14 @@ function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
 end
 
 
-function AddItemEsp(Object: Instance, Name: string)
+local function AddItemEsp(Object: Instance, Name: string)
     RemoveItemEsp(Object)
 
     local CreateItemEsp = {
         TopText = NewInstance('Draw', 'Text', {
             Center = true,
             Outline = true,
-            Color = ScriptColor,
+            Color = Colors.ScriptColor,
             OutlineColor = Color3.new(0, 0, 0),
             Font = Drawing.Fonts.Monospace;
             Size = 12,
@@ -1281,7 +932,7 @@ function AddItemEsp(Object: Instance, Name: string)
         Tracer = NewInstance('Draw', 'Line', {
             Transparency = 1,
             Thickness = Select.DrawingThickness.Value,
-            Color = ScriptColor,
+            Color = Colors.ScriptColor,
             ZIndex = 2,
         }),
 
@@ -1301,33 +952,7 @@ function AddItemEsp(Object: Instance, Name: string)
 end
 
 
-function RemoveItemEsp(Object: Instance)
-    if not ItemEspConfig[Object] then return end
-
-    for _, Index in next, ItemEspConfig[Object] do
-        if Index.Remove then
-            Index:Remove()
-        end
-    end
-
-    ItemEspConfig[Object] = nil
-end
-
-
-function RemoveEsp(Player: Player)
-    if not EspConfig[Player] then return end
-
-    for _, Index in next, EspConfig[Player] do
-        if Index.Remove then
-            Index:Remove()
-        end
-    end
-
-    EspConfig[Player] = nil
-end
-
-
-function UpdateItemEsp()
+local function UpdateItemEsp()
     local function SetVisible(Property: Instance, State: boolean)
         Property.Tracer.Visible = State;
         Property.TopText.Visible = State;
@@ -1379,7 +1004,7 @@ function UpdateItemEsp()
 end
 
 
-function UpdateEsp()
+local function UpdateEsp()
     local function SetVisible(Property: Instance, State: boolean)
         Property.Tracer.Visible = State;
         Property.OutlineTracer.Visible = State;
@@ -1398,12 +1023,12 @@ function UpdateEsp()
     end
 
     for Property, Index in next, EspConfig do
-        local Player = Property and Property.Character
+        local Player = Property and Property.Character -- I should take the time to rename this for readability
         local UserId = Property and Property.UserId;
 
-        local Creator = CreatorCheck(UserId)
-        local Moderator = Boolean.AdminDetection.Value and AdminCheck(UserId, Property)
-        local KosCheck = Boolean.KosCheck.Value and KosCheck(UserId)
+        local Creator = Utils.CreatorCheck(UserId)
+        local Moderator = Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Property)
+        local KosCheck = Boolean.KosCheck.Value and Utils.KosCheck(UserId)
 
         local EspHumanoid = Player and Player:FindFirstChildOfClass('Humanoid')
         local EspHead = Player and Player:FindFirstChild('Head')
@@ -1429,17 +1054,17 @@ function UpdateEsp()
             local Width = Height / 1.6
             local BoxPos = Vector2.new(ScreenPos.X - Width / 2, ScreenPos.Y - Height / 2)
 
-            local Raycast = RaycastToHost(Player, EspHead)
+            local Raycast = Utils.WallCheck(Body, Player, EspHead)
 
             if Creator then
-                Index.Box.Color = getgenv().CycleHSV
-                Index.Tracer.Color = getgenv().CycleHSV
-                Index.Chams.FillColor = getgenv().CycleHSV
+                Index.Box.Color = CycleHSV
+                Index.Tracer.Color = CycleHSV
+                Index.Chams.FillColor = CycleHSV
 
             elseif Moderator then
-                Index.Box.Color = Select.ModeratorColor.Value
-                Index.Tracer.Color = Select.ModeratorColor.Value
-                Index.Chams.FillColor = Select.ModeratorColor.Value
+                Index.Box.Color = Select.Colors.ModeratorColor.Value
+                Index.Tracer.Color = Select.Colors.ModeratorColor.Value
+                Index.Chams.FillColor = Select.Colors.ModeratorColor.Value
 
             elseif KosCheck then
                 Index.Box.Color = Select.KosColor.Value
@@ -1457,9 +1082,9 @@ function UpdateEsp()
                 Index.Chams.FillColor = Select.TargetColorPicker.Value
 
             else
-                Index.Box.Color = ScriptColor
-                Index.Tracer.Color = ScriptColor
-                Index.Chams.FillColor = ScriptColor
+                Index.Box.Color = Colors.ScriptColor
+                Index.Tracer.Color = Colors.ScriptColor
+                Index.Chams.FillColor = Colors.ScriptColor
             end
 
             Index.Box.Thickness = Select.DrawingThickness.Value;
@@ -1479,7 +1104,7 @@ function UpdateEsp()
                 Index.TopText.Text = string.format('%s [%s]', Property.DisplayName, StudDistance(EspHead))
 
                 if KosCheck then
-                    Index.TopText.Text = string.format('%s [%s] Level: %s', Property.DisplayName, StudDistance(EspHead), TempKos[UserId].Level)
+                    Index.TopText.Text = string.format('%s [%s] Level: %s', Property.DisplayName, StudDistance(EspHead), Utils.Kos()[UserId].Level)
                 end
 
                 if Creator then
@@ -1583,7 +1208,7 @@ function UpdateEsp()
 end
 
 
-function Fly()
+local function Fly()
     local BodyVelocity = Torso:FindFirstChildOfClass('BodyVelocity')
     local AlignOrientation = Torso:FindFirstChildOfClass('AlignOrientation')
     local Float = Body:FindFirstChild('Float')
@@ -1665,7 +1290,7 @@ function Fly()
             FlightVelocity.Velocity = FlyVelocity
             Attachment1.CFrame = TorsoAngles:ToObjectSpace(FloatPart.CFrame)
 
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
+            if Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
                 Torso.CFrame += Vector3.new(0, 0.2, 0)
             end
         end
@@ -1673,7 +1298,7 @@ function Fly()
 end
 
 
-function KillFly()
+local function KillFly()
     if not (Torso or Humanoid) then return end
 
     local BodyVelocity = Torso and Torso:FindFirstChildOfClass('BodyVelocity')
@@ -1701,7 +1326,7 @@ function KillFly()
 end
 
 
-function Airwalk()
+local function Airwalk()
     if not Boolean.Airwalk.Value then return end
     if Body:FindFirstChild('Airwalk') then return end
 
@@ -1716,7 +1341,7 @@ function Airwalk()
 end
 
 
-function KillAirwalk()
+local function KillAirwalk()
     if Boolean.Airwalk.Value then return end
 
     local AirwalkPart = Body:FindFirstChild('Airwalk')
@@ -1726,533 +1351,11 @@ function KillAirwalk()
 end
 
 
-function FindPartsOnMap(Index: Instance)
-    if not Index then return end
-
-    for _, Values in next, Index:GetDescendants() do
-        if not Values then return end
-
-        if Values:IsA('MeshPart') and not Index:GetAttribute('Labeled') then
-            local MeshId = Items.MeshIds[Values.MeshId];
-            local TextureId = Items.TextureIds[Values.TextureID]
-
-            if MeshId then 
-                Index:SetAttribute('Labeled', true)
-                AddItemEsp(Values, MeshId.Name)
-            end
-
-            if TextureId then
-                Index:SetAttribute('Labeled', true)
-                AddItemEsp(Values, TextureId.Name)
-            end
-        end
-
-        if Values:IsA('Part') then
-            if Values.Color == Color3.fromRGB(17, 17, 17) then
-                if Values:FindFirstChild('Barrel') then
-                    AddItemEsp(Values, 'Sawed Off')
-                end
-
-                if AuthorizedSessions.Prison and Values:FindFirstChild('Eject') then
-                    AddItemEsp(Values, 'Uzi')
-                end
-            end
-
-            if Values.Color == Color3.fromRGB(150, 85, 85) and Values.Material == Enum.Material.Concrete then
-                AddItemEsp(Values, 'Brick')
-            end
-        end
-    end
-end
-
-
-function GameData()
-    for _, Index in next, Workspace:GetDescendants() do
-        if Index:IsA('Seat') then
-            table.insert(Seats, Index);
-        end
-
-        if Index:IsA('VehicleSeat') then
-            table.insert(VehicleSeats, Index);
-        end
-
-        if Index:IsA('Part') and Index.Material == Enum.Material.Neon then
-            table.insert(Lights, Index)
-
-            if Index.Color == Color3.fromRGB(255, 0, 191) and Index.Name == 'RandomSpawner' then
-                FindPartsOnMap(Index)
-
-                InsertItem(Items, Index)
-            end
-        end
-
-        if Index:IsA('SpotLight') then
-            table.insert(Lights, Index)
-        end
-
-        if Index:IsA('PointLight') then
-            if Index.Range == math.clamp(Index.Range, 16, 30) then
-                table.insert(Lights, Index)
-            end
-
-            if Index.Range == math.clamp(Index.Range, 6, 12) then
-                table.insert(Pumpkins, Index)
-            end
-        end
-    end
-end
-
-
-function SetInfinityZoom(State: boolean)
-    if Host then
-        Host.CameraMaxZoomDistance = (State and math.huge) or OrginialZoom
-    end
-end
-
-
-function SetInfiniteJump(State: boolean)
-    local JumpRequest = UserInputService and UserInputService.JumpRequest;
-
-    if not JumpRequest then
-        return
-    end
-
-    if State and Humanoid and not JumpConnection then
-        JumpConnection = UserInputService.JumpRequest:Connect(function()
-            Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end)
-    end
-
-    if not State and JumpConnection then
-        JumpConnection:Disconnect()
-        JumpConnection = nil
-    end
-end
-
-
-function TypeCheckTool(Object: Instance)
-    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and Object.Name == 'Handle') then
-
-        if Object.Name == 'Road Sign' then
-            return
-        end
-
-        return Object
-    end
-
-    return
-end
-
-
-function FindTool(Object: Instance)
-    if Object and TypeCheckTool(Object) and not CollectionService:HasTag(Object, TagTools) then
-        CollectionService:AddTag(Object, TagTools)
-    end
-end
-
-
-function OnEquipped(Tool: Instance) : table
-    if not Tool then return end
-
-    return {
-        Tool = Tool,
-        Ammo = Tool and Tool:FindFirstChild('Ammo') or nil,
-        Clips = Tool and Tool:FindFirstChild('Clips') or nil,
-        Handle = Tool and Tool:FindFirstChild('Handle') or nil,
-        Barrel = Tool and Tool:FindFirstChild('Barrel') or nil,
-        MaxAmmo = Tool and Tool:FindFirstChild('MaxAmmo') or nil,
-    }
-end
-
-
-function InitializeTool(Tool: Instance)
-    if not Tool or Tool:GetAttribute('Initialized') then return end
-
-    Tool:SetAttribute('Initialize', true)
-
-    Tool.Equipped:Connect(function()
-        Weapon = OnEquipped(Tool)
-
-        UpdateBulletCounterVisible(false, false);
-
-        if Weapon and Weapon.Ammo then
-            Hash.FromScreen = Select.BulletCounter.Value == 'From Screen';
-            Hash.FromGun = Select.BulletCounter.Value == 'From Gun';
-
-            UpdateBulletCounterVisible(Hash.FromGun, Hash.FromScreen);
-        end
-
-        Host:SetAttribute('HoldingTool', true)
-    end)
-
-    Tool.Unequipped:Connect(function()
-        Weapon = nil
-
-        UpdateBulletCounterVisible(false, false);
-        Host:SetAttribute('HoldingTool', false)
-    end)
-end
-
-
-function OnGradient(Lerp: number) : ColorSequence
-    local Key = math.floor(Lerp * 100)
-
-    local Cached = GradientCache[Key]
-    if Cached then return Cached end -- Searches if Gradient is cached, prevents caching on each frame
-
-    Cached = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, MouseColorOffTint:Lerp(MouseColorOnTint, Lerp)),
-        ColorSequenceKeypoint.new(0.3, MouseColorOff:Lerp(MouseColorOn, Lerp)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(225,225,225))
-    }
-
-    GradientCache[Key] = Cached
-    return Cached
-end
-
-
-function UpdateInfoCursor()
-    if not Mouse or not Mouse.Target or not Mouse.Target.Parent then return end
-
-    Lerping += Speed
-
-    if Lerping > 1 then 
-        Lerping = 0; 
-    end
-
-    local MouseTarget = Mouse and Mouse.Target;
-    local MouseParent = MouseTarget and MouseTarget.Parent;
-    local MouseName = MouseParent and tostring(MouseParent.Name);
-
-    if not Boolean.CursorInfo.Value then
-        InfoCursor.Visible = false
-    end
-    
-    if MouseTarget then
-        Hash.Head = MouseParent and MouseParent:FindFirstChild('Head');
-        Hash.Humanoid = MouseParent and MouseParent:FindFirstChildOfClass('Humanoid');
-        Hash.Root = MouseParent and MouseParent:FindFirstChild('HumanoidRootPart');
-        Hash.BodyColors = MouseParent and MouseParent:FindFirstChild('Body Colors'); -- For those grey lifeless bodies at spawns
-
-        if not (Hash.Head and Hash.Humanoid and Hash.Root) or MouseName == Host.Name then
-            UIGradientStroke.Color = OffGradient
-            UIGradientInner.Color = OffGradient
-
-            if Boolean.CursorInfo.Value then
-                InfoCursor.Visible = false
-            end
-
-            return
-        end
-
-        if AuthorizedSessions.Streets and (MouseName == 'Spedsshed' or MouseName == 'Afro' or not Hash.BodyColors) then
-            return
-        end
-
-        if Hash.Head or Hash.Humanoid or Hash.Root then
-            Hash.Player = MouseName and Players[MouseName];
-        end
-
-        local _Head = Hash.Head or (MouseParent and MouseParent:FindFirstChild('Head'));
-        local _Humanoid = Hash.Humanoid or (MouseParent and MouseParent:FindFirstChildOfClass('Humanoid'));
-        local _Player = Hash.Player or (Players and MouseName and Players[MouseName]);
-
-        local _Tool;
-        local Gradient = OnGradient(Lerping);
-
-        UIGradientInner.Color = Gradient;
-        UIGradientStroke.Color = Gradient;
-
-        if Boolean.CursorInfo.Value then
-            InfoCursor.Visible = true;
-        end
-
-        if _Player and _Head and _Humanoid then
-            for _, Index in next, _Player:GetChildren() do
-                if Index:IsA('Tool') then
-                    _Tool = Index;
-                    
-                    break
-                end
-            end
-
-        -- [] Inilatize Text
-
-            local Ammo = _Tool and _Tool:FindFirstChild('Ammo');
-            local Clips = _Tool and _Tool:FindFirstChild('Clips');
-
-            local StudFinder = StudDistance(Head, _Head);
-            local Keybind = UserInputService:IsKeyDown(Enum.KeyCode[Select.AdvCursorInfo.Value]);
-            local Health = math.round(_Humanoid.Health);
-            local Age = string.format('%.2f', _Player.AccountAge / 365.25)
-
-            local Text = string.format('%s\nStuds: %s\nHealth: %s\nTool: %s', MouseName, StudFinder, Health, (_Tool and _Tool.Name) or 'None')
-
-            if AuthorizedSessions.Streets then
-                Hash.Cred = 'Cred: ' .. _Player.leaderstats:FindFirstChild('Cred').Value
-                
-            elseif AuthorizedSessions.Prison then
-                Hash.Cred = 'Stomps: ' .. _Player.leaderstats:FindFirstChild('Stomps').Value
-            end
-
-            if _Tool and Ammo and Clips then
-                Text ..= string.format(' ( Clips: %s  Ammo: %s )', Clips.Value, Ammo.Value)
-            end
-
-            if not Keybind then
-                Text ..= '\nMore Info..';
-            else
-                Text ..= string.format('\nAge: %s\n%s', Age, Hash.Cred or '');
-            end 
-
-            InfoCursor.Text = Text or ''
-        end
-    end
-
-    InfoCursor.Position = UDim2.fromOffset(getgenv().MousePosition.X + 40, getgenv().MousePosition.Y - 24.5)
-end
-
-
-function BulletColors(Object: Instance)
-    if not Boolean.Trails.Value then return end
-    if not Object or not Object:IsA('Trail') then return end
-
-    local Color;
-    local TrailClone = Object:Clone();
-
-    TrailClone.Parent = Object.Parent;
-
-    TrailClone.Texture = 'rbxassetid://8522442091'; -- Creds to DranghetaLurk, I used your texture
-    TrailClone.Transparency = NumberSequence.new(0);
-    TrailClone.Lifetime = Select.TrailLifetime.Value;
-    TrailClone.TextureMode = Enum.TextureMode.Wrap;
-    TrailClone.TextureLength = 5;
-    TrailClone.MaxLength = 9e9;
-    TrailClone.LightEmission = 1;
-    TrailClone.LightInfluence = 0;
-    TrailClone.FaceCamera = true;
-    TrailClone.Brightness = Select.TrailBrightness.Value;
-    --TrailClone.WidthScale = NumberSequence.new(0, 1);
-
-    if Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, getgenv().CycleHSV), 
-            ColorSequenceKeypoint.new(1.00, getgenv().CycleHSV)
-        }
-
-    elseif Boolean.TrailColorOne.Value and not Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
-            ColorSequenceKeypoint.new(1.00, Select.TrailColors1.Value)
-        }
-
-    elseif Boolean.TrailColorOne.Value and Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
-            ColorSequenceKeypoint.new(1.00, Select.TrailColors2.Value)
-        }
-    else
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(225, 225, 225)), 
-            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))
-        }
-    end
-
-    TrailClone.Color = Color;
-end
-
-
-function DebounceFunc(Name: string, IsDelay: boolean, Delay: number, Callback: (...any) -> (), Callback2: (...any) -> ()) : (...any) -> ()
-    Callback = Callback or function() end
-    Callback2 = Callback2 or function() end;
-    Debounce[Name] = false;
-    
-    return function(...)
-        if Debounce[Name] then return end
-
-        Debounce[Name] = true;
-        task.spawn(Callback, ...)
-        task.spawn(Callback2, ...)
-
-        if not IsDelay then
-            Debounce[Name] = false;
-        else
-            task.delay(Delay, function()
-                Debounce[Name] = false;
-            end)
-        end
-    end
-end
-
-
-function Boombox(Object: Instance)
-    if not Object then return end
-
-    local FindReverb = Object and Object:FindFirstChild('Reverb');
-    local FindChorus = Object and Object:FindFirstChild('Chorus');
-    local FindDistortion = Object and Object:FindFirstChild('Distortion');
-
-    if (FindReverb or FindChorus or FindDistortion) then return end
-
-    local Reverb = NewInstance('Instance', 'ReverbSoundEffect', { 
-        Name = 'Reverb';
-        Parent = Object;
-        Enabled = Boolean.Reverb.Value;
-    })
-
-    local Distortion = NewInstance('Instance', 'DistortionSoundEffect', {
-        Name = 'Distortion';
-        Parent = Object;
-        Level = 0;
-        Enabled = Boolean.Distortion.Value;
-    })
-
-    local Chorus = NewInstance('Instance', 'ChorusSoundEffect', {
-        Name = 'Chorus';
-        Parent = Object;
-        Enabled = Boolean.Chorus.Value;
-    })
-end
-
-
-function FindPlayersPart(Player: Player, Type: string, Part: string, Descendants: boolean) : Instance? -- // Should probably delete this
-    local GrabPlayer = Player and Player.Character;
-
-    if not GrabPlayer then
-        return
-    end
-
-    if Type == 'Wait' or Type == 'wait' then
-        return GrabPlayer:WaitForChild(Part)
-
-    elseif Type == 'Find' or Type == 'find' then
-
-        return GrabPlayer:FindFirstChild(Part, Descendants)
-    elseif Type == 'Class' or Type == 'class' then
-
-        return GrabPlayer:FindFirstChildOfClass(Part)
-    else
-
-        return GrabPlayer
-    end
-
-    Std:Cout(debug.traceback())
-end
-
-
-function SetClan(String: string, ClanId: number)
-    if AuthorizedSessions.Remake then
-        local FiringRemote = ReplicatedStorage:FindFirstChild('Game', true)
-
-        FiringRemote:FireServer('Groups', 'Join', ClanId or 1)
-        return
-    end
-
-    if not Stank then
-        return
-    end
-
-    for _, Index in ipairs ({'pick', 'join'}) do -- ipairs because I want it to use 'pick' first
-        local Success, Error = pcall(function()
-            Stank:FireServer(Index, {
-                Name = ClanId or 1,
-                TextLabel = {Text = String or 'Label'},
-            })
-        end)
-
-        if Success then
-            break
-        end
-
-        if Error then
-            Std:Warning('Group method: "pick", not found! Trying "join"!')
-        end
-    end
-end
-
-
-function LeaveClan()
-    if AuthorizedSessions.Remake then
-        local FiringRemote = ReplicatedStorage:FindFirstChild('Game', true)
-
-        FiringRemote:FireServer('Groups', 'Leave');
-        return
-    end
-
-    if not Stank then 
-        return 
-    end
-    
-    Stank:FireServer('leave');
-end
-
-
-function TeleportBypass()
-end
-
-
-function AdminCheck(UserId: number, Player: Player) : boolean
-    if not AuthorizedSessions.Remake and Moderators[UserId] or ((AuthorizedSessions.Prison and Moderators.Prison[UserId]) or (AuthorizedSessions.Streets and Moderators.Streets[UserId])) then
-        return true
-    end
-
-    if AuthorizedSessions.Remake and Player:IsInGroupAsync(34316646) then
-        return true
-    end
-end
-
-
-function KosCheck(UserId: number) : boolean
-    if TempKos[UserId] then
-        return true
-    end
-end
-
-
-function CreatorCheck(UserId: number) : boolean
-    if Creators[UserId] then
-        return true
-    end
-end
-
-
-function KnockedCheck(Player: Player)
-    if not Player then return end
-
-    Player:SetAttribute('Knocked', false)
-
-    local _Character = Player and Player.Character; 
-    if not _Character then return end
-
-    local _Head = _Character and _Character:FindFirstChild('Head');
-    if not _Head then return end
-
-    if _Head:FindFirstChild('Bone', true) then
-        Player:SetAttribute('Knocked', true)
-    end
-end
-
-
-function FindRound(Object: Instance)
-    if Object and Object.Name == 'Trail' and not CollectionService:HasTag(Object, TagTrails) then
-        CollectionService:AddTag(Object, TagTrails)
-    end
-end
-
-
-function FindBoomboxes(Object: Instance)
-    if Object and Object:IsA('Sound') and Object.Name == 'SoundX' then
-        Boomboxes[Object.Name] = Object
-        CollectionService:AddTag(Object, TagBoomboxes)
-    end
-end
-
-
-function NoclipAddons(State: boolean)
+local function NoclipAddons(State: boolean)
     Debounce.SetNoclip = not State
 
     if Debounce.ItemsProcessed then
-        for _, Index in next, WhitelistedItems do            
+        for _, Index in next, WhitelistedItems do
             if not Index then return end
 
             Hash.LocalizeItem = WhitelistedItems[Index.Name]
@@ -2292,14 +1395,147 @@ function NoclipAddons(State: boolean)
 end
 
 
-function UpdateBulletCounterPositions()
+local function TeleportTo(Position: CFrame, Delay: number)
+    if not (Root and Utils.TweenService) then return end
+
+    local Info = TweenInfo.new(Delay or Select.TeleportDelay.Value, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+    local TweenCreate = Utils.TweenService:Create(Root, Info, {CFrame = Position * Root.CFrame.Rotation + Vector3.new(0, 3, 0)})
+
+    Debounce.TeleportCompleted = false
+    Debounce.NoClip = false;
+
+    if not Boolean.NoClip.Value then
+        Boolean.NoClip.Value = true;
+        NoclipAddons(true)
+    else
+        Debounce.NoClip = true;
+    end
+
+    TweenCreate.Completed:Connect(function()
+        Debounce.TeleportCompleted = true
+
+        if not Debounce.NoClip then
+            Boolean.NoClip.Value = false;
+            NoclipAddons(false)
+        end
+    end)
+
+    TweenCreate:Play()
+end
+
+
+local function FindPartsOnMap(Index: Instance)
+    if not Index then return end
+
+    for _, Values in next, Index:GetDescendants() do
+        if not Values then return end
+
+        if Values:IsA('MeshPart') and not Index:GetAttribute('Labeled') then
+            local MeshId = Items.MeshIds[Values.MeshId];
+            local TextureId = Items.TextureIds[Values.TextureID]
+
+            if MeshId then 
+                Index:SetAttribute('Labeled', true)
+                AddItemEsp(Values, MeshId.Name)
+            end
+
+            if TextureId then
+                Index:SetAttribute('Labeled', true)
+                AddItemEsp(Values, TextureId.Name)
+            end
+        end
+
+        if Values:IsA('Part') then
+            if Values.Color == Color3.fromRGB(17, 17, 17) then
+                if Values:FindFirstChild('Barrel') then
+                    AddItemEsp(Values, 'Sawed Off')
+                end
+
+                if Utils.Prison and Values:FindFirstChild('Eject') then
+                    AddItemEsp(Values, 'Uzi')
+                end
+            end
+
+            if Values.Color == Color3.fromRGB(150, 85, 85) and Values.Material == Enum.Material.Concrete then
+                AddItemEsp(Values, 'Brick')
+            end
+        end
+    end
+end
+
+
+local function GameData()
+    for _, Index in next, Utils.Workspace:GetDescendants() do
+        if Index:IsA('Seat') then
+            table.insert(Seats, Index);
+        end
+
+        if Index:IsA('VehicleSeat') then
+            table.insert(VehicleSeats, Index);
+        end
+
+        if Index:IsA('Part') and Index.Material == Enum.Material.Neon then
+            table.insert(Lights, Index)
+
+            if Index.Color == Color3.fromRGB(255, 0, 191) and Index.Name == 'RandomSpawner' then
+                FindPartsOnMap(Index)
+
+                InsertItem(Items, Index)
+            end
+        end
+
+        if Index:IsA('SpotLight') then
+            table.insert(Lights, Index)
+        end
+
+        if Index:IsA('PointLight') then
+            if Index.Range == math.clamp(Index.Range, 16, 30) then
+                table.insert(Lights, Index)
+            end
+
+            if Index.Range == math.clamp(Index.Range, 6, 12) then
+                table.insert(Pumpkins, Index)
+            end
+        end
+    end
+end
+
+
+local function SetInfinityZoom(State: boolean)
+    if Host then
+        Host.CameraMaxZoomDistance = (State and math.huge) or Originals.Zoom
+    end
+end
+
+
+local function SetInfiniteJump(State: boolean)
+    local JumpRequest = Utils.UserInputService and Utils.UserInputService.JumpRequest;
+
+    if not JumpRequest then
+        return
+    end
+
+    if State and Humanoid and not JumpConnection then
+        JumpConnection = Utils.UserInputService.JumpRequest:Connect(function()
+            Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end)
+    end
+
+    if not State and JumpConnection then
+        JumpConnection:Disconnect()
+        JumpConnection = nil
+    end
+end
+
+
+local function UpdateBulletCounterPositions()
     if not Weapon or not Weapon.Handle then
         return
     end
 
     ClipsText.Position = UDim2.fromScale(0, 0.5);
 
-    if AuthorizedSessions.Streets then
+    if Utils.Streets then
         if CurrentAmmo then
             CurrentAmmo.Visible = false;
         end
@@ -2314,14 +1550,14 @@ function UpdateBulletCounterPositions()
     if Debounce.FirstPerson then
         ClipsText.Position = UDim2.fromScale(0, 0.1);
 
-        if AuthorizedSessions.Streets then
+        if Utils.Streets then
             GunInfoBillboard.StudsOffset = Vector3.new(3.5, 0.2, 0);
         end
     end
 end
 
 
-function UpdateBulletCounterVisible(State: boolean, State2: boolean)
+local function UpdateBulletCounterVisible(State: boolean, State2: boolean)
     AmmoText.Visible = State;
     ClipsText.Visible = State;
 
@@ -2330,7 +1566,7 @@ function UpdateBulletCounterVisible(State: boolean, State2: boolean)
 end
 
 
-function UpdateBulletCounter()
+local function UpdateBulletCounter()
     if not Weapon or not Weapon.Tool or not Weapon.Clips then 
         return
     end
@@ -2339,16 +1575,16 @@ function UpdateBulletCounter()
     local Name = Weapon.Tool.Name;
     local Clips = Weapon.Clips;
     local Barrel = Weapon.Barrel;
-    local MaxAmmo = (AuthorizedSessions.Streets and Weapon.MaxAmmo);
+    local MaxAmmo = (Utils.Streets and Weapon.MaxAmmo);
 
     if GunInfoBillboard.Parent ~= Barrel then
         GunInfoBillboard.Parent = Barrel;
     end
 
-    AmmoText.TextColor3 = ScriptColor;
-    ClipsText.TextColor3 = ScriptColor;
-    OtherClip.TextColor3 = ScriptColor;
-    OtherAmmo.TextColor3 = ScriptColor;
+    AmmoText.TextColor3 = Colors.ScriptColor;
+    ClipsText.TextColor3 = Colors.ScriptColor;
+    OtherClip.TextColor3 = Colors.ScriptColor;
+    OtherAmmo.TextColor3 = Colors.ScriptColor;
 
     AmmoText.Text = '[Ammo]: ' .. (Ammo and Ammo.Value or 0)
     ClipsText.Text = '[Clips]: ' .. (Clips and Clips.Value or 0)
@@ -2359,7 +1595,7 @@ function UpdateBulletCounter()
     if Boolean.LowAmmoIndicator.Value then
         local Threshold = 2;
 
-        if AuthorizedSessions.Streets and MaxAmmo and MaxAmmo.Value == 30 then
+        if Utils.Streets and MaxAmmo and MaxAmmo.Value == 30 then
             Threshold = 6;
         end
 
@@ -2384,7 +1620,336 @@ function UpdateBulletCounter()
 end
 
 
-function ItemColors(Object: Instance)
+local function TypeCheckTool(Object: Instance)
+    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and Object.Name == 'Handle') then
+
+        if Object.Name == 'Road Sign' then
+            return
+        end
+
+        return Object
+    end
+
+    return
+end
+
+
+local function FindTool(Object: Instance)
+    if Object and TypeCheckTool(Object) and not Utils.CollectionService:HasTag(Object, TagTools) then
+        Utils.CollectionService:AddTag(Object, TagTools)
+    end
+end
+
+
+local function OnEquipped(Tool: Instance) : table
+    if not Tool then return end
+
+    return {
+        Tool = Tool,
+        Ammo = Tool and Tool:FindFirstChild('Ammo') or nil,
+        Clips = Tool and Tool:FindFirstChild('Clips') or nil,
+        Handle = Tool and Tool:FindFirstChild('Handle') or nil,
+        Barrel = Tool and Tool:FindFirstChild('Barrel') or nil,
+        MaxAmmo = Tool and Tool:FindFirstChild('MaxAmmo') or nil,
+    }
+end
+
+
+local function InitializeTool(Tool: Instance)
+    if not Tool or Tool:GetAttribute('Initialized') then return end
+
+    Tool:SetAttribute('Initialize', true)
+
+    Tool.Equipped:Connect(function()
+        Weapon = OnEquipped(Tool)
+
+        UpdateBulletCounterVisible(false, false);
+
+        if Weapon and Weapon.Ammo then
+            Hash.FromScreen = Select.BulletCounter.Value == 'From Screen';
+            Hash.FromGun = Select.BulletCounter.Value == 'From Gun';
+
+            UpdateBulletCounterVisible(Hash.FromGun, Hash.FromScreen);
+        end
+
+        Host:SetAttribute('HoldingTool', true)
+    end)
+
+    Tool.Unequipped:Connect(function()
+        Weapon = nil
+
+        UpdateBulletCounterVisible(false, false);
+        Host:SetAttribute('HoldingTool', false)
+    end)
+end
+
+
+local function OnGradient(Lerp: number) : ColorSequence
+    local Key = math.floor(Lerp * 100)
+
+    local Cached = GradientCache[Key]
+    if Cached then return Cached end -- Searches if Gradient is cached, prevents caching on each frame
+
+    Cached = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Colors.MouseColorOffTint:Lerp(Colors.MouseColorOnTint, Lerp)),
+        ColorSequenceKeypoint.new(0.3, Colors.MouseColorOff:Lerp(Colors.MouseColorOn, Lerp)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(225,225,225))
+    }
+
+    GradientCache[Key] = Cached
+    return Cached
+end
+
+
+local function UpdateInfoCursor()
+    if not Mouse or not Mouse.Target or not Mouse.Target.Parent then return end
+
+    Lerping += Speed
+
+    if Lerping > 1 then 
+        Lerping = 0; 
+    end
+
+    local MouseTarget = Mouse and Mouse.Target;
+    local MouseParent = MouseTarget and MouseTarget.Parent;
+    local MouseName = MouseParent and tostring(MouseParent.Name);
+
+    if not Boolean.CursorInfo.Value then
+        InfoCursor.Visible = false
+    end
+    
+    if MouseTarget then
+        Hash.Head = MouseParent and MouseParent:FindFirstChild('Head');
+        Hash.Humanoid = MouseParent and MouseParent:FindFirstChildOfClass('Humanoid');
+        Hash.Root = MouseParent and MouseParent:FindFirstChild('HumanoidRootPart');
+        Hash.BodyColors = MouseParent and MouseParent:FindFirstChild('Body Colors'); -- For those grey lifeless bodies at spawns
+
+        if not (Hash.Head and Hash.Humanoid and Hash.Root) or MouseName == Host.Name then
+            UIGradientStroke.Color = OffGradient
+            UIGradientInner.Color = OffGradient
+
+            if Boolean.CursorInfo.Value then
+                InfoCursor.Visible = false
+            end
+
+            return
+        end
+
+        if Utils.Streets and (MouseName == 'Spedsshed' or MouseName == 'Afro' or not Hash.BodyColors) then
+            return
+        end
+
+        if Hash.Head or Hash.Humanoid or Hash.Root then
+            Hash.Player = MouseName and Utils.Players[MouseName];
+        end
+
+        local _Head = Hash.Head or (MouseParent and MouseParent:FindFirstChild('Head'));
+        local _Humanoid = Hash.Humanoid or (MouseParent and MouseParent:FindFirstChildOfClass('Humanoid'));
+        local _Player = Hash.Player or (Utils.Players and MouseName and Utils.Players[MouseName]);
+
+        local _Tool;
+        local Gradient = OnGradient(Lerping);
+
+        UIGradientInner.Color = Gradient;
+        UIGradientStroke.Color = Gradient;
+
+        if Boolean.CursorInfo.Value then
+            InfoCursor.Visible = true;
+        end
+
+        if _Player and _Head and _Humanoid then
+            for _, Index in next, _Player:GetChildren() do
+                if Index:IsA('Tool') then
+                    _Tool = Index;
+                    
+                    break
+                end
+            end
+
+        -- [] Inilatize Text
+
+            local Ammo = _Tool and _Tool:FindFirstChild('Ammo');
+            local Clips = _Tool and _Tool:FindFirstChild('Clips');
+
+            local StudFinder = StudDistance(Head, _Head);
+            local Keybind = Utils.UserInputService:IsKeyDown(Enum.KeyCode[Select.AdvCursorInfo.Value]);
+            local Health = math.round(_Humanoid.Health);
+            local Age = string.format('%.2f', _Player.AccountAge / 365.25)
+
+            local Text = string.format('%s\nStuds: %s\nHealth: %s\nTool: %s', MouseName, StudFinder, Health, (_Tool and _Tool.Name) or 'None')
+
+            if Utils.Streets then
+                Hash.Cred = 'Cred: ' .. _Player.leaderstats:FindFirstChild('Cred').Value
+                
+            elseif Utils.Prison then
+                Hash.Cred = 'Stomps: ' .. _Player.leaderstats:FindFirstChild('Stomps').Value
+            end
+
+            if _Tool and Ammo and Clips then
+                Text ..= string.format(' ( Clips: %s  Ammo: %s )', Clips.Value, Ammo.Value)
+            end
+
+            if not Keybind then
+                Text ..= '\nMore Info..';
+            else
+                Text ..= string.format('\nAge: %s\n%s', Age, Hash.Cred or '');
+            end 
+
+            InfoCursor.Text = Text or ''
+        end
+    end
+
+    InfoCursor.Position = UDim2.fromOffset(MousePosition.X + 40, MousePosition.Y - 24.5)
+end
+
+
+local function BulletColors(Object: Instance)
+    if not Boolean.Trails.Value then return end
+    if not Object or not Object:IsA('Trail') then return end
+
+    local Color;
+    local TrailClone = Object:Clone();
+
+    TrailClone.Parent = Object.Parent;
+
+    TrailClone.Texture = 'rbxassetid://8522442091'; -- Creds to DranghetaLurk, I used your texture
+    TrailClone.Transparency = NumberSequence.new(0);
+    TrailClone.Lifetime = Select.TrailLifetime.Value;
+    TrailClone.TextureMode = Enum.TextureMode.Wrap;
+    TrailClone.TextureLength = 5;
+    TrailClone.MaxLength = 9e9;
+    TrailClone.LightEmission = 1;
+    TrailClone.LightInfluence = 0;
+    TrailClone.FaceCamera = true;
+    TrailClone.Brightness = Select.TrailBrightness.Value;
+    --TrailClone.WidthScale = NumberSequence.new(0, 1);
+
+    if Boolean.TrailRainbow.Value then
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, CycleHSV), 
+            ColorSequenceKeypoint.new(1.00, CycleHSV)
+        }
+
+    elseif Boolean.TrailColorOne.Value and not Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
+            ColorSequenceKeypoint.new(1.00, Select.TrailColors1.Value)
+        }
+
+    elseif Boolean.TrailColorOne.Value and Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
+            ColorSequenceKeypoint.new(1.00, Select.TrailColors2.Value)
+        }
+    else
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(225, 225, 225)), 
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))
+        }
+    end
+
+    TrailClone.Color = Color;
+end
+
+
+local function DebounceFunc(Name: string, IsDelay: boolean, Delay: number, Callback: (...any) -> (), Callback2: (...any) -> ()) : (...any) -> ()
+    Callback = Callback or function() end
+    Callback2 = Callback2 or function() end;
+    Debounce[Name] = false;
+    
+    return function(...)
+        if Debounce[Name] then return end
+
+        Debounce[Name] = true;
+        task.spawn(Callback, ...)
+        task.spawn(Callback2, ...)
+
+        if not IsDelay then
+            Debounce[Name] = false;
+        else
+            task.delay(Delay, function()
+                Debounce[Name] = false;
+            end)
+        end
+    end
+end
+
+
+local function Boombox(Object: Instance)
+    if not Object then return end
+
+    local FindReverb = Object and Object:FindFirstChild('Reverb');
+    local FindChorus = Object and Object:FindFirstChild('Chorus');
+    local FindDistortion = Object and Object:FindFirstChild('Distortion');
+
+    if (FindReverb or FindChorus or FindDistortion) then return end
+
+    local Reverb = NewInstance('Instance', 'ReverbSoundEffect', { 
+        Name = 'Reverb';
+        Parent = Object;
+        Enabled = Boolean.Reverb.Value;
+    })
+
+    local Distortion = NewInstance('Instance', 'DistortionSoundEffect', {
+        Name = 'Distortion';
+        Parent = Object;
+        Level = 0;
+        Enabled = Boolean.Distortion.Value;
+    })
+
+    local Chorus = NewInstance('Instance', 'ChorusSoundEffect', {
+        Name = 'Chorus';
+        Parent = Object;
+        Enabled = Boolean.Chorus.Value;
+    })
+end
+
+
+local function FindPlayersPart(Player: Player, Type: string, Part: string, Descendants: boolean) : Instance? -- // Should probably delete this
+    local GrabPlayer = Player and Player.Character;
+
+    if not GrabPlayer then
+        return
+    end
+
+    if Type == 'Wait' or Type == 'wait' then
+        return GrabPlayer:WaitForChild(Part)
+
+    elseif Type == 'Find' or Type == 'find' then
+
+        return GrabPlayer:FindFirstChild(Part, Descendants)
+    elseif Type == 'Class' or Type == 'class' then
+
+        return GrabPlayer:FindFirstChildOfClass(Part)
+    else
+
+        return GrabPlayer
+    end
+
+    Logger:Cout(debug.traceback())
+end
+
+
+function TeleportBypass()
+end
+
+
+local function FindRound(Object: Instance)
+    if Object and Object.Name == 'Trail' and not Utils.CollectionService:HasTag(Object, TagTrails) then
+        Utils.CollectionService:AddTag(Object, TagTrails)
+    end
+end
+
+
+local function FindBoomboxes(Object: Instance)
+    if Object and Object:IsA('Sound') and Object.Name == 'SoundX' then
+        Boomboxes[Object.Name] = Object
+        Utils.CollectionService:AddTag(Object, TagBoomboxes)
+    end
+end
+
+
+local function ItemColors(Object: Instance)
     if not Boolean.ItemColors.Value or not Object or not TypeCheckTool(Object) then return end
 
     local Handle = Object and Object:FindFirstChild('Handle')
@@ -2426,7 +1991,7 @@ function ItemColors(Object: Instance)
 end
 
 
-function BoomboxEffects()
+local function BoomboxEffects()
     if not Boomboxes or not next(Boomboxes) then
         return
     end
@@ -2486,7 +2051,7 @@ function BoomboxEffects()
 end
 
 
-function SendKnockedAttributes(Player: Player, Character: Model)
+local function SendKnockedAttributes(Player: Player, Character: Model)
     local _Head = Character:WaitForChild('Head')
     if not _Head then return end
 
@@ -2509,7 +2074,7 @@ function SendKnockedAttributes(Player: Player, Character: Model)
 end
 
 
-function Cash() : number -- Creds to whoever on devforums
+local function Cash() : number -- Creds to whoever on devforums
     local Cash = CashUi.Text
 
     if not Cash then
@@ -2523,10 +2088,10 @@ function Cash() : number -- Creds to whoever on devforums
 end
 
 
-function InitializePads() : table -- Creds to Ponyhook for the string.matchs
+local function InitializePads() : table -- Creds to Ponyhook for the string.matchs
     local Pads = {};
 
-    for _, Index in next, Workspace:GetDescendants() do
+    for _, Index in next, Utils.Workspace:GetDescendants() do
         local BlacklistedItems = {}
 
         if Index.Name == 'OldShotty | $600' or Index.Name == 'Sawed Off | $300' or Index.Name == 'Glock | $400' or Index.Name == 'OldGlock | $600' then
@@ -2550,11 +2115,7 @@ function InitializePads() : table -- Creds to Ponyhook for the string.matchs
 end -- // Public verison, you really can't use this but if you find a way, have at it
 
 
-function KickPlayer(Player: Player) -- Holy fuck
-end
-
-
-function PurchaseItem(Item: string) : Instance?
+local function PurchaseItem(Item: string) : Instance?
     local Distance = math.huge;
 
     for _, Index in next, InitializePads() do
@@ -2580,8 +2141,8 @@ function PurchaseItem(Item: string) : Instance?
 end
 
 
-function AutoHeal()
-    if not AuthorizedSessions.Streets or not Body or not Root or not Humanoid or not Boolean.Autoheal.Value then return end
+local function AutoHeal()
+    if not Utils.Streets or not Body or not Root or not Humanoid or not Boolean.Autoheal.Value then return end
 
     local SaveOldPos = Root.CFrame;
     local Health = Humanoid.Health;
@@ -2621,7 +2182,7 @@ function AutoHeal()
 end
 
 
-function VelocityType(...) : Vector3?
+local function VelocityType(...) : Vector3?
     local Arguments = {...}
     local VelocitySet = {}
 
@@ -2645,20 +2206,20 @@ function VelocityType(...) : Vector3?
 
     return Vector3.zero
 end
-  
 
-function OnRenderStepped(Delta: number)
+
+local function OnRenderStepped(Delta: number)
     local HostTorsoToWorld = Camera:WorldToViewportPoint(Torso.Position);
 
     local CountTicks = os.clock() * ((Boolean.ToolRainbow.Value and Select.RainbowSpeed.Value) or 0.3)
-    getgenv().CycleHSV = Color3.fromHSV(CountTicks % 1, 1, 1) -- Thanks to devforums
+    CycleHSV = Color3.fromHSV(CountTicks % 1, 1, 1) -- Thanks to devforums
 
-    getgenv().MousePosition = UserInputService and UserInputService:GetMouseLocation()
+    MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
 
-    LogoFirst.Position = UDim2.fromOffset(getgenv().MousePosition.X - 85, getgenv().MousePosition.Y + 40);
-    LogoSecond.Position = UDim2.fromOffset(getgenv().MousePosition.X + 15, getgenv().MousePosition.Y + 40);
-    CursorImage.Position = UDim2.fromOffset(getgenv().MousePosition.X, getgenv().MousePosition.Y);
-    CircleCursor.Position = UDim2.fromOffset(getgenv().MousePosition.X, getgenv().MousePosition.Y);
+    LogoFirst.Position = UDim2.fromOffset(MousePosition.X - 85, MousePosition.Y + 40);
+    LogoSecond.Position = UDim2.fromOffset(MousePosition.X + 15, MousePosition.Y + 40);
+    CursorImage.Position = UDim2.fromOffset(MousePosition.X, MousePosition.Y);
+    CircleCursor.Position = UDim2.fromOffset(MousePosition.X, MousePosition.Y);
 
     CircleInner.Size = UDim2.fromOffset(Select.CursorSize.Value + 10, Select.CursorSize.Value + 10);
     CursorImage.Size = UDim2.fromOffset(Select.CursorSize.Value, Select.CursorSize.Value);
@@ -2673,7 +2234,7 @@ function OnRenderStepped(Delta: number)
         if Boolean.FOVMiddleCircle.Value then
             Circle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2);
         else
-            Circle.Position = getgenv().MousePosition 
+            Circle.Position = MousePosition 
         end
     end
 
@@ -2686,14 +2247,14 @@ function OnRenderStepped(Delta: number)
         BoomboxEffects();
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
-        Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Lighting.Ambient;
-        Lighting.OutdoorAmbient = Boolean.OutdoorAmbient.Value and Select.OutdoorAmbientColor.Value or Lighting.OutdoorAmbient;
-        Lighting.FogColor = Boolean.FogColor.Value and Select.FogColor.Value or Lighting.FogColor;
-        Lighting.Brightness = Boolean.Brightness.Value and Select.Brightness.Value or Lighting.Brightness;
-        Lighting.ShadowSoftness = Boolean.ShadowSoftness.Value and Select.ShadowSoftness.Value or Lighting.ShadowSoftness;
-        Lighting.ExposureCompensation = Boolean.Exposure.Value and Select.Exposure.Value or Lighting.ExposureCompensation;
-        Lighting.FogEnd =  Boolean.FogEnd.Value and Select.FogEnd.Value or Lighting.FogEnd;
-        Lighting.TimeOfDay = Boolean.Clock.Value and Select.Clock.Value or Lighting.TimeOfDay;
+        Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
+        Utils.Lighting.OutdoorAmbient = Boolean.OutdoorAmbient.Value and Select.OutdoorAmbientColor.Value or Utils.Lighting.OutdoorAmbient;
+        Utils.Lighting.FogColor = Boolean.FogColor.Value and Select.FogColor.Value or Utils.Lighting.FogColor;
+        Utils.Lighting.Brightness = Boolean.Brightness.Value and Select.Brightness.Value or Utils.Lighting.Brightness;
+        Utils.Lighting.ShadowSoftness = Boolean.ShadowSoftness.Value and Select.ShadowSoftness.Value or Utils.Lighting.ShadowSoftness;
+        Utils.Lighting.ExposureCompensation = Boolean.Exposure.Value and Select.Exposure.Value or Utils.Lighting.ExposureCompensation;
+        Utils.Lighting.FogEnd =  Boolean.FogEnd.Value and Select.FogEnd.Value or Utils.Lighting.FogEnd;
+        Utils.Lighting.TimeOfDay = Boolean.Clock.Value and Select.Clock.Value or Utils.Lighting.TimeOfDay;
 
         Host.CameraMode = Select.POV.Value == 'FirstPerson' and Enum.CameraMode.LockFirstPerson or Host.CameraMode;
 
@@ -2707,7 +2268,7 @@ function OnRenderStepped(Delta: number)
     if Boolean.ItemColors.Value then
         for _, Index in next, ProcessedItems do
             if Index then
-                Index.Color = Boolean.ToolRainbow.Value and getgenv().CycleHSV or Select.ItemColoring.Value;
+                Index.Color = Boolean.ToolRainbow.Value and CycleHSV or Select.ItemColoring.Value;
             end
         end
     end
@@ -2720,12 +2281,12 @@ function OnRenderStepped(Delta: number)
         Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
     end
 
-    if not Boolean.TintColor.Value and AuthorizedSessions.BothPrisons then
+    if not Boolean.TintColor.Value and Utils.BothOriginalPrisons then
         ColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
     end
 
     if Select.SnaplineDirection.Value == 'From Mouse' then
-        SnaplineMethod = getgenv().MousePosition;
+        SnaplineMethod = MousePosition;
     end
 
     if Select.SnaplineDirection.Value == 'From Screen' then
@@ -2738,21 +2299,17 @@ function OnRenderStepped(Delta: number)
 end
 
 
-function OnStepped(Delta: number)
-end
-
-
-function OnHeartbeat(Delta: number)
-    Ping = math.round(Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
+local function OnHeartbeat(Delta: number)
+    Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
 
     local MoveDirection = (Humanoid and Humanoid.MoveDirection) or Vector3.zero
-    Debounce.Typing = UserInputService and UserInputService:GetFocusedTextBox() ~= nil
+    Debounce.Typing = Utils.UserInputService and Utils.UserInputService:GetFocusedTextBox() ~= nil
 
     if Boolean.Flying.Value then
         UpdateFly();
     end
 
-    if AuthorizedSessions.Streets then
+    if Utils.Streets then
         NoclipAddons(Boolean.NoClip.Value); -- // This was a pain
     end
 
@@ -2760,14 +2317,14 @@ function OnHeartbeat(Delta: number)
         Torso.CanCollide = false; 
         Head.CanCollide = false;
 
-        if AuthorizedSessions.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if Utils.BothOriginalPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     else
         Torso.CanCollide = true;
         Head.CanCollide = true;
 
-        if AuthorizedSessions.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
+        if Utils.BothOriginalPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
             Body:FindFirstChild('Barrel', true).CanCollide = false;
         end
     end
@@ -2803,14 +2360,14 @@ function OnHeartbeat(Delta: number)
         end
     end
 
-    if AuthorizedSessions.Remake and Boolean.InfiniteStam.Value then
+    if Utils.Remake and Boolean.InfiniteStam.Value then
         Host:SetAttribute('Stamina', 100);
     end
 end
 
 
-function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boolean) : CFrame
-    local SetAimlockTarget = Players[AimlockTarget.Name];
+local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boolean) : CFrame
+    local SetAimlockTarget = Utils.Players[AimlockTarget.Name];
     local SetAimlockVelocity = Select.AimlockVelocity.Value or Ping
 
     if SetAimlockTarget then
@@ -2867,20 +2424,20 @@ function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boolean) : 
 end
 
 
-function FireAimlock()
+local function FireAimlock()
     if not AimlockTarget then return end
 
     local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait()
 
     if not AimlockCharacter then 
-        Std:Warn('No Aimlock Character found')
+        Logger:Warning('No Aimlock Character found')
         return 
     end
 
     local AimlockOnTarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
     local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
 
-    if AuthorizedSessions.Streets then
+    if Utils.Streets then
         local Input = Backpack:FindFirstChild('Input', true)
 
         if Input and Input:IsA('RemoteEvent') then
@@ -2896,17 +2453,17 @@ function FireAimlock()
         return
     end
 
-    if AuthorizedSessions.Prison and Weapon and Weapon.Tool then
+    if Utils.Prison and Weapon and Weapon.Tool then
         local Remote =  Weapon.Tool.Name..'Fire';
-        local FiringEvent = ReplicatedStorage:FindFirstChild(Remote, true)
+        local FiringEvent = Utils.ReplicatedStorage:FindFirstChild(Remote, true)
 
         if FiringEvent and FiringEvent:IsA('RemoteEvent') then
             FiringEvent:FireServer(AimlockOnHit, AimlockOnTarget);
         end
     end
 
-    if AuthorizedSessions.Remake then
-        local FiringEvent = ReplicatedStorage:FindFirstChild('Game', true)
+    if Utils.Remake then
+        local FiringEvent = Utils.ReplicatedStorage:FindFirstChild('Game', true)
 
         if FiringEvent and FiringEvent:IsA('RemoteEvent') then
             FiringEvent:FireServer('Shoot', AimlockOnHit, AimlockOnTarget);
@@ -2915,7 +2472,7 @@ function FireAimlock()
 end
 
 
-function HookMouse() : (CFrame, Instance?)
+local function HookMouse() : (CFrame, Instance?)
     if Boolean.Aimlock.Value and AimlockTarget then
         return FindPlayersPart(AimlockTarget) or AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
     end
@@ -2924,7 +2481,7 @@ function HookMouse() : (CFrame, Instance?)
 end
 
 
-function HookData()
+local function HookData()
     local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(self: Instance, Index: any)
         local Self = tostring(self)
 
@@ -2932,39 +2489,39 @@ function HookData()
             return GetIndex(self, Index);
         end
 
-        if AuthorizedSessions.Both and Boolean.InfiniteStam.Value then
+        if Utils.BothOriginal and Boolean.InfiniteStam.Value then
             if Self == 'Stamina' and Index == 'Value' then
                 return 100;
             end
         end
 
-        if self == ScriptContext and Index == 'Error' then
+        if self == Utils.ScriptContext and Index == 'Error' then
             return {connect = function() end} -- // PlayerGui.LocalScript
         end
 
         if self == Humanoid then
             if Index == 'WalkSpeed' then
-                return OrginialWalkSpeed;
+                return Originals.OrginialWalkSpeed;
             end
 
             if Index == 'JumpPower' then
-                return OrginialJumpPower;
+                return Originals.JumpPower;
             end
 
             if Index == 'HipHeight' then
-                return OrginialHipHeight;
+                return Originals.HipHeight;
             end
         end
 
-        if self == Workspace then
+        if self == Utils.Workspace then
             if Index == 'Gravity' then
-                return OrginialGravity;
+                return Originals.Gravity;
             end
         end
 
         if self == Camera then 
             if Index == 'FieldOfView' then
-                return OrginialFOV;
+                return Originals.FOV;
             end
         end
 
@@ -2977,14 +2534,14 @@ function HookData()
            return GetNewIndex(self, Index, Value);
         end
 
-        StarterGui:SetCore('ResetButtonCallback', true)
+        Utils.StarterGui:SetCore('ResetButtonCallback', true)
 
         if self == Humanoid then
             if Index == 'JumpPower' then
-                Value = Select.JumpPower.Value or OrginialJumpPower;
+                Value = Select.JumpPower.Value or Originals.JumpPower;
             end
 
-            if Index == 'Jump' and Boolean.InfiniteStam.Value and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            if Index == 'Jump' and Boolean.InfiniteStam.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) then
                 Value = true;
             end
 
@@ -2998,7 +2555,7 @@ function HookData()
 
             if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
                 if Value == 0 or Value == 2 then
-                    return Select.WalkSpeed.Value or OrginialWalkSpeed;
+                    return Select.WalkSpeed.Value or Originals.OrginialWalkSpeed;
                 end
 
                 if Debounce.Crouching then
@@ -3007,20 +2564,20 @@ function HookData()
 
                 if Movement.W or Movement.A or Movement.S or Movement.D then
                     if not Debounce.Crouching then
-                        Value = Select.WalkSpeed.Value or OrginialWalkSpeed;
+                        Value = Select.WalkSpeed.Value or Originals.OrginialWalkSpeed;
                     
                     elseif Debounce.Crouching then
                         Value = Select.CrouchSpeed.Value or 8 or 7.9;
                     end
                 end
                 
-                if AuthorizedSessions.Both and not Boolean.InfiniteStam.Value and Body:FindFirstChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina').Value < 0.1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    Value = OrginialWalkSpeed;
+                if Utils.BothOriginal and not Boolean.InfiniteStam.Value and Body:FindFirstChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina').Value < 0.1 and Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    Value = Originals.OrginialWalkSpeed;
 
-                elseif AuthorizedSessions.Remake and not Boolean.InfiniteStam.Value and Host:GetAttribute('Stamina') < 0.1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    Value = OrginialWalkSpeed;
+                elseif Utils.Remake and not Boolean.InfiniteStam.Value and Host:GetAttribute('Stamina') < 0.1 and Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    Value = Originals.OrginialWalkSpeed;
 
-                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                elseif Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
                     Value = Select.WalkSpeed.Value;
                 end
             end
@@ -3032,13 +2589,13 @@ function HookData()
             end
         end
 
-        if self == Workspace then
+        if self == Utils.Workspace then
             if Index == 'Gravity' and Boolean.Gravity.Value then
-                Value = Select.Gravity.Value or OrginialGravity;
+                Value = Select.Gravity.Value or Originals.Gravity;
             end
         end
 
-        if AuthorizedSessions.Both and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then -- Detectable if InfiniteStam is true
+        if Utils.BothOriginal and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then -- Detectable if InfiniteStam is true
             if Index == 'Value' then
                 return 100;
             end
@@ -3050,7 +2607,7 @@ function HookData()
 
         if self == Camera then 
             if Index == 'FieldOfView' then -- Because of the new chat commands
-                Value = Select.FOV.Value or OrginialFOV;
+                Value = Select.FOV.Value or Originals.FOV;
             end
         end
 
@@ -3066,8 +2623,8 @@ function HookData()
         end
 
         if SetMethod == 'FireServer' then
-            if AuthorizedSessions.Prison then
-                if table.find({ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
+            if Utils.Prison then
+                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
                     Arguments[1] = Mouse.Hit;
                     Arguments[2] = Mouse.Target;
 
@@ -3079,13 +2636,13 @@ function HookData()
                     end
                 end
 
-                if self.Parent == ReplicatedStorage and self.Name == 'lIIl' then
+                if self.Parent == Utils.ReplicatedStorage and self.Name == 'lIIl' then
                     return;
                 end
             end
 
-            if AuthorizedSessions.Remake then
-                if table.find({ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
+            if Utils.Remake then
+                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
                     if Arguments[1] == 'Shoot' then
                         Arguments[2] = Mouse.Hit;
                         Arguments[3] = Mouse.Target;
@@ -3100,7 +2657,7 @@ function HookData()
                 end
             end
 
-            if AuthorizedSessions.Streets then
+            if Utils.Streets then
                 local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
                 local Dragging = {'e', 'drag', 'dragoff'}
 
@@ -3148,20 +2705,20 @@ function HookData()
             end
         end
 
-        if self == Workspace then -- Detectable
+        if self == Utils.Workspace then -- Detectable
             if SetMethod == 'ClearAllChildren' then
                 return;
             end
         end
 
         if SetMethod == 'FindFirstChild' or SetMethod == 'WaitForChild' then -- (PlayerGui.LocalScript) -- Detectable
-            --[[if AuthorizedSessions.Prison and Boolean.NoSlow.Value and Arguments[1] == 'Action' then
+            --[[if Utils.Prison and Boolean.NoSlow.Value and Arguments[1] == 'Action' then
                 --return; -- If NoSlow in prison does not work, uncomment this and it should work
-            end]]
+            end]]--
         end
     
         return GetNameCalls(self, unpack(Arguments));
-    end));
+    end))
 
 
     local HookKick; HookKick = hookfunction(Host.Kick or Host.kick, newcclosure(function(self: Instance, ...)
@@ -3172,7 +2729,7 @@ end
 -- Commands []
 
 do
-    Command('aimlock', {'aim', 'al'}, 'Locks your aim onto a player', '', true, function(Arguments)
+    CommandHandler.Add('aimlock', {'aim', 'al'}, 'Locks your aim onto a player', '', true, function(Arguments)
 
         if Arguments[1] then
             Boolean.Aimlock.Value = true
@@ -3190,7 +2747,7 @@ do
     end)
 
 
-    Command('camlock', {'cam', 'cl'}, 'Locks your Camera onto a player', '', true, function(Arguments)
+    CommandHandler.Add('camlock', {'cam', 'cl'}, 'Locks your Camera onto a player', '', true, function(Arguments)
 
         if Arguments[1] then
             CamlockTarget = FindPlayer(Arguments[1])[1]
@@ -3203,18 +2760,18 @@ do
     end)
 
 
-    Command('copyname', {}, 'Copys a players name to your clipboard so you do not have to struggle with typing or you can steal a display name', '', true, function(Arguments)
+    CommandHandler.Add('copyname', {}, 'Copys a players name to your clipboard so you do not have to struggle with typing or you can steal a display name', '', true, function(Arguments)
 
         if Arguments[1] then
             ClipboardTarget = FindPlayer(Arguments[1])[1].Name
-            Clipboard(tostring(ClipboardTarget))
+            Utils.Clipboard(tostring(ClipboardTarget))
         end
 
         Notify('Copy Name','Copied name '..tostring(ClipboardTarget))
     end)
 
 
-    Command('stealaudio', {'steala', 'sa'}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
+    CommandHandler.Add('stealaudio', {'steala', 'sa'}, 'Steals an audio from a person (Command provides no decryption)', '', true, function(Arguments)
         
         if Arguments[1] then
             AudioTarget = FindPlayer(Arguments[1])[1]
@@ -3231,13 +2788,13 @@ do
 
             local AudioId = tostring(SoundX.SoundId)
 
-            Clipboard(AudioId)
+            Utils.Clipboard(AudioId)
             Notify('Steal Audio','Audio id is now copied: '..tostring(AudioId))
         end
     end)
 
 
-    Command('esp', {}, 'Traces the player specifiied', '', true, function(Arguments)
+    CommandHandler.Add('esp', {}, 'Traces the player specifiied', '', true, function(Arguments)
 
         if Arguments[1] then
             EspTarget = FindPlayer(Arguments[1])
@@ -3256,7 +2813,7 @@ do
     end)
 
 
-    Command('unesp', {}, 'Deletes the esp on the specified player', '', true, function(Arguments)
+    CommandHandler.Add('unesp', {}, 'Deletes the esp on the specified player', '', true, function(Arguments)
 
         if Arguments[1] then
             UnespTarget = FindPlayer(Arguments[1])
@@ -3276,7 +2833,7 @@ do
     end)
 
 
-    Command('watchforrejoin', {'rejoinwatch', 'wfr'}, 'Watches for the specified target to rejoin', '', true, function(Arguments)
+    CommandHandler.Add('watchforrejoin', {'rejoinwatch', 'wfr'}, 'Watches for the specified target to rejoin', '', true, function(Arguments)
 
         if Arguments[1] then
             WatchRejoinTarget = FindPlayer(Arguments[1])[1] or Arguments[1]
@@ -3290,14 +2847,14 @@ do
     end)
 
 
-    Command('fly', {'flight'}, 'Allows you to fly', '', true, function()
+    CommandHandler.Add('fly', {'flight'}, 'Allows you to fly', '', true, function()
         Boolean.Flying.Value = not Boolean.Flying.Value
 
         if Boolean.Flying.Value then Fly() else KillFly() end
     end)
 
 
-    Command('flyspeed', {'flightspeed', 'fs'}, 'Changes your flightspeed', '', true, function(Arguments)
+    CommandHandler.Add('flyspeed', {'flightspeed', 'fs'}, 'Changes your flightspeed', '', true, function(Arguments)
 
         if Arguments[1] then
             assert(tonumber(Arguments[1]), 'Fly Speed must be a number')
@@ -3308,7 +2865,7 @@ do
     end)
 
 
-    Command('to', {'goto', 'tp', 'teleport'}, 'Teleports you to the targetted player', '', true, function(Arguments)
+    CommandHandler.Add('to', {'goto', 'tp', 'teleport'}, 'Teleports you to the targetted player', '', true, function(Arguments)
 
         if Arguments[1] then
             TeleportTarget = FindPlayer(Arguments[1])[1]
@@ -3319,20 +2876,20 @@ do
     end)
 
 
-    Command('url', {}, 'Copys a players profile URL so you can search them up', '', true, function(Arguments)
+    CommandHandler.Add('url', {}, 'Copys a players profile URL so you can search them up', '', true, function(Arguments)
 
         if Arguments[1] then
             UserIdTarget = FindPlayer(Arguments[1])[1]
 
             local SearchPlayer = tostring(UserIdTarget.UserId)
-            Clipboard('https://www.roblox.com/users/'..SearchPlayer..'/profile')
+            Utils.Clipboard('https://www.roblox.com/users/'..SearchPlayer..'/profile')
 
             Notify('Url','Url copied and sent to clipboard '..tostring(UserIdTarget.DisplayName))
         end
     end)
 
 
-    Command('view', {'watch', 'spectate', 'eye'}, 'Changes your camera view onto a players perspective', '', true, function(Arguments)
+    CommandHandler.Add('view', {'watch', 'spectate', 'eye'}, 'Changes your camera view onto a players perspective', '', true, function(Arguments)
 
         if Arguments[1] then
             ViewTarget = FindPlayer(Arguments[1])[1]
@@ -3349,27 +2906,27 @@ do
     end)
 
 
-    Command('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
+    CommandHandler.Add('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
         local AimlockMethodIndex = {'cyrus', 'movedirection', 'ponyhook', 'vector', 'velocity'}
 
         if Arguments[1] and table.find(AimlockMethodIndex, Arguments[1]) then
 
             Boolean.RotationalVelocity.Value = (Arguments[1] == 'cyrus')
 
-            Select.AimlockMethod.Value = SentenceCase(Arguments[1])
+            Select.AimlockMethod.Value = String.sentenceCase(Arguments[1])
             Notify('Aimlock Method', 'Aimlock Method is now '..tostring(Select.AimlockMethod.Value))
         end
     end)
 
 
-    Command('aimlockpart', {'aimpart', 'amp', 'ap'}, 'Changes your aimlock targetted limb', 'head, root, torso', true, function(Arguments)
+    CommandHandler.Add('aimlockpart', {'aimpart', 'amp', 'ap'}, 'Changes your aimlock targetted limb', 'head, root, torso', true, function(Arguments)
         local AimlockPartIndex = {'head','torso','root','humanoidrootpart'}
 
         if Arguments[1] and table.find(AimlockPartIndex, Arguments[1]) then
             if Arguments[1] == 'humanoidrootpart' or Arguments[1] == 'root' then
                 Select.AimlockPart.Value = 'HumanoidRootPart';
             else
-                Select.AimlockPart.Value = SentenceCase(Arguments[1])
+                Select.AimlockPart.Value = String.sentenceCase(Arguments[1])
             end
 
             Notify('Aimlock Part', 'Aimlock Part is now '..tostring(Select.AimlockPart.Value))
@@ -3377,7 +2934,7 @@ do
     end)
 
 
-    Command('aimlockvelocity', {'aimvelocity', 'av'}, 'Changes your aimlocks velocity', '', true, function(Arguments)
+    CommandHandler.Add('aimlockvelocity', {'aimvelocity', 'av'}, 'Changes your aimlocks velocity', '', true, function(Arguments)
 
         if Arguments[1] then
             assert(tonumber(Arguments[1]), 'Aimlock Velocity must be a number')
@@ -3388,24 +2945,24 @@ do
     end)
 
 
-    Command('rotvelocity', {'rotationalvelocity', 'rotationvelocity'}, 'Toggles on Cyrus\'s RotVelocity (Must be using AimlockMethod Cyrus)', '', true, function()
+    CommandHandler.Add('rotvelocity', {'rotationalvelocity', 'rotationvelocity'}, 'Toggles on Cyrus\'s RotVelocity (Must be using AimlockMethod Cyrus)', '', true, function()
         Boolean.RotationalVelocity.Value = not Boolean.RotationalVelocity.Value
-        Notify('Cyrus Rotational Velocity', 'Cyrus Rotational Velocity is now '..tostring(Cyrus))
+        Notify('Cyrus Rotational Velocity', 'Cyrus Rotational Velocity is now '..tostring(Boolean.RotationalVelocity.Value))
     end)
 
 
-    Command('fovcircle', {'aimbotcircle', 'circle'}, 'Toggles on a Fov Circle', '', true, function()
+    CommandHandler.Add('fovcircle', {'aimbotcircle', 'circle'}, 'Toggles on a Fov Circle', '', true, function()
         Boolean.FOVCircle.Value = not Boolean.FOVCircle.Value
     end)
 
 
-    Command('randomvelocity', {'rv'}, 'Toggles on Ponyhooks random velocity (Must be using AimlockMethod Ponyhook)', '', true, function()
+    CommandHandler.Add('randomvelocity', {'rv'}, 'Toggles on Ponyhooks random velocity (Must be using AimlockMethod Ponyhook)', '', true, function()
         Boolean.RandomVelocity.Value = not Boolean.RandomVelocity.Value
         Notify('Random Velocity', 'Random Velocity is now '..tostring(Boolean.RandomVelocity.Value))
     end)
 
 
-    Command('ponyhookvelocity', {'pv'}, 'Toggles on Ponyhooks Velocity Multiplier (Must be using AimlockMethod Ponyhook)', '', true, function(Arguments)
+    CommandHandler.Add('ponyhookvelocity', {'pv'}, 'Toggles on Ponyhooks Velocity Multiplier (Must be using AimlockMethod Ponyhook)', '', true, function(Arguments)
 
         if Arguments[1] then
             assert(tonumber(Arguments[1]), 'Ponyhook Velocity must be a number')
@@ -3416,13 +2973,13 @@ do
     end)
 
 
-    Command('blink', {}, 'Allows you to sprint', '', true, function()
+    CommandHandler.Add('blink', {}, 'Allows you to sprint', '', true, function()
         Boolean.Blink.Value = not Boolean.Blink.Value
         Notify('Blink', 'Blink is now '..tostring(Boolean.Blink.Value))
     end)
 
 
-    Command('blinkspeed', {'bs'}, 'Changes your blink speed', '', true, function(Arguments)
+    CommandHandler.Add('blinkspeed', {'bs'}, 'Changes your blink speed', '', true, function(Arguments)
 
         if Arguments[1] then
             assert(tonumber(Arguments[1]), 'Blink Speed must be a number')
@@ -3433,24 +2990,24 @@ do
     end)
 
 
-    Command('noshake', {}, 'Toggles camera shake when people use that stupid mech, legit has nothing to do with the game', '', true, function()
+    CommandHandler.Add('noshake', {}, 'Toggles camera shake when people use that stupid mech, legit has nothing to do with the game', '', true, function()
         Boolean.NoCameraShake.Value = not Boolean.NoCameraShake.Value
         Notify('No CameraShake','No CameraShake is now '..tostring(Boolean.NoCameraShake.Value))
     end)
 
 
-    Command('toggleesp', {}, 'Toggles ESP', '', true, function()
+    CommandHandler.Add('toggleesp', {}, 'Toggles ESP', '', true, function()
         Boolean.Esp.Value = not Boolean.Esp.Value
         Notify('Esp Toggle', 'Esp Toggle is now '..tostring(Boolean.Esp.Value))
     end)
 
 
-    Command('sit', {}, 'Sits your character down', '', true, function()
+    CommandHandler.Add('sit', {}, 'Sits your character down', '', true, function()
         if Humanoid then Humanoid.Sit = true end
     end)
 
 
-    Command('fov', {'fieldofview'}, 'Changes your FOV', '', true, function(Arguments)
+    CommandHandler.Add('fov', {'fieldofview'}, 'Changes your FOV', '', true, function(Arguments)
 
         if Arguments[1] then
             assert(tonumber(Arguments[1]), 'Field Of View must be a number')
@@ -3461,14 +3018,14 @@ do
     end)
 
 
-    Command('fpscap', {'setfpscap'}, 'Changes your FPS cap', '', true, function(Arguments)
+    CommandHandler.Add('fpscap', {'setfpscap'}, 'Changes your FPS cap', '', true, function(Arguments)
         if getfpscap and setfpscap then
 
             if Arguments[1] then
                 assert(tonumber(Arguments[1]), 'FPS Cap must be a number')
             end
 
-            Std:Cout(getfpscap())
+            Logger:Cout(getfpscap())
             setfpscap(Arguments[1])
         else
             Notify('Set FPS Cap', 'FPS Cap is now '..tonumber(getfpscap()))
@@ -3476,12 +3033,12 @@ do
     end)
 
 
-    Command('chams', {'cham', 'espchams'}, 'Highlights the esp\'d player', '', true, function()
+    CommandHandler.Add('chams', {'cham', 'espchams'}, 'Highlights the esp\'d player', '', true, function()
         Boolean.EspChams.Value = not Boolean.EspChams.Value
     end)
 
 
-    Command('tpbypass', {'tpb', 'bypass'}, 'Bypasses anti-teleportation anticheats', '', true, function()
+    CommandHandler.Add('tpbypass', {'tpb', 'bypass'}, 'Bypasses anti-teleportation anticheats', '', true, function()
         Boolean.TpBypass.Value = not Boolean.TpBypass.Value
         TeleportBypass();
 
@@ -3489,48 +3046,48 @@ do
     end)
 
 
-    Command('infzoom', {'infinitezoom'}, 'Allows you to zoom out into infinity', '', true, function()
+    CommandHandler.Add('infzoom', {'infinitezoom'}, 'Allows you to zoom out into infinity', '', true, function()
         SetInfinityZoom(Boolean.InfiniteZoom.Value)
         Notify('Infinite Zoom','Infinite Zoom is now '..tostring(Boolean.InfiniteZoom.Value))
     end)
 
 
-    Command('exit', {'leave'}, 'Makes you leave the current game', '', true, function()
+    CommandHandler.Add('exit', {'leave'}, 'Makes you leave the current game', '', true, function()
         game:shutdown()
     end)
 
 
-    Command('devmode', {'developermode'}, 'Allows you to use commands I\'ve thought of as not finished or polished. (May result in unwanted results)', '', true, function()
+    CommandHandler.Add('devmode', {'developermode'}, 'Allows you to use commands I\'ve thought of as not finished or polished. (May result in unwanted results)', '', true, function()
         Boolean.DevMode.Value = not Boolean.DevMode.Value
         Notify('Developer Mode', 'Be mindful of what commands you do, it could break the script or get you banned')
     end)
 
 
-    Command('remotespy', {'rspy'}, 'Allows you to spy on remotes', '', true, function() -- Just in here so I don't have to load IY
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
+    CommandHandler.Add('remotespy', {'rspy'}, 'Allows you to spy on remotes', '', true, function() -- Just in here so I don't have to load IY
+        Import('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua')
     end)
 
 
-    Command('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))()
+    CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY
+        Import('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua')
     end)
 
 
-    Command('rejoin', {'rj'}, 'Rejoins the current game', '', true, function()
-        TeleportService:TeleportToPlaceInstance(Place, Job)
+    CommandHandler.Add('rejoin', {'rj'}, 'Rejoins the current game', '', true, function()
+        Utils.TeleportService:TeleportToPlaceInstance(Place, Job)
     end)
 
 
-    Command('swap', {}, 'Swaps the current game between Streets and Prison', '', true, function()
-        TeleportService:Teleport(Hash.PlaceSwap, Host)
+    CommandHandler.Add('swap', {}, 'Swaps the current game between Streets and Prison', '', true, function()
+        Utils.TeleportService:Teleport(Hash.PlaceSwap, Host)
     end)
 
 
-    Command('serverhop', {'shop'}, 'Hops servers', '', true, function() -- Creds to IY
+    CommandHandler.Add('serverhop', {'shop'}, 'Hops servers', '', true, function() -- Creds to IY
         if HttpRequest then
             local Servers = {};
-            local Url = HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Place)})
-            local HtmlBody = HttpService:JSONDecode(Url.Body)
+            local Url = Utils.HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Place)})
+            local HtmlBody = Utils.HttpService:JSONDecode(Url.Body)
 
             if HtmlBody and HtmlBody.data then
                 for _, Index in next, HtmlBody.data do
@@ -3541,7 +3098,7 @@ do
             end
 
             if #Servers > 0 then
-                TeleportService:TeleportToPlaceInstance(Place, Servers[math.random(1, #Servers)], Host)
+                Utils.TeleportService:TeleportToPlaceInstance(Place, Servers[math.random(1, #Servers)], Host)
             end
         else
             Notify('Error 236', '(syn.request) was not found or not compatible')
@@ -3549,40 +3106,40 @@ do
     end)
 
 
-    Command('name', {'tag', 'group'}, 'Changes your groups name', '', true, function(Arguments) -- They seem set on updating this
+    CommandHandler.Add('name', {'tag', 'group'}, 'Changes your groups name', '', true, function(Arguments) -- They seem set on updating this
         if Arguments[1] and not Boolean.TpBypass.Value then
             local SetName = Arguments[1]
-            SetClan(string.rep('\n', 100 - #SetName)..SetName)
+            Enums.SetClan(string.rep('\n', 100 - #SetName)..SetName)
         end
     end)
 
 
-    Command('notifications', {}, 'Toggles notifications', '', true, function()
+    CommandHandler.Add('notifications', {}, 'Toggles notifications', '', true, function()
         Boolean.Notifications.Value = not Boolean.Notifications.Value
     end)
 
 
-    Command('shiftlock', {}, 'Allows you to use shiftlock when developers have it locked', '', true, function()
+    CommandHandler.Add('shiftlock', {}, 'Allows you to use shiftlock when developers have it locked', '', true, function()
         Host.DevEnableMouseLock = not Host.DevEnableMouseLock
     end)
 
 
-    Command('mouse', {'cursor'}, 'Toggles your cursor on and off', '', true, function()
-        UserInputService.MouseIconEnabled = not UserInputService.MouseIconEnabled
+    CommandHandler.Add('mouse', {'cursor'}, 'Toggles your cursor on and off', '', true, function()
+        Utils.UserInputService.MouseIconEnabled = not Utils.UserInputService.MouseIconEnabled
     end)
 
 
-    Command('crosshair', {'rotcursor'}, 'Toggles your crosshair on and off', '', true, function()
+    CommandHandler.Add('crosshair', {'rotcursor'}, 'Toggles your crosshair on and off', '', true, function()
         CursorImage.Visible = not CursorImage.Visible
     end)
 
 
-    Command('watermark', {}, 'Toggles the watermark', '', true, function()
+    CommandHandler.Add('watermark', {}, 'Toggles the watermark', '', true, function()
         OuterWatermark.Visible = not OuterWatermark.Visible;
     end)
 
 
-    Command('showchat', {}, 'Toggles the chat UI', '', true, function()
+    CommandHandler.Add('showchat', {}, 'Toggles the chat UI', '', true, function()
         ChatFrame.Enabled = not ChatFrame.Enabled;
     end)
 end
@@ -3591,7 +3148,7 @@ Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
-local Window = Menu:CreateWindow({Title = ScriptName(2) .. ' [verison]: '.. Verison ..' | ' .. GameTitle, Center = true, AutoShow = true}) do
+local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().Version .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
 
 FileMenu:SetLibrary(Menu)
 ThemeMenu:SetLibrary(Menu)
@@ -3600,7 +3157,7 @@ ThemeMenu:SetFolder('mawborn/Themes');
 FileMenu:SetFolder('mawborn/Menu');
 
 -- Had to limit my usage of local, also they need to be in order as they are
--- Also can not use ExecuteCommand, as the UI will figure that command should be turned on :/
+-- Also can not use CommandHandler.Execute, as the UI will figure that command should be turned on :/
 
 local Tabs = {
     Combat = Window:AddTab('Combat'), 
@@ -3743,7 +3300,7 @@ ThemeMenu:ApplyToTab(Tabs.Data);
 CombatTab.AimlockTab:AddToggle('Aimlock', { Text = 'Aimlock', Tooltip = 'Turns on aimlock (DONT USE ON PRISON)' }):AddKeyPicker('AimlockKeybind', { Default = 'Q', SyncToggleState = true, Mode = 'Toggle', Text = 'Aimlock' }); Boolean.Aimlock:OnChanged(function()
     UpdateLabel()
 
-    if AuthorizedSessions.Prison then
+    if Utils.Prison then
         Boolean.Aimlock.Value = false;
     end
 end)
@@ -3857,7 +3414,7 @@ VisualsTab.EspTab:AddToggle('EspHealthBar', {Text = 'Health', Tooltip = 'Toggles
 VisualsTab.EspTab:AddToggle('EspText', {Text = 'Text', Tooltip = 'Toggles Esp Text', Default = true});
 VisualsTab.EspTab:AddToggle('EspRaycast', {Text = 'Raycast', Tooltip = 'Toggles Esp IsVisible Text', Default = true});
 VisualsTab.EspTab:AddToggle('EspTool', {Text = 'Tools', Tooltip = 'Toggles Esp Tools', Default = true});
-VisualsTab.EspTab:AddToggle('EspTargetColor', {Text = 'Target Color', Tooltip = 'Toggles Target Color Esp', Default = true}):AddColorPicker('TargetColorPicker', {Default = AccentColor});
+VisualsTab.EspTab:AddToggle('EspTargetColor', {Text = 'Target Color', Tooltip = 'Toggles Target Color Esp', Default = true}):AddColorPicker('TargetColorPicker', {Default = Colors.AccentColor});
 
 VisualsTab.EspTab:AddDivider();
 
@@ -3890,7 +3447,7 @@ VisualsTab.ChamsTab:AddDropdown('EspFont', {Text = 'Font', Values = {'Monospace'
 
 -- [] Circle Box
 
-VisualsTab.CircleTab:AddToggle('FOVCircle', {Text = 'FOV Circle', Tooltip = 'Toggles FOV Circle', Default = false}):AddColorPicker('FOVCircleColor', {Default = AccentColor})
+VisualsTab.CircleTab:AddToggle('FOVCircle', {Text = 'FOV Circle', Tooltip = 'Toggles FOV Circle', Default = false}):AddColorPicker('FOVCircleColor', {Default = Colors.AccentColor})
 VisualsTab.CircleTab:AddToggle('FOVMiddleCircle', {Text = 'Circle In Middle', Tooltip = 'Keeps the circle in the middle of the screen', Default = false})
 
 VisualsTab.CircleTab:AddBlank(2);
@@ -3900,7 +3457,7 @@ VisualsTab.CircleTab:AddSlider('CircleThickness', {Text = 'FOV Circle Thickness'
 
 -- [] Custom Cursor Box
 
-VisualsTab.CustomCursorTab:AddToggle('CustomCursor', {Text = 'Custom Cursor', Default = true}):AddColorPicker('CustomCursorColor', {Default = AccentColor}) Boolean.CustomCursor:OnChanged(function()
+VisualsTab.CustomCursorTab:AddToggle('CustomCursor', {Text = 'Custom Cursor', Default = true}):AddColorPicker('CustomCursorColor', {Default = Colors.AccentColor}) Boolean.CustomCursor:OnChanged(function()
     CursorImage.Visible = Boolean.CustomCursor.Value;
 end)
 
@@ -3932,7 +3489,7 @@ VisualsTab.CircleMoreTab:AddToggle('Shiftlock', {Text = 'Shiftlock', Tooltip = '
 end)
 
 VisualsTab.CircleMoreTab:AddToggle('Cursor', {Text = 'Cursor', Tooltip = 'Shows your real cursor', Default = true}):OnChanged(function()
-    UserInputService.MouseIconEnabled = Boolean.Cursor.Value
+    Utils.UserInputService.MouseIconEnabled = Boolean.Cursor.Value
 end)
 
 -- [] Trails Box
@@ -3950,14 +3507,14 @@ VisualsTab.TrailsBox:AddSlider('TrailLifetime', {Text = 'Trail Lifetime', Toolti
 -- [] Camera Box
 
 VisualsTab.CameraTab:AddToggle('InfiniteZoom', {Text = 'Infinite Zoom', Tooltip = 'Toggles infinite zoom', Default = false}):OnChanged(function()
-    ExecuteCommand('infzoom')
+    CommandHandler.Execute('infzoom')
 end)
 
 VisualsTab.CameraTab:AddToggle('NoCameraShake', {Text = 'No Camera Shake', Tooltip = 'Disables camera shaking when someone spawns a mech', Default = true})
 
 VisualsTab.CameraTab:AddBlank(3)
 
-VisualsTab.CameraTab:AddSlider('FOV', {Text = 'Field Of View', Tooltip = 'Changes your field of view', Default = OrginialFOV, Min = 1, Max = 120, Rounding = 0}):OnChanged(function() 
+VisualsTab.CameraTab:AddSlider('FOV', {Text = 'Field Of View', Tooltip = 'Changes your field of view', Default = Originals.FOV, Min = 1, Max = 120, Rounding = 0}):OnChanged(function() 
     Camera.FieldOfView = Select.FOV.Value
 end)
 
@@ -3975,7 +3532,7 @@ VisualsTab.ViewBox:AddToggle('WatchRejoinView', {Text = 'Toggle On Rejoin', Defa
 
 -- [] Tools Box
 
-VisualsTab.ToolsBox:AddToggle('ItemColors', {Text = 'Tool Colors', Tooltip = 'Allows you to make your tools look cool', Default = false}):AddColorPicker('ItemColoring', {Default = AccentColor})
+VisualsTab.ToolsBox:AddToggle('ItemColors', {Text = 'Tool Colors', Tooltip = 'Allows you to make your tools look cool', Default = false}):AddColorPicker('ItemColoring', {Default = Colors.AccentColor})
 VisualsTab.ToolsBox:AddToggle('ToolRainbow', {Text = 'Rainbow', Default = false})
 
 VisualsTab.ToolsBox:AddBlank(2)
@@ -4042,23 +3599,23 @@ end);
 
 MovementTab.PlayerTab:AddDivider();
 
-MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed (Only On TS, I\'ll update maybe)', Default = Humanoid.WalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed', Default = Originals.OrginialWalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
     UpdateLabel()
 end);
 
-MovementTab.PlayerTab:AddSlider('RunSpeed', {Text = 'Running Speed', Tooltip = 'Changes your running speed (Only On TS, I\'ll update maybe)', Default = 25, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('RunSpeed', {Text = 'Running Speed', Tooltip = 'Changes your running speed', Default = 25, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
     UpdateLabel()
 end);
 
-MovementTab.PlayerTab:AddSlider('CrouchSpeed', {Text = 'Crouch Speed', Tooltip = 'Changes your crouching speed (Only On TS, I\'ll update maybe)', Default = 8, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('CrouchSpeed', {Text = 'Crouch Speed', Tooltip = 'Changes your crouching speed', Default = 8, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
     UpdateLabel()
 end);
 
-MovementTab.PlayerTab:AddSlider('HipHeight', {Text = 'Hip Height', Tooltip = 'Changes your hip height', Default = Humanoid.HipHeight, Min = 0, Max = 50, Rounding = 1}):OnChanged(function()
-    Humanoid.HipHeight = Select.HipHeight.Value or OrginialHipHeight
+MovementTab.PlayerTab:AddSlider('HipHeight', {Text = 'Hip Height', Tooltip = 'Changes your hip height', Default = Originals.HipHeight , Min = 0, Max = 50, Rounding = 1}):OnChanged(function()
+    Humanoid.HipHeight = Select.HipHeight.Value or Originals.HipHeight
 end);
 
-MovementTab.PlayerTab:AddSlider('JumpPower', {Text = 'Jump Power', Tooltip = 'Changes your jump power', Default = Humanoid.JumpPower, Min = 0, Max = 500, Rounding = 0})
+MovementTab.PlayerTab:AddSlider('JumpPower', {Text = 'Jump Power', Tooltip = 'Changes your jump power', Default = Originals.JumpPower, Min = 0, Max = 500, Rounding = 0})
 
 -- [] Blink Box
 
@@ -4094,38 +3651,17 @@ MovementTab.TeleportTab:AddSlider('TeleportDelay', {Text = 'Teleport Delay', Too
 
 -- [] Kick Players Box
 
-MovementTab.KickPlayerTab:AddToggle('KickPlayer', {Text = 'Kick Player', Tooltip = 'Kill the player first so they are knocked out, and it will make their body start bouncing to kick. (MUST BE USING TPBYPASS)', Default = false}):AddKeyPicker('KickPlayerKeybind', {Default = '', SyncToggleState = false, Mode = 'Toggle', Text = 'KickPlayer'}) Select.KickPlayerKeybind:OnClick(function()
-    if Boolean.KickPlayer.Value then
-        KickPlayerTarget = TargetPlayer();
-        KickPlayer(KickPlayerTarget)
-    end
-end)
-
-MovementTab.KickPlayerTab:AddToggle('AutoKickPlayer', {Text = 'Auto Kick Players', Tooltip = 'Anytime a player is KO\'d it will kick them', Default = false}):OnChanged(function()
-    if not Boolean.AutoKickPlayer.Value then return end
-    
-    local function PlayerToKick(Player: Player)
-        if not Player then return end
-    end
-
-    for _, Index in next, Players:GetPlayers() do
-        PlayerToKick(Index)
-    end
-
-    Players.PlayerAdded:Connect(PlayerToKick)
-end)
-
 -- World [] World Box
 
-WorldTab.WorldCmds:AddToggle('Ambient', {Text = 'Ambient', Tooltip = 'Changes the worlds ambient color'}):AddColorPicker('AmbientColor', {Default = AccentColor})
-WorldTab.WorldCmds:AddToggle('TintColor', {Text = 'Tint Color', Tooltip = 'Changes the worlds tint'}):AddColorPicker('TintColor', {Default = AccentColor})
-WorldTab.WorldCmds:AddToggle('OutdoorAmbient', {Text = 'Outdoor Ambient', Tooltip = 'Changes the outdoor ambient color'}):AddColorPicker('OutdoorAmbientColor', {Default = AccentColor})
-WorldTab.WorldCmds:AddToggle('FogColor', {Text = 'Fog Color', Tooltip = 'Changes the fog color'}):AddColorPicker('FogColor', {Default = AccentColor})
+WorldTab.WorldCmds:AddToggle('Ambient', {Text = 'Ambient', Tooltip = 'Changes the worlds ambient color'}):AddColorPicker('AmbientColor', {Default = Colors.AccentColor})
+WorldTab.WorldCmds:AddToggle('TintColor', {Text = 'Tint Color', Tooltip = 'Changes the worlds tint'}):AddColorPicker('TintColor', {Default = Colors.AccentColor})
+WorldTab.WorldCmds:AddToggle('OutdoorAmbient', {Text = 'Outdoor Ambient', Tooltip = 'Changes the outdoor ambient color'}):AddColorPicker('OutdoorAmbientColor', {Default = Colors.AccentColor})
+WorldTab.WorldCmds:AddToggle('FogColor', {Text = 'Fog Color', Tooltip = 'Changes the fog color'}):AddColorPicker('FogColor', {Default = Colors.AccentColor})
 WorldTab.WorldCmds:AddToggle('Brightness', {Text = 'Brightness', Tooltip = 'Toggles brightness'})
 WorldTab.WorldCmds:AddToggle('ShadowSoftness', {Text = 'Shadow Softness', Tooltip = 'Toggles shadowsoftness'})
 
 WorldTab.WorldCmds:AddToggle('GlobalShadows', {Text = 'Global Shadows', Tooltip = 'Toggles globalshadows', Default = true}):OnChanged(function()
-    Lighting.GlobalShadows = Boolean.GlobalShadows.Value
+    Utils.Lighting.GlobalShadows = Boolean.GlobalShadows.Value
 end)
 
 WorldTab.WorldCmds:AddToggle('Exposure', {Text = 'Exposure', Tooltip = 'Toggles exposure'})
@@ -4134,13 +3670,13 @@ WorldTab.WorldCmds:AddToggle('Clock', {Text = 'Time Of Day', Tooltip = 'Toggles 
 
 WorldTab.WorldCmds:AddToggle('Gravity', {Text = 'Gravity', Tooltip = 'Toggles gravity'}):OnChanged(function()
     if not Boolean.Gravity.Value then
-        Workspace.Gravity = OrginialGravity;
+        Utils.Workspace.Gravity = Originals.Gravity;
     end
 end)
 
-WorldTab.WorldCmds:AddToggle('LightColoring', {Text = 'Light Coloring', Tooltip = 'Changes all of the lights colors'}):AddColorPicker('LightColor', {Default = AccentColor})
+WorldTab.WorldCmds:AddToggle('LightColoring', {Text = 'Light Coloring', Tooltip = 'Changes all of the lights colors'}):AddColorPicker('LightColor', {Default = Colors.AccentColor})
 
-WorldTab.WorldCmds:AddToggle('Pumpkin Color', {Text = 'Pumpkin Coloring'}):AddColorPicker('PumpkinColor', {Default = AccentColor}):OnChanged(function()
+WorldTab.WorldCmds:AddToggle('Pumpkin Color', {Text = 'Pumpkin Coloring'}):AddColorPicker('PumpkinColor', {Default = Colors.AccentColor}):OnChanged(function()
     for _, Index in next, Pumpkins do
         Index.Color = Select.PumpkinColor.Value
     end
@@ -4148,44 +3684,44 @@ end)
 
 WorldTab.WorldCmds:AddDivider();
 
-WorldTab.WorldCmds:AddSlider('Brightness', {Text = 'Brightness', Default = Lighting.Brightness, Min = 0, Max = 300, Rounding = 0});
+WorldTab.WorldCmds:AddSlider('Brightness', {Text = 'Brightness', Default = Utils.Lighting.Brightness, Min = 0, Max = 300, Rounding = 0});
 WorldTab.WorldCmds:AddSlider('ShadowSoftness', {Text = 'Shadow Softness', Default = 0.25, Min = 0, Max = 1, Rounding = 2});
 WorldTab.WorldCmds:AddSlider('Exposure', {Text = 'Exposure', Default = 0.25, Min = 0.01, Max = 1, Rounding = 2});
 WorldTab.WorldCmds:AddSlider('FogEnd', {Text = 'Fog End', Default = 2000, Min = 1, Max = 5000, Rounding = 0});
 WorldTab.WorldCmds:AddSlider('Clock', {Text = 'Time Of Day', Default = 6, Min = 0, Max = 24, Rounding = 0});
 
-WorldTab.WorldCmds:AddSlider('Gravity', {Text = 'Gravity', Default = Workspace.Gravity, Min = 0, Max = 300, Rounding = 2}):OnChanged(function()
+WorldTab.WorldCmds:AddSlider('Gravity', {Text = 'Gravity', Default = Utils.Workspace.Gravity, Min = 0, Max = 300, Rounding = 2}):OnChanged(function()
     if Boolean.Gravity.Value then
-        Workspace.Gravity = Select.Gravity.Value
+        Utils.Workspace.Gravity = Select.Gravity.Value
     end
 end)
 
 -- [] World 2 Box
 
-WorldTab.World2Cmds:AddSlider('SunAngularSize', {Text = 'Sun Angular Size', Default = Lighting:FindFirstChildOfClass('Sky').SunAngularSize, Min = 0, Max = 60, Rounding = 0}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('Sky').SunAngularSize = Select.SunAngularSize.Value
+WorldTab.World2Cmds:AddSlider('SunAngularSize', {Text = 'Sun Angular Size', Default = Utils.Lighting:FindFirstChildOfClass('Sky').SunAngularSize, Min = 0, Max = 60, Rounding = 0}):OnChanged(function()
+    Utils.Lighting:FindFirstChildOfClass('Sky').SunAngularSize = Select.SunAngularSize.Value
 end)
 
-WorldTab.World2Cmds:AddSlider('MoonAngularSize', {Text = 'Moon Angular Size', Default = Lighting:FindFirstChildOfClass('Sky').MoonAngularSize, Min = 0, Max = 60, Rounding = 0}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('Sky').MoonAngularSize = Select.MoonAngularSize.Value
+WorldTab.World2Cmds:AddSlider('MoonAngularSize', {Text = 'Moon Angular Size', Default = Utils.Lighting:FindFirstChildOfClass('Sky').MoonAngularSize, Min = 0, Max = 60, Rounding = 0}):OnChanged(function()
+    Utils.Lighting:FindFirstChildOfClass('Sky').MoonAngularSize = Select.MoonAngularSize.Value
 end)
 
-WorldTab.World2Cmds:AddSlider('StarCount', {Text = 'Star Count', Default = Lighting:FindFirstChildOfClass('Sky').StarCount, Min = 0, Max = 5000, Rounding = 0}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('Sky').StarCount = Select.StarCount.Value
+WorldTab.World2Cmds:AddSlider('StarCount', {Text = 'Star Count', Default = Utils.Lighting:FindFirstChildOfClass('Sky').StarCount, Min = 0, Max = 5000, Rounding = 0}):OnChanged(function()
+    Utils.Lighting:FindFirstChildOfClass('Sky').StarCount = Select.StarCount.Value
 end)
 
---[[World2Cmds:AddSlider('BloomSize', {Text = 'Bloom Size', Default = Lighting:FindFirstChildOfClass('BloomEffect').Size, Min = 0, Max = 5000, Rounding = 0}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('BloomEffect').Size = Select.BloomSize.Value
+--[[World2Cmds:AddSlider('BloomSize', {Text = 'Bloom Size', Default = Utils.Lighting:FindFirstChildOfClass('BloomEffect').Size, Min = 0, Max = 5000, Rounding = 0}):OnChanged(function()
+    Utils.Lighting:FindFirstChildOfClass('BloomEffect').Size = Select.BloomSize.Value
 end)]] -- Only for prison, not worth it
 
 WorldTab.World2Cmds:AddDivider();
 
 WorldTab.World2Cmds:AddInput('MoonTextureId', {Text = 'Moon Texture Id', Placeholder = 'Enter ID', Tooltip = 'Changes the moons texture'}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('Sky').MoonTextureId = Select.MoonTextureId.Value
+    Utils.Lighting:FindFirstChildOfClass('Sky').MoonTextureId = Select.MoonTextureId.Value
 end)
 
 WorldTab.World2Cmds:AddInput('SunTextureId', {Text = 'Sun Texture Id', Placeholder = 'Enter ID', Tooltip = 'Changes the suns texture'}):OnChanged(function()
-    Lighting:FindFirstChildOfClass('Sky').SunTextureId = Select.SunTextureId.Value
+    Utils.Lighting:FindFirstChildOfClass('Sky').SunTextureId = Select.SunTextureId.Value
 end)
 
 -- [] Boombox Box
@@ -4212,7 +3748,7 @@ WorldTab.ChorusBox:AddSlider('CDepth', {Text = 'Depth', Default = 0.15, Min = 0,
 -- Misc [] Misc Box
 
 MiscTab.MiscBox:AddToggle('Chat', {Text = 'Chat', Tooltip = 'Toggles the chat UI', Default = true}):OnChanged(function()
-    ExecuteCommand('showchat');
+    CommandHandler.Execute('showchat');
 end)
 
 MiscTab.MiscBox:AddToggle('LowCashIndicator', {Text = 'Low Cash Indicator', Tooltip = 'Will notify you if your cash is below 200', Default = true})
@@ -4251,22 +3787,22 @@ MiscTab.Development:AddToggle('DevMode', {Text = 'Development Mode', Tooltip = '
 end)
 
 MiscTab.Development:AddButton('Dark Dex V3', function()
-    ExecuteCommand('dex')
+    CommandHandler.Execute('dex')
 end)
 
 MiscTab.Development:AddButton('Remote Spy', function()
-    ExecuteCommand('rspy')
+    CommandHandler.Execute('rspy')
 end)
 
 -- [] Script Data Box
 
-MiscTab.ScriptDataBox:AddToggle('AutoExec', {Text = 'Auto Execute', Tooltip = 'Auto executes the script', Default = Data.AutoExecute})
+MiscTab.ScriptDataBox:AddToggle('AutoExec', {Text = 'Auto Execute', Tooltip = 'Auto executes the script', Default = FileHandler.AutoExecute})
 MiscTab.ScriptDataBox:AddToggle('AutoRejoin', {Text = 'Auto Rejoin', Tooltip = 'Auto joins the game if you got kicked'})
 
 MiscTab.ScriptDataBox:AddLabel('Moderator Detection')
 MiscTab.ScriptDataBox:AddBlank(2)
 
-MiscTab.ScriptDataBox:AddToggle('AdminDetection', {Text = 'Moderator Detection', Default = true}):AddColorPicker('ModeratorColor', {Default = ModeratorColor})
+MiscTab.ScriptDataBox:AddToggle('AdminDetection', {Text = 'Moderator Detection', Default = true}):AddColorPicker('Colors.ModeratorColor', {Default = Colors.ModeratorColor})
 MiscTab.ScriptDataBox:AddToggle('KickOnJoin', {Text = 'Leave On Join', Tooltip = 'Leaves the game if an admin joins'})
 
 -- [] Keybinds Box
@@ -4276,19 +3812,19 @@ MiscTab.MoreKeybinds:AddLabel(' Command Bar', false):AddKeyPicker('CommandBarKey
 -- [] Game Box
 
 MiscTab.GameBox:AddButton('Rejoin', function()
-    ExecuteCommand('rejoin')
+    CommandHandler.Execute('rejoin')
 end)
 
 MiscTab.GameBox:AddButton('Exit', function()
-    ExecuteCommand('exit')
+    CommandHandler.Execute('exit')
 end)
 
 MiscTab.GameBox:AddButton('Swap', function()
-    ExecuteCommand('swap')
+    CommandHandler.Execute('swap')
 end)
 
 MiscTab.GameBox:AddButton('Server Hop', function()
-    ExecuteCommand('serverhop')
+    CommandHandler.Execute('serverhop')
 end)
 
 -- FUNCTION START [] Combat [] Aimlock Box
@@ -4302,10 +3838,10 @@ Select.AimlockKeybind:OnClick(function()
 
     if Select.AimlockMode.Value == 'Ciazware' then
         task.spawn(function()
-            while RunService.Heartbeat:Wait() do
+            while Utils.RunService.Heartbeat:Wait() do
 
                 if Weapon and Weapon.Ammo then
-                    if Weapon.Ammo.Value ~= 0 and Select.AimlockKeybind.Value and UserInputService:IsKeyDown(Enum.KeyCode[Select.AimlockKeybind.Value]) then
+                    if Weapon.Ammo.Value ~= 0 and Select.AimlockKeybind.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode[Select.AimlockKeybind.Value]) then
                         ProcessedInput();
                     end
                 end
@@ -4316,7 +3852,7 @@ Select.AimlockKeybind:OnClick(function()
     if Select.AimlockMode.Value == 'Automatic' then
         task.spawn(function()
             while Select.AimlockMode.Value == 'Automatic'
-                and Body and RunService.Heartbeat:Wait()
+                and Body and Utils.RunService.Heartbeat:Wait()
                 and Boolean.Aimlock.Value do
 
                 if Weapon and Weapon.Ammo and Weapon.Ammo.Value ~= 0 then
@@ -4349,13 +3885,13 @@ Boolean.AutomaticReload:OnChanged(function()
 
         task.spawn(function()
             while Boolean.AutomaticReload.Value and Debounce.ScriptLoaded do
-                RunService.Heartbeat:Wait()
+                Utils.RunService.Heartbeat:Wait()
                 
                 if Weapon and Weapon.Ammo and Weapon.Clips then
                     local Ammo = Weapon.Ammo;
                     local Clips = Weapon.Clips
 
-                    if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 and not TagSystem.has(Body, 'reloading') then
+                    if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 and not Utils.TagSystem().has(Body, 'reloading') then
                         ProcessHandler()
                     end
                 end
@@ -4379,7 +3915,7 @@ end);
 
 Boolean.InstantPrompts:OnChanged(function()
     if Boolean.InstantPrompts.Value then
-        Hash.ProcessingProxy = ProximityPromptService.PromptButtonHoldBegan:Connect(function(Prompt)
+        Hash.ProcessingProxy = Utils.ProximityPromptService.PromptButtonHoldBegan:Connect(function(Prompt)
             fireproximityprompt(Prompt)
         end)
         
@@ -4396,7 +3932,7 @@ end)
 
 
 Select.BuyAmmoKeybind:OnClick(function()
-    if not AuthorizedSessions.Streets then return end
+    if not Utils.Streets then return end
 
     if not Weapon or not Host:GetAttribute('HoldingTool') or not Weapon.Clips then
         Notify('Buy Ammo', '[Error]: No tool found or equip a tool with ammo')
@@ -4447,7 +3983,7 @@ CombatTab.ItemPurchase:AddButton('Confirm', function()
         return true
     end
 
-    while RunService.Heartbeat:Wait() do
+    while Utils.RunService.Heartbeat:Wait() do
         local InitialTarget = PurchaseItem(Select.ItemPurchase.Value)
         if not ActivatePrompt(InitialTarget) then break end
 
@@ -4475,7 +4011,7 @@ Boolean.InfiniteForcefield:OnChanged(function()
         DeathPosition = CFrame.new(Root.Position, Root.Position + (Root.CFrame.Rotation * Vector3.new(1, 0, 1)).Unit)
 
         replicatesignal(Host.ConnectDiedSignalBackend)
-        task.wait(Players.RespawnTime - 0.01)
+        task.wait(Utils.Players.RespawnTime - 0.01)
         replicatesignal(Host.Kill)
     end
 end)
@@ -4486,24 +4022,24 @@ Boolean.KosCheck:OnChanged(function()
     local function OnPlayers(Player: Player)
         if not Player then return end
 
-        local UserId = Player.UserId
+        local UserId = Player.UserId;
 
-        if Boolean.KosCheck.Value and KosCheck(UserId) then
+        if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
             AddEsp(Player)
         end
 
-        if not Boolean.KosCheck.Value and KosCheck(UserId) then
+        if not Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
             RemoveEsp(Player)
         end
 
         Player.CharacterAdded:Connect(function()
-            if Boolean.KosCheck.Value and KosCheck(UserId) then
+            if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
                 AddEsp(Player)
             end
         end)
     end
 
-    for _, Index in next, Players.GetPlayers(Players) do
+    for _, Index in next, Utils.Players:GetPlayers() do
         if Index then OnPlayers(Index) end
     end
 end)
@@ -4522,8 +4058,8 @@ Boolean.AutoExec:OnChanged(function()
     if Debounce.HasTouchedAE ~= Boolean.AutoExec.Value then
         Debounce.HasTouchedAE = true
 
-        Data.AutoExecute = Boolean.AutoExec.Value;
-        UpdateFile();
+        FileHandler.AutoExecute = Boolean.AutoExec.Value;
+        FileHandler:UpdateFile();
     end
 end)
 
@@ -4535,22 +4071,22 @@ Boolean.AdminDetection:OnChanged(function()
 
         local UserId = Player.UserId
 
-        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+        if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
-        if not Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+        if not Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
             RemoveEsp(Player)
         end
 
         Player.CharacterAdded:Connect(function()
-            if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+            if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
                 AddEsp(Player)
             end
         end)
     end
 
-    for _, Index in next, Players.GetPlayers(Players) do
+    for _, Index in next, Utils.Players:GetPlayers() do
         if Index then OnPlayers(Index) end
     end
 end)
@@ -4563,7 +4099,7 @@ Select.BulletCounter:OnChanged(function()
     OtherAmmo.Visible = false;
     AmmoUi.Visible = false;
 
-    if AuthorizedSessions.Streets and CurrentAmmo then
+    if Utils.Streets and CurrentAmmo then
         CurrentAmmo.Visible = false;
     end
 
@@ -4579,7 +4115,7 @@ Select.BulletCounter:OnChanged(function()
     if Select.BulletCounter.Value == 'Default' then
         AmmoUi.Visible = true
 
-        if AuthorizedSessions.Streets and CurrentAmmo then
+        if Utils.Streets and CurrentAmmo then
             CurrentAmmo.Visible = true;
         end
     end
@@ -4608,7 +4144,7 @@ end
 
 -- Input []
 
-function OnInput(Arguments: InputObject, OnChatted: boolean)
+local function OnInput(Arguments: InputObject, OnChatted: boolean)
     if Arguments.KeyCode == Enum.KeyCode.LeftShift then
         if not Boolean.LoopBlink.Value and Boolean.Blink.Value then
             Debounce.Blink = true;
@@ -4660,14 +4196,14 @@ function OnInput(Arguments: InputObject, OnChatted: boolean)
 end
 
 
-function OnEnded(Arguments: InputObject)
+local function OnEnded(Arguments: InputObject)
     if Arguments.KeyCode == Enum.KeyCode.LeftShift then
         if not Boolean.LoopBlink.Value and Boolean.Blink.Value then
             Debounce.Blink = false;
         end
 
         if Boolean.NoSlow.Value then
-            Select.WalkSpeed.Value = Hash.StoreWalkSpeed or OrginialWalkSpeed;
+            Select.WalkSpeed.Value = Hash.StoreWalkSpeed or Originals.OrginialWalkSpeed;
         end
     end
     
@@ -4698,14 +4234,14 @@ function OnEnded(Arguments: InputObject)
 end
 
 
-function WorkspaceDescendantAdded(Object: Instance)
+local function WorkspaceDescendantAdded(Object: Instance)
     if not Object then return end
 
     FindBoomboxes(Object)
     FindRound(Object)
 
     if Object.Name == 'RandomSpawner' then
-        Object.SetAttribute(Object, 'Labeled', false)
+        Object:SetAttribute('Labeled', false)
 
         task.delay(2, function()
             FindPartsOnMap(Object)
@@ -4716,7 +4252,7 @@ function WorkspaceDescendantAdded(Object: Instance)
 end
 
 
-function BodyDescendantAdded(Object: Instance)
+local function BodyDescendantAdded(Object: Instance)
     if not Object then return end
 
     FindBoomboxes(Object)
@@ -4728,7 +4264,7 @@ function BodyDescendantAdded(Object: Instance)
 end
 
 
-function BodyDescendantRemoving(Object: Instance)
+local function BodyDescendantRemoving(Object: Instance)
     if not Object then return end
 
     if Object:IsA('Part') and Object.Name == 'Bone' then
@@ -4737,7 +4273,7 @@ function BodyDescendantRemoving(Object: Instance)
 end
 
 
-function BodyOnChild()
+local function BodyOnChild()
     local function OnAdded(Item: Instance)
         if not Item then return end
 
@@ -4772,7 +4308,7 @@ function BodyOnChild()
 end
 
 
-function OnCharacterAdded(Character: Model)
+local function OnCharacterAdded(Character: Model)
     Body = Character or Host.Character;
     Head = Body and Body:WaitForChild('Head');
     Humanoid = Body and Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid');
@@ -4809,7 +4345,7 @@ function OnCharacterAdded(Character: Model)
         if Select.BulletCounter.Value ~= 'Default' then
             AmmoUi.Visible = false;
 
-            if AuthorizedSessions.Streets and CurrentAmmo then
+            if Utils.Streets and CurrentAmmo then
                 CurrentAmmo.Visible = false;
             end
         end
@@ -4819,7 +4355,7 @@ function OnCharacterAdded(Character: Model)
         Debounce.FirstPerson = (Head.LocalTransparencyModifier == 1)
     end)
 
-    if AuthorizedSessions.Streets then
+    if Utils.Streets then
         CashUi:GetPropertyChangedSignal('Text'):Connect(function()
             if Cash() < 200 and Boolean.LowCashIndicator.Value and not Debounce.LowCash then
                 Notify('Low Cash', 'Cash is getting low and is under $200 dollars')
@@ -4839,7 +4375,7 @@ function OnCharacterAdded(Character: Model)
 end
 
 
-function OnPlayerAdded(Player: Player)
+local function OnPlayerAdded(Player: Player)
     if not Player then return end
 
     local _Player = tostring(Player);
@@ -4847,7 +4383,7 @@ function OnPlayerAdded(Player: Player)
 
     Player:SetAttribute('Knocked', false);
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+    if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
         AddEsp(Player)
 
         Notify('Admin Detection', 'Admin: '.. Player.Name .. ' has joined')
@@ -4857,11 +4393,11 @@ function OnPlayerAdded(Player: Player)
         end
     end
 
-    if Boolean.KosCheck.Value and KosCheck(UserId) or Debounce.EspAll then
+    if Boolean.KosCheck.Value and Utils.KosCheck(UserId) or Debounce.EspAll then
         AddEsp(Player)
     end
 
-    if CreatorCheck(UserId) then
+    if Utils.CreatorCheck(UserId) then
         AddEsp(Player)
 
         Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' has joined')
@@ -4905,15 +4441,15 @@ function OnPlayerAdded(Player: Player)
     end
 
     Player.CharacterAdded:Connect(function(Character: Model)
-        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+        if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
-        if Boolean.KosCheck.Value and KosCheck(UserId) then
+        if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
             AddEsp(Player)
         end
 
-        if CreatorCheck(UserId) then
+        if Utils.CreatorCheck(UserId) then
             AddEsp(Player)
         end
 
@@ -4922,17 +4458,17 @@ function OnPlayerAdded(Player: Player)
 end
 
 
-function OnPlayerRemoving(Player: Player)
+local function OnPlayerRemoving(Player: Player)
     if not Player then return end
 
     local _Player = Player and tostring(Player);
     local UserId = Player and Player.UserId;
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+    if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
         Notify('Admin Detection', 'Admin: '.. tostring(Player.Name) .. ' has left')
     end
 
-    if CreatorCheck(UserId) then
+    if Utils.CreatorCheck(UserId) then
         Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' has left')
     end
     
@@ -4973,21 +4509,21 @@ function OnPlayerRemoving(Player: Player)
 end
 
 
-function OnPlayers(Player: Player)
+local function OnPlayers(Player: Player)
     if not Player then return end
     local UserId = Player and Player.UserId;
 
-    if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+    if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
         AddEsp(Player)
 
         Notify('Admin Detection', 'Admin: ' .. tostring(Player.Name) .. ' is in game')
     end
 
-    if Boolean.KosCheck.Value and KosCheck(UserId) then
+    if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
         AddEsp(Player)
     end
 
-    if CreatorCheck(UserId) then
+    if Utils.CreatorCheck(UserId) then
         AddEsp(Player)
 
         Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' is in game')
@@ -5008,15 +4544,15 @@ function OnPlayers(Player: Player)
     SendKnockedAttributes(Player, _Character)
 
     Player.CharacterAdded:Connect(function(Character: Model)
-        if Boolean.AdminDetection.Value and AdminCheck(UserId, Player) then
+        if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
             AddEsp(Player)
         end
 
-        if Boolean.KosCheck.Value and KosCheck(UserId) then
+        if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
             AddEsp(Player)
         end
 
-        if CreatorCheck(UserId) then
+        if Utils.CreatorCheck(UserId) then
             AddEsp(Player)
         end
 
@@ -5025,30 +4561,27 @@ function OnPlayers(Player: Player)
 end
 
 
-function CheatData()
-    local BypassHookChecks = AuthorizedSessions.Remake and loadstring(game:HttpGet("https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua"))(); -- Just to bypass hook checks
-
+local function CheatData()
     local TaggedItems = {
         {Tag = TagTools, Key = 'ProcessedItem', IsDelay = true, Delay = 0.05, Callback = ItemColors},
         {Tag = TagTrails, Key = 'ProcessedTrail', IsDelay = false, Delay = 0, Callback = BulletColors, Callback2 = BulletColors}, -- No delay, needs to process instantly
         {Tag = TagBoomboxes, Key = 'ProcessedBoombox', IsDelay = true, Delay = 0.05, Callback = Boombox},
     }
 
-    UserInputService.InputBegan:Connect(OnInput);
-    UserInputService.InputEnded:Connect(OnEnded);
+    Utils.UserInputService.InputBegan:Connect(OnInput);
+    Utils.UserInputService.InputEnded:Connect(OnEnded);
 
-    RunService.RenderStepped:Connect(OnRenderStepped);
-    RunService.Stepped:Connect(OnStepped);
-    RunService.Heartbeat:Connect(OnHeartbeat);
+    Utils.RunService.RenderStepped:Connect(OnRenderStepped);
+    Utils.RunService.Heartbeat:Connect(OnHeartbeat);
 
     Host.CharacterAdded:Connect(OnCharacterAdded);
-    Host.Chatted:Connect(ExecuteCommand);
+    Host.Chatted:Connect(CommandHandler.Execute);
 
-    Players.PlayerAdded:Connect(OnPlayerAdded);
-    Players.PlayerRemoving:Connect(OnPlayerRemoving);
+    Utils.Players.PlayerAdded:Connect(OnPlayerAdded);
+    Utils.Players.PlayerRemoving:Connect(OnPlayerRemoving);
 
     Body.DescendantAdded:Connect(BodyDescendantAdded);
-    Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
+    Utils.Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
 
     Humanoid:GetPropertyChangedSignal('Health'):Connect(AutoHeal)
 
@@ -5060,9 +4593,9 @@ function CheatData()
     GameData();
     BodyOnChild();
 
-    TextProperties.new(InfoCursor, 190, 19)
+    TextProperties:TextBounds(InfoCursor, 190, 19)
 
-    for _, Index in next, Players:GetPlayers() do
+    for _, Index in next, Utils.Players:GetPlayers() do
         if Index then OnPlayers(Index) end
     end
 
@@ -5098,19 +4631,17 @@ function CheatData()
             table.insert(Arguments, Index.Callback2)
         end
 
-        CollectionService:GetInstanceAddedSignal(Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
+        Utils.CollectionService:GetInstanceAddedSignal(Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
     end
 
-    if AuthorizedSessions.Prison then
+    if Utils.Prison then
         Select.AimlockPart.Value = 'Head';
-        Hash.Moderators = Moderators.Prison;
 
         Hash.PlaceSwap = 455366377;
     end
 
-    if AuthorizedSessions.Streets then
+    if Utils.Streets then
         Select.AimlockPart.Value = 'HumanoidRootPart';
-        Hash.Moderators = Moderators.Streets;
 
         Hash.PlaceSwap = 15852982099;
         GetMouse.OnClientInvoke = HookMouse;
@@ -5137,24 +4668,22 @@ end
 
 
 Host.OnTeleport:Connect(function()
-    if Queueonteleport and Data.AutoExecute then
-        repeat RunService.Heartbeat:Wait() until game:IsLoaded()
+    if Queueonteleport and FileHandler.AutoExecute then
+        repeat Utils.RunService.Heartbeat:Wait() until game:IsLoaded()
 
-        Queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua"))();')
+        Queueonteleport('Import("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua")');
         clearteleportqueue();
     end
 end)
 
 
-coroutine.wrap(function()
-    while RunService.Heartbeat:Wait() do
-        if Boolean.AutoRejoin.Value and GuiService:GetErrorMessage() ~= '' then -- Thanks to Ponyhook
-            ExecuteCommand('rejoin')
-            coroutine.yield()
-        end
+local Connection; Connection = Utils.RunService.Heartbeat:Connect(function()
+    if Boolean.AutoRejoin.Value and Utils.GuiService:GetErrorMessage() ~= '' then
+        CommandHandler.Execute('rejoin');
+        Connection:Disconnect();
     end
-end)()
+end)
 
 
 CheatData();
-Notify(ScriptName(2),'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with '..#Commands..' Commands!')
+Notify(Utils.Title(2),'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with '..#Commands..' Commands!')
