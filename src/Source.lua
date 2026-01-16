@@ -1683,16 +1683,6 @@ local function InitializeTool(Tool: Instance)
 end
 
 
-local function GetPlayerFromMouseTarget(Target: BasePart?)
-    if not Target then return end
-
-    local Model = Target:FindFirstAncestorOfClass("Model")
-    if not Model then return end
-
-    return Utils.Players:GetPlayerFromCharacter(Model)
-end
-
-
 local function OnGradient(Lerp: number) : ColorSequence
     local Key = math.floor(Lerp * 100)
 
@@ -1728,7 +1718,8 @@ local function UpdateInfoCursor()
     end
     
     if MouseTarget then
-        local __Player = GetPlayerFromMouseTarget(MouseParent);
+        local __Player = MouseParent and Utils.Players:GetPlayerFromCharacter(MouseParent)
+
         Hash.Head = __Player and Utils.Head(__Player);
         Hash.Humanoid = __Player and Utils.Humanoid(__Player);
         Hash.Root = __Player and Utils.Root(__Player);
@@ -1768,7 +1759,12 @@ local function UpdateInfoCursor()
         end
 
         if _Player and _Head and _Humanoid then
-            _Tool = _Player:FindFirstChildWhichIsA('Tool');
+            for _, Index in next, _Player:GetChildren() do
+                if Index:IsA('Tool') then
+                    _Tool = Index;
+                    break
+                end
+            end
 
         -- [] Inilatize Text
 
