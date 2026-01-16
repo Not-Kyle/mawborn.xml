@@ -3036,8 +3036,8 @@ do
     end)
 
 
-    CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))(); -- Problems with dex and using Import? I dont care just loadstring the bitch
+    CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY 
+        Import('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'); -- If you saw my last comment, you're done
     end)
 
 
@@ -3116,7 +3116,7 @@ Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
-local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().Version .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
+local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().MawbornVersion .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
 
 FileMenu:SetLibrary(Menu)
 ThemeMenu:SetLibrary(Menu)
