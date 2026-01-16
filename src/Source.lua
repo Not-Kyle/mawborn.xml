@@ -57,6 +57,8 @@ local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.x
 local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
 local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 
+Logger:Cout('Debugger')
+
 local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse do
     Host = Utils.Players and Utils.Players.LocalPlayer;
     Body = Host and Host.Character or Host.CharacterAdded:Wait();
