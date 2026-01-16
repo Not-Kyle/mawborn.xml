@@ -1,3 +1,7 @@
+if getgenv().Mawborn.Commands then
+    return
+end
+
 local CommandCooldown = 0.5;
 local LastCommandTime = 0;
 
