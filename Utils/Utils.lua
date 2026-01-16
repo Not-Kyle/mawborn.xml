@@ -2,8 +2,6 @@ if getgenv().Mawborn.Utils then
     return
 end
 
-print('RUNTIME TEST')
-
 local Service = setmetatable({}, {
     __index = function(self: Instance, ...)
         local Arguments = {...}
