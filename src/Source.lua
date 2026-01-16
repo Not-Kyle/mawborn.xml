@@ -35,6 +35,8 @@ Change calls to being OOP
 > Groups (Used for groups)
 ]]--
 
+print('Debugging Test 0'); -- hoyl fuck i forgot
+
 if getgenv().MawbornLoaded then
     return
 end
@@ -49,20 +51,21 @@ local OsTime = (tick or os and os.time)()
 
 getgenv().MawbornLoaded = true;
 
+print('Debugging Test 1'); -- hoyl fuck i forgot
 local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
-Logger:Warning('Debugging Test 1');
+print('Debugging Test 2');
 local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
-Logger:Warning('Debugging Test 2');
+print('Debugging Test 3');
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
-Logger:Warning('Debugging Test 3');
+print('Debugging Test 4');
 local String = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
-Logger:Warning('Debugging Test 4');
+print('Debugging Test 5');
 local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/FileHandler.lua');
-Logger:Warning('Debugging Test 5');
+print('Debugging Test 6');
 local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
-Logger:Warning('Debugging Test 6');
+print('Debugging Test 7');
 local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
-Logger:Warning('Debugging Test 7');
+print('Debugging Test 8');
 
 local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse do
     Host = Utils.Players and Utils.Players.LocalPlayer;
