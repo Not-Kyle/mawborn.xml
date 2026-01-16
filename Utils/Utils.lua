@@ -1,3 +1,7 @@
+if getgenv().Mawborn.Utils then
+    return
+end
+
 local Service = setmetatable({}, {
     __index = function(self: Instance, ...)
         local Arguments = {...}
