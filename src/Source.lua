@@ -57,45 +57,41 @@ local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.x
 local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
 local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
 
-local Host, Body, Head, Root, Humanoid, Torso, Mouse, Camera, PlayerGui, Backpack, Hud, CashUi, AmmoUi, CurrentAmmo, GetMouse do
-    Host = Utils.Players and Utils.Players.LocalPlayer;
-    Body = Host and Host.Character or Host.CharacterAdded:Wait();
-    Head = Body and Body:WaitForChild('Head');
-    Humanoid = Body and Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid');
-    Root = Body and Body:WaitForChild('HumanoidRootPart') or Humanoid.RootPart
-    Torso = Body and Body:WaitForChild('Torso');
 
-    Mouse = Host and Host:GetMouse()
-    Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
+local Host = Utils.Players and Utils.Players.LocalPlayer
+local Body, Head, Humanoid, Root, Torso
 
-    PlayerGui = Host and Host:WaitForChild('PlayerGui');
-    Backpack = Host and Host:WaitForChild('Backpack');
-    Hud = PlayerGui and PlayerGui:WaitForChild('HUD');
-    CashUi = Hud and Hud:FindFirstChild('Cash');
-    AmmoUi = Hud and Hud:FindFirstChild('Ammo');
-    CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo');
-
-    GetMouse = Body and Body:FindFirstChild('GetMouse');
+if Host then
+    Body = Host.Character or Host.CharacterAdded:Wait()
+    Head = Body and Body:WaitForChild('Head')
+    Humanoid = Body and (Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid'))
+    Root = Body and (Body:WaitForChild('HumanoidRootPart') or (Humanoid and Humanoid.RootPart))
+    Torso = Body and Body:FindFirstChild('Torso')
 end
 
-local Place, Job, MousePosition, ExperienceChat, ChatFrame, ColorCorrection, SnaplineMethod, HttpRequest, Queueonteleport, DeathPosition do
-    Place = game.PlaceId;
-    Job = game.JobId;
+local Mouse = Host and Host:GetMouse()
+local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera
 
-    MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation();
+local PlayerGui = Host and Host:WaitForChild('PlayerGui')
+local Backpack = Host and Host:WaitForChild('Backpack')
+local Hud = PlayerGui and PlayerGui:WaitForChild('HUD')
+local CashUi = Hud and Hud:FindFirstChild('Cash')
+local AmmoUi = Hud and Hud:FindFirstChild('Ammo')
+local CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo')
 
-    ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat');
-    ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration');
+local GetMouse = Body and Body:FindFirstChild('GetMouse')
+local Place = game.PlaceId
+local Job = game.JobId
+local DeathPosition = CFrame.new()
+local MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
+local SnaplineMethod = MousePosition
 
-    ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
+local ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat')
+local ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration')
+local ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect')
 
-    SnaplineMethod = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
-
-    HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request;
-    Queueonteleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport);
-
-    DeathPosition = CFrame.new()
-end
+local HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request
+local QueueOnTeleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport)
 
 local AimlockTarget;
 local AudioTarget;
@@ -209,7 +205,6 @@ local function NewInstance(Type: string, Class: string, Properties: any) -- Than
 
     return Class;
 end
-
 
 local Circle = NewInstance('Draw', 'Circle', {
     Filled = false;
@@ -2264,10 +2259,6 @@ local function OnRenderStepped(Delta: number)
 
     if Boolean.Camlock.Value and CamlockTarget and FindPlayersPart(CamlockTarget) then
         Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
-    end
-
-    if not Boolean.TintColor.Value and Utils.BothPrisons then
-        ColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
     end
 
     if Select.SnaplineDirection.Value == 'From Mouse' then
@@ -4647,10 +4638,10 @@ end
 
 
 Host.OnTeleport:Connect(function()
-    if Queueonteleport and FileHandler.AutoExecute then
+    if QueueOnTeleport and FileHandler.AutoExecute then
         repeat Utils.RunService.Heartbeat:Wait() until game:IsLoaded()
 
-        Queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Loadstring.lua"))()');
+        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Loadstring.lua"))()');
         clearteleportqueue();
     end
 end)
