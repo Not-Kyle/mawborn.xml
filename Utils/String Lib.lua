@@ -1,3 +1,7 @@
+if getgenv().Mawborn.Library.String then
+    return
+end
+
 local String = {};
 
 function String.valueOf(Source)
