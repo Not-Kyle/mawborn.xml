@@ -51,6 +51,9 @@ function Import(Url: string): any
         return warn('Compile error: ' .. CompileError);
     end
 
+    local Env = setmetatable({}, {__index = getfenv()});
+    setfenv(Chunk, Env);
+
     local Result;
     local function HandleError(Error)
         warn(string.format('[%s]: %s\n%s', Url, tostring(Error), debug.traceback()));
@@ -70,5 +73,10 @@ function Import(Url: string): any
 end
 
 getgenv().Import = Import
-getgenv().Version = '0.9.97';
+getgenv().Mawborn = {
+    Version = '0.9.97';
+
+    Library = {};
+};
+
 Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/src/Source.lua');
