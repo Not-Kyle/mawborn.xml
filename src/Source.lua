@@ -623,9 +623,7 @@ end)
 
 local function Notify(Title: string, Text: string, Time: number)
     if (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
-        Text = Title .. Text;
-
-        Menu:Notify(Text, Time or 2);
+        Menu:Notify(string.format('[%s]: %s', Title, Text), Time or 2);
     end
 end
 
