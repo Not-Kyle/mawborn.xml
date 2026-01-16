@@ -38,7 +38,7 @@
 > 1. Short answer, No (Maybe?)
 >
 > ### How to contact me
-> 1. @killserver on discord, or add me on RBLX @hellokittysouljia
+> 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
 # Updates <br />
 
