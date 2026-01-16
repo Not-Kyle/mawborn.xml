@@ -1,5 +1,5 @@
 </p>
- <h2 align="center">mawborn.xml | For The Streets and Prison (Now for Remake Too) </h2>
+ <h2 align="center">mawborn.xml | For The Streets and for Remake </h2>
 </p>
 
 </p>
@@ -39,6 +39,18 @@
 >
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia
+
+# Updates <br />
+
+>[!NOTE]
+> ### 0.9.97
+> 1. Converted script into OOP, now safer, faster and fixed some bugs
+>
+> 2. Reverted almost all globals into locals
+>
+> 3. Removed prison combatiblity (You will be kicked if you execute on prison for your own safety)
+>
+> 4. Prison has been rewritten and I will not be attempting a rewrite on mawborn for prison
 
 
 # Loadstring <br />
