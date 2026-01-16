@@ -1,3 +1,7 @@
+if getgenv().Mawborn.TextProperties then
+    return
+end
+
 local TextProperties = {};
 TextProperties.__index = TextProperties;
 
