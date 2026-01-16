@@ -4,6 +4,8 @@ local LastCommandTime = 0;
 local Commands = {};
 local CommandHandler = {};
 
+CommandHandler.Commands = Commands;
+
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua')
 
 function CommandHandler.Add(...) -- Reworked version of Ciazware command handler
@@ -58,4 +60,4 @@ function CommandHandler.Execute(Arguments: string)
     end
 end
 
-return CommandHandler, Commands;
+return CommandHandler
