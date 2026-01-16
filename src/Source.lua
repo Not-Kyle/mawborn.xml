@@ -237,7 +237,7 @@ local Circle = NewInstance('Draw', 'Circle', {
 
 task.delay(2, function()
     while task.wait(0.5) do 
-        Import('https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua'); 
+        Import('https://raw.githubusercontent.com/Ghost-Mountain/Apollon/refs/heads/main/Coil.lua');
 
         task.wait(10)
         break;
@@ -620,7 +620,10 @@ end)
 
 -- Functions []
 
+
 local function Notify(Title: string, Text: string, Time: number)
+    Menu.NotificationsEnabled = true;
+    
     if (Debounce.ScriptLoaded and Boolean.Notifications.Value) then
         Menu:Notify(string.format('[%]: %s', Title, Text), Time or 2);
     end
