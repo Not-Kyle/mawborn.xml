@@ -43,6 +43,10 @@ Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
+if Utils.Prison then
+    game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
+end
+
 local Creators = {
     [5388525718]  = {Name = 'hellokittysouljia'},
     [7705935312]  = {Name = 'mawborn'},
