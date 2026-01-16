@@ -28,6 +28,7 @@ local Utils = {
     UserInputService = Service.UserInputService,
     CollectionService = Service.CollectionService,
     ReplicatedStorage = Service.ReplicatedStorage,
+    MarketplaceService = Service.MarketplaceService;
     ProximityPromptService = Service.ProximityPromptService,
 };
 
