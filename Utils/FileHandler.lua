@@ -1,16 +1,13 @@
 local Service = setmetatable({}, {
     __index = function(self: Instance, ...)
         local Arguments = {...}
-        local Key = select(1, Arguments);
-
-        local Result = game:GetService(Key);
+        rawset(self, Arguments, Arguments[1])
         
-        if cloneref then
-            return cloneref(Result);
+        if not cloneref then
+            return game:GetService(Arguments[1]);
         end
 
-        rawset(self, Arguments, Result);
-        return Result;
+        return cloneref(game:GetService(Arguments[1]));
     end
 })
 
