@@ -2500,7 +2500,7 @@ local function HookData()
 
         if self == Humanoid then
             if Index == 'WalkSpeed' then
-                return Originals.OrginialWalkSpeed;
+                return Originals.WalkSpeed;
             end
 
             if Index == 'JumpPower' then
@@ -2554,7 +2554,7 @@ local function HookData()
 
             if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
                 if Value == 0 or Value == 2 then
-                    return Select.WalkSpeed.Value or Originals.OrginialWalkSpeed;
+                    return Select.WalkSpeed.Value or Originals.WalkSpeed;
                 end
 
                 if Debounce.Crouching then
@@ -2563,7 +2563,7 @@ local function HookData()
 
                 if Movement.W or Movement.A or Movement.S or Movement.D then
                     if not Debounce.Crouching then
-                        Value = Select.WalkSpeed.Value or Originals.OrginialWalkSpeed;
+                        Value = Select.WalkSpeed.Value or Originals.WalkSpeed;
                     
                     elseif Debounce.Crouching then
                         Value = Select.CrouchSpeed.Value or 8 or 7.9;
@@ -2571,10 +2571,10 @@ local function HookData()
                 end
                 
                 if Utils.BothOriginal and not Boolean.InfiniteStam.Value and Body:FindFirstChild(Body:FindFirstChild('Stam') and 'Stam' or 'Stamina').Value < 0.1 and Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    Value = Originals.OrginialWalkSpeed;
+                    Value = Originals.WalkSpeed;
 
                 elseif Utils.Remake and not Boolean.InfiniteStam.Value and Host:GetAttribute('Stamina') < 0.1 and Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    Value = Originals.OrginialWalkSpeed;
+                    Value = Originals.WalkSpeed;
 
                 elseif Utils.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
                     Value = Select.WalkSpeed.Value;
@@ -3598,7 +3598,7 @@ end);
 
 MovementTab.PlayerTab:AddDivider();
 
-MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed', Default = Originals.OrginialWalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
+MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed', Default = Originals.WalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
     UpdateLabel()
 end);
 
@@ -4202,7 +4202,7 @@ local function OnEnded(Arguments: InputObject)
         end
 
         if Boolean.NoSlow.Value then
-            Select.WalkSpeed.Value = Hash.StoreWalkSpeed or Originals.OrginialWalkSpeed;
+            Select.WalkSpeed.Value = Hash.StoreWalkSpeed or Originals.WalkSpeed;
         end
     end
     
