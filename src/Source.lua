@@ -38,20 +38,8 @@ Change calls to being OOP
 print('Debugging Test 0'); -- hoyl fuck i forgot
 
 print('Debugging Test 1'); -- hoyl fuck i forgot
-local Enums = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Library/Enums.lua');
-print('Debugging Test 2');
 local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
-print('Debugging Test 3');
-local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
-print('Debugging Test 4');
-local String = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
-print('Debugging Test 5');
-local FileHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/FileHandler.lua');
-print('Debugging Test 6');
-local TextProperties = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/TextProperties.lua');
-print('Debugging Test 7');
-local CommandHandler = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Comands.lua');
-print('Debugging Test 8');
+print('Debugging Test 2');
 
 local OsTime = (tick or os and os.time)()
 
