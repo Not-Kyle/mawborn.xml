@@ -1,4 +1,3 @@
-local HapticService = game:GetService("HapticService")
 --[[ TODO:
 Add A damage meter (Maybe a calculation that will tell you how many more hits out of the item you're holding to KO the player)
 Add an Autostomp (Add whitelist to it)
