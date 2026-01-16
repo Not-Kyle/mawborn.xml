@@ -109,6 +109,7 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
 
+print('UTILS NOT LOADED')
 
 local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
 
@@ -270,5 +271,7 @@ function Utils.KnockedCheck(Player: Player)
         Player:SetAttribute('Knocked', true)
     end
 end
+
+print('UTILS LOADED')
 
 return Utils;
