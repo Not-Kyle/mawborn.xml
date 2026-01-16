@@ -1250,11 +1250,11 @@ local function Fly()
             Parent = Torso;
         })
 
-        Hash.BodyVelocity = BodyVelocity;
+        Hash.BodyVelocity = FlightVelocity;
         Hash.AlignOrientation = AlignOrientation;
-        Hash.Float = Float;
-        Hash.Att0 = Att0;
-        Hash.Att1 = Att1;
+        Hash.Float = FloatPart;
+        Hash.Att0 = Attachment0;
+        Hash.Att1 = Attachment1;
     end
 end
 
