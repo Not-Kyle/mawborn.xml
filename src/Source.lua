@@ -1683,6 +1683,16 @@ local function InitializeTool(Tool: Instance)
 end
 
 
+local function GetPlayerFromMouseTarget(Target: BasePart?)
+    if not Target then return end
+
+    local Model = Target:FindFirstAncestorOfClass("Model")
+    if not Model then return end
+
+    return Utils.Players:GetPlayerFromCharacter(Model)
+end
+
+
 local function OnGradient(Lerp: number) : ColorSequence
     local Key = math.floor(Lerp * 100)
 
@@ -1718,9 +1728,10 @@ local function UpdateInfoCursor()
     end
     
     if MouseTarget then
-        Hash.Head = MouseParent and Utils.Head(MouseParent);
-        Hash.Humanoid = MouseParent and Utils.Humanoid(MouseParent);
-        Hash.Root = MouseParent and Utils.Root(MouseParent);
+        local __Player = GetPlayerFromMouseTarget(MouseParent);
+        Hash.Head = __Player and Utils.Head(__Player);
+        Hash.Humanoid = __Player and Utils.Humanoid(__Player);
+        Hash.Root = __Player and Utils.Root(__Player);
         Hash.BodyColors = MouseParent and MouseParent:FindFirstChild('Body Colors'); -- For those grey lifeless bodies at spawns
 
         if not (Hash.Head and Hash.Humanoid and Hash.Root) or MouseName == Host.Name then
@@ -1757,19 +1768,14 @@ local function UpdateInfoCursor()
         end
 
         if _Player and _Head and _Humanoid then
-            for _, Index in next, _Player:GetChildren() do
-                if Index:IsA('Tool') then
-                    _Tool = Index;
-                    
-                    break
-                end
-            end
+            _Tool = _Player:FindFirstChildWhichIsA('Tool');
 
         -- [] Inilatize Text
 
             local Ammo = _Tool and _Tool:FindFirstChild('Ammo');
             local Clips = _Tool and _Tool:FindFirstChild('Clips');
 
+            local LeaderStats = _Player:FindFirstChild('leaderstats');
             local StudFinder = StudDistance(Head, _Head);
             local Keybind = Utils.UserInputService:IsKeyDown(Enum.KeyCode[Select.AdvCursorInfo.Value]);
             local Health = math.round(_Humanoid.Health);
@@ -1778,10 +1784,10 @@ local function UpdateInfoCursor()
             local Text = string.format('%s\nStuds: %s\nHealth: %s\nTool: %s', MouseName, StudFinder, Health, (_Tool and _Tool.Name) or 'None')
 
             if Utils.Streets then
-                Hash.Cred = 'Cred: ' .. _Player.leaderstats:FindFirstChild('Cred').Value
+                Hash.Cred = 'Cred: ' .. LeaderStats:FindFirstChild('Cred').Value
                 
             elseif Utils.Prison then
-                Hash.Cred = 'Stomps: ' .. _Player.leaderstats:FindFirstChild('Stomps').Value
+                Hash.Cred = 'Stomps: ' .. LeaderStats:FindFirstChild('Stomps').Value
             end
 
             if _Tool and Ammo and Clips then
