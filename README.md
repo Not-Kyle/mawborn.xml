@@ -56,5 +56,5 @@
 # Loadstring <br />
 
  ```md
-loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/batch/466fc57/Lua/MawbornLoader.lua'))();
+loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/batch/5e18153/Lua/MawbornLoader.lua'))();
   ```
