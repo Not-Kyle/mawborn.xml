@@ -4,8 +4,8 @@ end
 
 local Enumerations = {};
 
-local Logger = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Logging.lua');
-local Utils = Import('https://raw.githubusercontent.com/Not-Kyle/mawborn.xml/refs/heads/main/Utils/Utils.lua');
+local Logger = Import('Utils/Logging.lua');
+local Utils = Import('Utils/Utils.lua');
 
 local Host, Backpack, Stank do
     Host = Utils.Players and Utils.Players.LocalPlayer;
