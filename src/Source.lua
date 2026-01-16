@@ -3113,7 +3113,7 @@ Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
-local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().MawbornVersion .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
+local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().Mawborn.Version .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
 
 FileMenu:SetLibrary(Menu)
 ThemeMenu:SetLibrary(Menu)
