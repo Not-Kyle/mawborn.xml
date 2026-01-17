@@ -654,7 +654,9 @@ end
 
 
 local function InsertItem(Table: table, Item: Instance)
-    Table[Item] = true;
+    if not Item then return end;
+
+    Table[Item] = Item;
 
     Item.Destroying:Once(function()
         Table[Item] = nil;
@@ -4210,25 +4212,17 @@ local function BodyDescendantAdded(Object: Instance)
     FindBoomboxes(Object)
     FindTool(Object)
 
-    if Object.CanCollide then
-        WhitelistedItems[Object] = Object;
+    if Object.CanCollide then -- I don't know why I was not doing this from the start holy
+        InsertItem(WhitelistedItems, Object)
 
         if Object:IsA('BasePart') then
             for _, Value in ipairs(Object:GetDescendants()) do
-                WhitelistedItems[Value] = Value;
+                InsertItem(WhitelistedItems, Value)
             end
         end
+
+        OnNoclip(Boolean.NoClip.Value);
     end
-
-    Object.Destroying:Connect(function()
-        WhitelistedItems[Object] = nil;
-
-        if Object:IsA('BasePart') then
-            for _, Value in ipairs(Object:GetDescendants()) do
-                WhitelistedItems[Value] = nil;
-            end
-        end
-    end)
 end
 
 
