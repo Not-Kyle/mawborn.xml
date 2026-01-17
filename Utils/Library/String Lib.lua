@@ -24,8 +24,8 @@ function String.startsWith(Source, Char)
 	return string.sub(Source, 1, 1) == Char;
 end
 
-function String.sentanceCase(Source)
-	return string.upper(string.sub(Source, 1, 1)) .. string.sub(Source, 2);
+function String.sentenceCase(Source)
+    return string.upper(string.sub(Source, 1, 1)) .. string.sub(Source, 2)
 end
 
 function String.contains(Source, Search)
