@@ -50,7 +50,7 @@ getgenv().Mawborn.Source = true;
 local Enums = Import('Utils/Library/Enums.lua');
 local Utils = Import('Utils/Utils.lua');
 local Logger = Import('Utils/Logging.lua');
-local String = Import('Utils/Library/String Lib.lua');
+local String = Import('Utils/Library/String.lua');
 local FileHandler = Import('Utils/FileHandler.lua');
 local TextProperties = Import('Utils/TextProperties.lua');
 local CommandHandler = Import('Utils/Comands.lua');
@@ -2574,7 +2574,7 @@ local function HookData()
     local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
         local self = select(1, ...);
         local Arguments = { select(2, ...) };
-        local SetMethod = String.sentenceCase((getnamecallmethod or get_namecall_method)())
+        local SetMethod = (getnamecallmethod or get_namecall_method)()
 
         if typeof(self) ~= 'Instance' or checkcaller() then
             return GetNameCalls(...);
