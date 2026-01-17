@@ -2,20 +2,8 @@ if getgenv().Mawborn.Logger then
     return
 end
 
-local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-        
-        if not cloneref then
-            return game:GetService(Arguments[1]);
-        end
+local Utils = Import('Utils/Utils.lua');
 
-        return cloneref(game:GetService(Arguments[1]));
-    end
-})
-
-local StarterGui = Service.StarterGui;
 local Messagebox = messagebox or messageboxasync;
 
 local Std = {};
@@ -85,7 +73,7 @@ function Std:MessageBox(Message: string, Title: string, Flag: number, Notify: bo
             end
 
             if Notify then
-                StarterGui:SetCore('SendNotification', {
+                Utils.StarterGui:SetCore('SendNotification', {
                     Title = Title;
                     Text = Text;
                     Duration = 20;
