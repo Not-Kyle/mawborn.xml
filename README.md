@@ -52,6 +52,14 @@
 >
 > 4. Prison has been rewritten and I will not be attempting a rewrite on Mawborn.xml for Prison
 
+> ### Next Update
+> 1. Fixing Noclip as it has a heavy load
+>
+> 2. Removing getinstances() as its unsafe for an exploit
+>
+> 3. Adding Knux to Tool Colors
+>
+> 4. Adding Oscillation to cursor!
 
 # Loadstring <br />
 
