@@ -4632,13 +4632,6 @@ local function CheatData()
         Debounce.FirstPerson = (Head.LocalTransparencyModifier == 1)
     end)
 
-    if getgenv().Mawborn.Version ~= Utils.GetVersion() then
-        print('OUTDATED');
-        Notify('Outdated Version', 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle');
-    else
-        print('INCORRECT')
-    end
-
     Debounce.ScriptLoaded = true;
 end
 
@@ -4662,4 +4655,9 @@ end)
 
 
 CheatData();
-Notify(Utils.Title(2),'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
+
+if getgenv().Mawborn.Version ~= Utils.GetVersion() then
+    Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle');
+end
+
+Notify(Utils.Title(2), 'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
