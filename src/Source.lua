@@ -1557,16 +1557,27 @@ end
 
 
 local function TypeCheckTool(Object: Instance)
-    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and (Object.Name == 'Handle' or Object.Name == 'KnuxLeftPart' or Object.Name == 'KnuxRightPart')) then
+    if not Object or Object.Name == 'Road Sign' then return end
 
-        if Object.Name == 'Road Sign' then
-            return
-        end
-
-        return Object
+    if Object.Name == 'Baseball' then
+        return Object;
     end
 
-    return
+    if Object:IsA('BasePart') then
+        if Object.Name == 'KnuxLeftPart' or Object.Name == 'KnuxRightPart' then
+            return Object;
+        end
+
+        if Object.Name == 'Handle' then
+            return Object;
+        end
+    end
+
+    if Object:IsA('Tool') then
+        return Object;
+    end
+
+    return;
 end
 
 
@@ -4218,16 +4229,6 @@ local function BodyDescendantAdded(Object: Instance)
     if Object:IsA('BasePart') and Object.Name == 'Bone' then
         Host:SetAttribute('KnockedOut', true)
     end
-
-    Object.Destroying:Connect(function()
-        WhitelistedItems[Object] = nil;
-
-        if Object:IsA('Model') then
-            for _, Value in ipairs(Object:GetDescendants()) do
-                WhitelistedItems[Value] = nil;
-            end
-        end
-    end)
 end
 
 
