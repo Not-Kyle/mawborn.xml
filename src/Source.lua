@@ -140,8 +140,13 @@ local Colors = {
 }
 
 local Hash = {
-    Lerping = 0;
-    LerpSpeed = 0.01;
+    ActualX = 0,
+    ActualY = 0,
+
+    Lerping = 0,
+    LerpSpeed = 0.01,
+
+    PreviousAngle = 0,
 };
 
 local Items = {
@@ -1294,21 +1299,23 @@ end
 local function NoclipAddons(State: boolean)
     Debounce.SetNoclip = not State
 
-    if Debounce.ItemsProcessed then
-        for _, Index in next, WhitelistedItems do
-            if not Index then return end
+    if not WhitelistedItems or next(WhitelistedItems) then
+        return
+    end
 
-            Hash.LocalizeItem = WhitelistedItems[Index.Name]
-            
-            for _, Values in next, Hash.LocalizeItem:GetDescendants() do
-                if Values and Values:IsA('BasePart') then
-                    Values.CanCollide = Debounce.SetNoclip
-                end
-            end
+    for _, Index in next, WhitelistedItems do
+        if not Index then return end
 
-            if Host and Host:GetAttribute('Dead') then
-                WhitelistedItems[Index] = nil;
+        Hash.LocalizeItem = WhitelistedItems[Index.Name]
+        
+        for _, Values in next, Hash.LocalizeItem:GetDescendants() do
+            if Values and Values:IsA('BasePart') then
+                Values.CanCollide = Debounce.SetNoclip
             end
+        end
+
+        if Host and Host:GetAttribute('Dead') then
+            WhitelistedItems[Index] = nil;
         end
     end
 
@@ -1576,7 +1583,7 @@ end
 
 
 local function TypeCheckTool(Object: Instance)
-    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and Object.Name == 'Handle') then
+    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and (Object.Name == 'Handle' or Object.Name == 'KnuxLeftPart' and Object.Name == 'KnuxRightPart')) then
 
         if Object.Name == 'Road Sign' then
             return
@@ -1637,7 +1644,6 @@ local function InitializeTool(Tool: Instance)
                     end
 
                     WhitelistedItems[Values.Name] = Values;
-                    Debounce.ItemsProcessed = true;
                 end
             end
         end
@@ -2244,6 +2250,29 @@ local function OnRenderStepped(Delta: number)
 
     if Select.SnaplineDirection.Value == 'From Player' then
         SnaplineMethod = Vector2.new(HostTorsoToWorld.X, HostTorsoToWorld.Y)
+    end
+
+    if Boolean.OscillateCursor.Value then
+        Select.OscillateAngle.Value += Select.OscillateSpeed.Value * Delta
+
+        local Radius = Select.OscillateRadius.Value * 10;
+        local X, Y = math.cos(Select.OscillateAngle.Value) * Radius, math.sin(Select.OscillateAngle.Value) * Radius;
+        local PX, PY = math.cos(Hash.PreviousAngle) * Radius, math.sin(Hash.PreviousAngle) * Radius;
+
+        Hash.ActualX += (X - PX);
+        Hash.ActualY += (Y - PY);
+
+        local XFloored = math.floor(Hash.ActualX);
+        local YFloored = math.floor(Hash.ActualY);
+
+        if XFloored ~= 0 or YFloored ~= 0 then
+            mousemoverel(XFloored, YFloored);
+
+            Hash.ActualX -= XFloored;
+            Hash.ActualY -= YFloored;
+        end
+
+        Hash.PreviousAngle = Select.OscillateAngle.Value;
     end
 end
 
@@ -3433,6 +3462,13 @@ VisualsTab.CircleMoreTab:AddToggle('Cursor', {Text = 'Cursor', Tooltip = 'Shows 
     Utils.UserInputService.MouseIconEnabled = Boolean.Cursor.Value
 end)
 
+VisualsTab.CircleMoreTab:AddToggle('OscillateCursor', {Text = 'Oscillate Cursor', Tooltip = 'Oscillates your circle in a circular motion', Default = false}) -- Copy and pasted from my silent aim
+
+VisualsTab.CircleMoreTab:AddDivider();
+
+VisualsTab.CircleMoreTab:AddSlider('OscillateSpeed', {Text = 'Oscillation Speed', Tooltip = 'Changes the speed of the oscillation', Default = 2, Min = 0.5, Max = 10, Rounding = 1});
+VisualsTab.CircleMoreTab:AddSlider('OscillateRadius', {Text = 'Oscillation Radius', Tooltip = 'Changes the radius of the oscillation', Default = 5, Min = 1, Max = 30, Rounding = 0});
+VisualsTab.CircleMoreTab:AddSlider('OscillateAngle', {Text = 'Oscillation Angle', Tooltip = 'Changes the angle of the oscillation', Default = 0, Min = 0, Max = 10, Rounding = 0});
 -- [] Trails Box
 
 VisualsTab.TrailsBox:AddToggle('Trails', {Text = 'Trails', Tooltip = 'Toggles Trails', Default = true})
