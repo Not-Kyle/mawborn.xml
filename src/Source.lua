@@ -4632,6 +4632,10 @@ local function CheatData()
         Debounce.FirstPerson = (Head.LocalTransparencyModifier == 1)
     end)
 
+    if getgenv().Mawborn.Version ~= Utils.GetVersion() then
+        Notify('Outdated Version', 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle');
+    end
+
     Debounce.ScriptLoaded = true;
 end
 
