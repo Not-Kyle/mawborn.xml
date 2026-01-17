@@ -3,15 +3,15 @@ if getgenv().Mawborn.Utils then
 end
 
 local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-        
-        if not cloneref then
-            return game:GetService(Arguments[1]);
+    __index = function(self, ServiceName)
+        local Service = game:GetService(ServiceName);
+
+        if cloneref then
+            Service = cloneref(Service)
         end
 
-        return cloneref(game:GetService(Arguments[1]));
+        rawset(self, ServiceName, Service);
+        return Service;
     end
 })
 
