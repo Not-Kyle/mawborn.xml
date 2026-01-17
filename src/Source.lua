@@ -2677,11 +2677,11 @@ local function HookData()
             end
         end
 
-        if SetMethod == 'FindFirstChild' or SetMethod == 'WaitForChild' then -- (PlayerGui.LocalScript) -- Detectable
-            --[[if Utils.Prison and Boolean.NoSlow.Value and Arguments[1] == 'Action' then
-                --return; -- If NoSlow in prison does not work, uncomment this and it should work
-            end]]--
-        end
+        --[[if SetMethod == 'FindFirstChild' or SetMethod == 'WaitForChild' then -- (PlayerGui.LocalScript)
+            if Utils.Prison and Boolean.NoSlow.Value and Arguments[1] == 'Action' then
+                return; -- If NoSlow in prison does not work, uncomment this and it should work
+            end
+        end]]
     
         return GetNameCalls(...);
     end))
