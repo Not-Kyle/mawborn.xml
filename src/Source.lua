@@ -2431,12 +2431,15 @@ end
 
 
 local function HookData()
-    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(self: Instance, Index: any)
-        local Self = tostring(self)
+    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(...)
+        local self = select(1, ...);
+        local Index = select(2, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetIndex(self, Index);
+            return GetIndex(...);
         end
+
+        local Self = tostring(self)
 
         if Utils.BothOriginal and Boolean.InfiniteStam.Value then
             if Self == 'Stamina' and Index == 'Value' then
@@ -2474,13 +2477,17 @@ local function HookData()
             end
         end
 
-        return GetIndex(self, Index);
+        return GetIndex(...);
     end));
 
 
-    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(self: Instance, Index: any, Value: any)
+    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(...)
+        local self = select(1, ...);
+        local Index = select(2, ...);
+        local Value = select(3, ...);
+
         if typeof(self) ~= 'Instance' or checkcaller() then
-           return GetNewIndex(self, Index, Value);
+           return GetNewIndex(...);
         end
 
         Utils.StarterGui:SetCore('ResetButtonCallback', true)
@@ -2560,15 +2567,17 @@ local function HookData()
             end
         end
 
-        return GetNewIndex(self, Index, Value);
+        return GetNewIndex(...);
     end));
 
 
-    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(self: Instance, ...)
-        local SetMethod, Arguments = (getnamecallmethod or get_namecall_method)(), {...};
+    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
+        local self = select(1, ...);
+        local Arguments = { select(2, ...) };
+        local SetMethod = String.sentenceCase((getnamecallmethod or get_namecall_method)())
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetNameCalls(self, unpack(Arguments));
+            return GetNameCalls(...);
         end
 
         if SetMethod == 'FireServer' then
@@ -2666,7 +2675,7 @@ local function HookData()
             end]]--
         end
     
-        return GetNameCalls(self, unpack(Arguments));
+        return GetNameCalls(...);
     end))
 
 
