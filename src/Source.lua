@@ -1297,47 +1297,20 @@ local function KillAirwalk()
 end
 
 
-local function NoclipAddons(State: boolean)
-    Debounce.SetNoclip = not State
-
-    if not WhitelistedItems or next(WhitelistedItems) then
+local function OnNoclip(State: boolean)
+    if not WhitelistedItems or not next(WhitelistedItems) then
         return
     end
 
-    for _, Index in next, WhitelistedItems do
-        if not Index then return end
+    for Item, _ in pairs(WhitelistedItems) do
+        if Item:IsA('BasePart') then
+            Item.CanCollide = not State;
+        end
 
-        Hash.LocalizeItem = WhitelistedItems[Index.Name]
-        
-        for _, Values in next, Hash.LocalizeItem:GetDescendants() do
-            if Values and Values:IsA('BasePart') then
-                Values.CanCollide = Debounce.SetNoclip
+        for _, Object in ipairs(Item:GetDescendants()) do
+            if Object:IsA('BasePart') then
+                Object.CanCollide = not State;
             end
-        end
-
-        if Host and Host:GetAttribute('Dead') then
-            WhitelistedItems[Index] = nil;
-        end
-    end
-
-    for _, Index in next, Body:GetDescendants() do -- goah
-        if not Index then return end
-
-        if Index.Name == 'KnuxRightPart' or Index.Name == 'KnuxLeftPart' then
-            Index.CanCollide = Debounce.SetNoclip
-        end
-
-        if Index.Name == 'Baseball' then
-            for _, Values in next, Index:GetDescendants() do
-
-                if Values:IsA('BasePart') then
-                    Values.CanCollide = Debounce.SetNoclip
-                end
-            end
-        end
-
-        if Index.Name == 'Handle' and Index:FindFirstChildOfClass('MeshPart') then -- Katana
-            Index.CanCollide = Debounce.SetNoclip
         end
     end
 end
@@ -1354,7 +1327,7 @@ local function TeleportTo(Position: CFrame, Delay: number)
 
     if not Boolean.NoClip.Value then
         Boolean.NoClip.Value = true;
-        NoclipAddons(true)
+        OnNoclip(Boolean.NoClip.Value)
     else
         Debounce.NoClip = true;
     end
@@ -1364,7 +1337,7 @@ local function TeleportTo(Position: CFrame, Delay: number)
 
         if not Debounce.NoClip then
             Boolean.NoClip.Value = false;
-            NoclipAddons(false)
+            OnNoclip(Boolean.NoClip.Value)
         end
     end)
 
@@ -1584,7 +1557,7 @@ end
 
 
 local function TypeCheckTool(Object: Instance)
-    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and (Object.Name == 'Handle' or Object.Name == 'KnuxLeftPart' and Object.Name == 'KnuxRightPart')) then
+    if Object and Object:IsA('Tool') or Object.Name == 'Baseball' or (Object:IsA('BasePart') and (Object.Name == 'Handle' or Object.Name == 'KnuxLeftPart' or Object.Name == 'KnuxRightPart')) then
 
         if Object.Name == 'Road Sign' then
             return
@@ -1609,11 +1582,11 @@ local function OnEquipped(Tool: Instance) : table
 
     return {
         Tool = Tool,
-        Ammo = Tool and Tool:FindFirstChild('Ammo') or nil,
-        Clips = Tool and Tool:FindFirstChild('Clips') or nil,
-        Handle = Tool and Tool:FindFirstChild('Handle') or nil,
-        Barrel = Tool and Tool:FindFirstChild('Barrel') or nil,
-        MaxAmmo = Tool and Tool:FindFirstChild('MaxAmmo') or nil,
+        Ammo = Tool:FindFirstChild('Ammo') or nil,
+        Clips = Tool:FindFirstChild('Clips') or nil,
+        Handle = Tool:FindFirstChild('Handle') or nil,
+        Barrel = Tool:FindFirstChild('Barrel') or nil,
+        MaxAmmo = Tool:FindFirstChild('MaxAmmo') or nil,
     }
 end
 
@@ -1621,7 +1594,7 @@ end
 local function InitializeTool(Tool: Instance)
     if not Tool or Tool:GetAttribute('Initialized') then return end
 
-    Tool:SetAttribute('Initialize', true)
+    Tool:SetAttribute('Initialized', true)
 
     Tool.Equipped:Connect(function()
         Weapon = OnEquipped(Tool)
@@ -1636,15 +1609,11 @@ local function InitializeTool(Tool: Instance)
         end
 
         if Weapon then
-            for _, Values in ipairs(Tool:GetDescendants()) do
-                if not Values then return end
-
-                if Values:IsA('BasePart') and Values.CanCollide then
-                    if WhitelistedItems[Values] then
-                        return WhitelistedItems[Values];
+            for _, Object in ipairs(Tool:GetDescendants()) do
+                if Object:IsA('BasePart') and Object.CanCollide then
+                    if not WhitelistedItems[Object] then
+                        WhitelistedItems[Object] = Object;
                     end
-
-                    WhitelistedItems[Values.Name] = Values;
                 end
             end
         end
@@ -2288,26 +2257,6 @@ local function OnHeartbeat(Delta: number)
         UpdateFly();
     end
 
-    if Utils.Streets then
-        NoclipAddons(Boolean.NoClip.Value); -- // This was a pain
-    end
-
-    if Boolean.NoClip.Value and Torso and Head then
-        Torso.CanCollide = false; 
-        Head.CanCollide = false;
-
-        if Utils.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
-            Body:FindFirstChild('Barrel', true).CanCollide = false;
-        end
-    else
-        Torso.CanCollide = true;
-        Head.CanCollide = true;
-
-        if Utils.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then
-            Body:FindFirstChild('Barrel', true).CanCollide = false;
-        end
-    end
-
     if Boolean.Airwalk.Value then
         local AirwalkPart = Body:FindFirstChild('Airwalk')
 
@@ -2341,6 +2290,15 @@ local function OnHeartbeat(Delta: number)
 
     if Utils.Remake and Boolean.InfiniteStam.Value then
         Host:SetAttribute('Stamina', 100);
+    end
+
+    if Torso and Head then
+        Torso.CanCollide = not Boolean.NoClip.Value;
+        Head.CanCollide = not Boolean.NoClip.Value;
+
+        if Utils.BothPrisons and (Body:FindFirstChild('Uzi') or Body:FindFirstChild('Glock')) then -- I don't know if prison still uses this
+            Body:FindFirstChild('Barrel', true).CanCollide = not Boolean.NoClip.Value;
+        end
     end
 end
 
@@ -3551,6 +3509,7 @@ end);
 MovementTab.PlayerTab:AddToggle('NoClip', {Text = 'No Clip', Tooltip = 'Toggles noclip'}):AddKeyPicker('NoClipKeybind', {Default = 'G', SyncToggleState = true, Mode = 'Toggle', Text = 'NoClip'}); Select.NoClipKeybind:OnClick(function()
     Notify('Noclip', 'Noclip is now '..tostring(Boolean.NoClip.Value))
 
+    OnNoclip(Boolean.NoClip.Value)
     UpdateLabel();
 end);
 
@@ -4239,17 +4198,43 @@ local function BodyDescendantAdded(Object: Instance)
 
     FindBoomboxes(Object)
     FindTool(Object)
+
+    if Object.Name == 'KnuxRightPart' or Object.Name == 'KnuxLeftPart' then
+        WhitelistedItems[Object] = Object;
+    end
+
+    if Object.Name == 'Baseball' then
+        for _, Values in ipairs(Object:GetDescendants()) do
+            if Values:IsA('BasePart') then
+                WhitelistedItems[Values] = Values;
+            end
+        end
+    end
+
+    if Object.Name == 'Handle' and Object:FindFirstChildOfClass('MeshPart') then -- Katana
+        WhitelistedItems[Object] = Object;
+    end
         
-    if Object:IsA('Part') and Object.Name == 'Bone' then
+    if Object:IsA('BasePart') and Object.Name == 'Bone' then
         Host:SetAttribute('KnockedOut', true)
     end
+
+    Object.Destroying:Connect(function()
+        WhitelistedItems[Object] = nil;
+
+        if Object:IsA('Model') then
+            for _, Value in ipairs(Object:GetDescendants()) do
+                WhitelistedItems[Value] = nil;
+            end
+        end
+    end)
 end
 
 
 local function BodyDescendantRemoving(Object: Instance)
     if not Object then return end
 
-    if Object:IsA('Part') and Object.Name == 'Bone' then
+    if Object:IsA('BasePart') and Object.Name == 'Bone' then
         Host:SetAttribute('KnockedOut', false)
     end
 end
