@@ -34,6 +34,7 @@ Change calls to being OOP
 > Shoot (Used for guns)
 > Groups (Used for groups)
 ]]--
+print('DEBUG 20')
 
 if getgenv().Mawborn.Source then
     return;
@@ -47,13 +48,21 @@ local OsTime = (tick or os and os.time)();
 
 getgenv().Mawborn.Source = true;
 
+print('DEBUG 1')
 local Enums = Import('Utils/Library/Enums.lua');
+print('DEBUG 12')
 local Utils = Import('Utils/Utils.lua');
+print('DEBUG 13')
 local Logger = Import('Utils/Logging.lua');
+print('DEBUG 14')
 local String = Import('Utils/Library/String Lib.lua');
+print('DEBUG 15')
 local FileHandler = Import('Utils/FileHandler.lua');
+print('DEBUG 16')
 local TextProperties = Import('Utils/TextProperties.lua');
+print('DEBUG 17')
 local CommandHandler = Import('Utils/Comands.lua');
+print('DEBUG 18')
 
 getgenv().Mawborn.Utils = true;
 getgenv().Mawborn.Logger = true;
