@@ -1,4 +1,3 @@
-local Players = game:GetService("Players")
 if getgenv().Mawborn.Utils then
     return
 end
@@ -39,12 +38,13 @@ local Utils = {
 
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 
-local Place = game.PlaceId;
+local PlaceId = game.PlaceId;
+local JobId = game.JobId;
 local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
 
-Utils.Streets = Place == 455366377;
-Utils.Prison = Place == 15852982099;
-Utils.Remake = Place == 81769606750513;
+Utils.Streets = PlaceId == 455366377;
+Utils.Prison = PlaceId == 15852982099;
+Utils.Remake = PlaceId == 81769606750513;
 
 Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
@@ -124,6 +124,16 @@ local Logger = Import('Utils/Logging.lua');
 
 function Logger:FWarning(Name: string, Message: string)
     return Logger:Warning(string.format('[%s]: %'), Name, Message)
+end
+
+
+function Utils.PlaceId() : number
+    return PlaceId;
+end
+
+
+function Utils.JobId() : number
+    return JobId;
 end
 
 
