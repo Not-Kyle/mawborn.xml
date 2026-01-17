@@ -2432,7 +2432,7 @@ end
 
 local function HookData()
     local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(...)
-        local self = select(1, ...);
+        local self = ...;
         local Index = select(2, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
@@ -2482,7 +2482,7 @@ local function HookData()
 
 
     local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(...)
-        local self = select(1, ...);
+        local self = ...;
         local Index = select(2, ...);
         local Value = select(3, ...);
 
@@ -2572,7 +2572,7 @@ local function HookData()
 
 
     local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
-        local self = select(1, ...);
+        local self = ...;
         local Arguments = { select(2, ...) };
         local SetMethod = (getnamecallmethod or get_namecall_method)()
 
