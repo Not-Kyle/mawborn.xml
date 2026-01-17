@@ -2574,7 +2574,15 @@ local function HookData()
     local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
         local self = select(1, ...);
         local Arguments = { select(2, ...) };
-        local SetMethod = (getnamecallmethod or get_namecall_method)() -- why the fuck can't I use string.sentancecase??
+
+        local GetMethod = getnamecallmethod or get_namecall_method;
+        local IndexMethod = nil;
+
+        if GetMethod then
+            IndexMethod = GetMethod();
+        end
+
+        local SetMethod = String.sentenceCase(IndexMethod);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
             return GetNameCalls(...);
