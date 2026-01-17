@@ -4210,30 +4210,20 @@ local function BodyDescendantAdded(Object: Instance)
     FindBoomboxes(Object)
     FindTool(Object)
 
-    if Object.Name == 'KnuxRightPart' or Object.Name == 'KnuxLeftPart' then
+    if Object.CanCollide then
         WhitelistedItems[Object] = Object;
-    end
 
-    if Object.Name == 'Baseball' then
-        for _, Values in ipairs(Object:GetDescendants()) do
-            if Values:IsA('BasePart') then
-                WhitelistedItems[Values] = Values;
+        if Object:IsA('BasePart') then
+            for _, Value in ipairs(Object:GetDescendants()) do
+                WhitelistedItems[Value] = Value;
             end
         end
-    end
-
-    if Object.Name == 'Handle' and Object:FindFirstChildOfClass('MeshPart') then -- Katana
-        WhitelistedItems[Object] = Object;
-    end
-        
-    if Object:IsA('BasePart') and Object.Name == 'Bone' then
-        Host:SetAttribute('KnockedOut', true)
     end
 
     Object.Destroying:Connect(function()
         WhitelistedItems[Object] = nil;
 
-        if Object:IsA('Model') or Object:IsA('BasePart') then
+        if Object:IsA('BasePart') then
             for _, Value in ipairs(Object:GetDescendants()) do
                 WhitelistedItems[Value] = nil;
             end
