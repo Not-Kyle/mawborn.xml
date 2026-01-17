@@ -86,8 +86,6 @@ local AmmoUi = Hud and Hud:FindFirstChild('Ammo');
 local CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo');
 
 local GetMouse = Body and Body:FindFirstChild('GetMouse');
-local Place = game.PlaceId;
-local Job = game.JobId;
 local DeathPosition = CFrame.new();
 local MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation();
 local SnaplineMethod = MousePosition;
@@ -118,14 +116,10 @@ local TagBoomboxes = 'Hooked::Boomboxes';
 local TagTools = 'Hooked::Items';
 local TagTrails = 'Hooked::Trails';
 
-local Lerping = 0;
-local Speed = 0.01;
-
 local Boomboxes = {};
 local Debounce = {};
 local EspConfig = {};
 local GradientCache = {};
-local Hash = {};
 local ItemEspConfig = {};
 local Lights = {};
 local Movement = {};
@@ -144,6 +138,11 @@ local Colors = {
     MouseColorOn = Color3.fromRGB(255, 0, 0),
     MouseColorOnTint = Color3.fromRGB(200, 0, 0),
 }
+
+local Hash = {
+    Lerping = 0;
+    LerpSpeed = 0.01;
+};
 
 local Items = {
     TextureIds = {
@@ -1364,6 +1363,19 @@ local function TeleportTo(Position: CFrame, Delay: number)
     TweenCreate:Play()
 end
 
+local function FindRound(Object: Instance)
+    if Object and Object.Name == 'Trail' and not Utils.CollectionService:HasTag(Object, TagTrails) then
+        Utils.CollectionService:AddTag(Object, TagTrails)
+    end
+end
+
+
+local function FindBoomboxes(Object: Instance)
+    if Object and Object:IsA('Sound') and Object.Name == 'SoundX' then
+        Boomboxes[Object.Name] = Object
+        Utils.CollectionService:AddTag(Object, TagBoomboxes)
+    end
+end
 
 local function FindPartsOnMap(Index: Instance)
     if not Index then return end
@@ -1438,6 +1450,8 @@ local function GameData()
                 table.insert(Pumpkins, Index)
             end
         end
+
+        FindBoomboxes(Index);
     end
 end
 
@@ -1613,6 +1627,21 @@ local function InitializeTool(Tool: Instance)
             UpdateBulletCounterVisible(Hash.FromGun, Hash.FromScreen);
         end
 
+        if Weapon then
+            for _, Values in ipairs(Weapon:GetDescendants()) do
+                if not Values then return end
+
+                if Values:IsA('BasePart') and Values.CanCollide then
+                    if WhitelistedItems[Values] then
+                        return WhitelistedItems[Values];
+                    end
+
+                    WhitelistedItems[Values.Name] = Values;
+                    Debounce.ItemsProcessed = true;
+                end
+            end
+        end
+
         Host:SetAttribute('HoldingTool', true)
     end)
 
@@ -1645,10 +1674,10 @@ end
 local function UpdateInfoCursor()
     if not Mouse or not Mouse.Target or not Mouse.Target.Parent then return end
 
-    Lerping += Speed
+    Hash.Lerping += Hash.LerpSpeed
 
-    if Lerping > 1 then
-        Lerping = 0;
+    if Hash.Lerping > 1 then
+        Hash.Lerping = 0;
     end
 
     local MouseTarget = Mouse and Mouse.Target;
@@ -1691,7 +1720,7 @@ local function UpdateInfoCursor()
         local _Player = Hash.Player or (Utils.Players and MouseName and Utils.Players[MouseName]);
 
         local _Tool;
-        local Gradient = OnGradient(Lerping);
+        local Gradient = OnGradient(Hash.Lerping);
 
         UIGradientInner.Color = Gradient;
         UIGradientStroke.Color = Gradient;
@@ -1870,21 +1899,6 @@ local function FindPlayersPart(Player: Player, Type: string, Part: string, Desce
     end
 
     Logger:Cout(debug.traceback())
-end
-
-
-local function FindRound(Object: Instance)
-    if Object and Object.Name == 'Trail' and not Utils.CollectionService:HasTag(Object, TagTrails) then
-        Utils.CollectionService:AddTag(Object, TagTrails)
-    end
-end
-
-
-local function FindBoomboxes(Object: Instance)
-    if Object and Object:IsA('Sound') and Object.Name == 'SoundX' then
-        Boomboxes[Object.Name] = Object
-        Utils.CollectionService:AddTag(Object, TagBoomboxes)
-    end
 end
 
 
@@ -2540,7 +2554,7 @@ local function HookData()
             Value = HookMouse;
         end -- Detectable
 
-        if self == Camera then 
+        if self == Camera then
             if Index == 'FieldOfView' then -- Because of the new chat commands
                 Value = Select.FOV.Value or Originals.FOV;
             end
@@ -3001,7 +3015,7 @@ do
 
 
     CommandHandler.Add('rejoin', {'rj'}, 'Rejoins the current game', '', true, function()
-        Utils.TeleportService:TeleportToPlaceInstance(Place, Job)
+        Utils.TeleportService:TeleportToPlaceInstance(Utils.PlaceId(), Utils.JobId())
     end)
 
 
@@ -3013,19 +3027,19 @@ do
     CommandHandler.Add('serverhop', {'shop'}, 'Hops servers', '', true, function() -- Creds to IY
         if HttpRequest then
             local Servers = {};
-            local Url = Utils.HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Place)})
+            local Url = Utils.HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Utils.PlaceId())})
             local HtmlBody = Utils.HttpService:JSONDecode(Url.Body)
 
             if HtmlBody and HtmlBody.data then
                 for _, Index in next, HtmlBody.data do
-                    if type(Index) == 'table' and tonumber(Index.playing) and tonumber(Index.maxPlayers) and Index.playing < Index.maxPlayers and Index.id ~= Job then
+                    if type(Index) == 'table' and tonumber(Index.playing) and tonumber(Index.maxPlayers) and Index.playing < Index.maxPlayers and Index.id ~= Utils.JobId() then
                         table.insert(Servers, 1, Index.id)
                     end
                 end
             end
 
             if #Servers > 0 then
-                Utils.TeleportService:TeleportToPlaceInstance(Place, Servers[math.random(1, #Servers)], Host)
+                Utils.TeleportService:TeleportToPlaceInstance(Utils.PlaceId(), Servers[math.random(1, #Servers)], Host)
             end
         else
             Notify('Error 236', '(syn.request) was not found or not compatible')
@@ -4534,22 +4548,6 @@ local function CheatData()
             CommandHandler.Commands[Index].Arguments,
             CommandHandler.Commands[Index].Description
         ))
-    end
-
-    for _, Index in next, getinstances() do
-        if Index and Index:IsA('Tool') then
-            for _, Values in next, Index:GetDescendants() do
-                if Values and Values:IsA('BasePart') and Values.CanCollide then
-                    WhitelistedItems[Index.Name] = Index
-                    Debounce.ItemsProcessed = true;
-                end
-            end
-        end
-
-        if Index:IsA('Sound') and Index.Name == 'SoundX' then
-            Boomboxes[Index.Name] = Index
-            Debounce.ProcessedBoombox = true;
-        end
     end
 
     for _, Index in next, TaggedItems do
