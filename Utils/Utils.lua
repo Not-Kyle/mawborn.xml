@@ -133,7 +133,7 @@ function Utils.GetVersion()
     else
         warn('Failed to fetch JSON File: ' .. tostring(Data))
 
-        return;
+        return 'N/A';
     end
 end
 
