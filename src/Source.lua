@@ -3463,7 +3463,7 @@ VisualsTab.CircleMoreTab:AddToggle('Cursor', {Text = 'Cursor', Tooltip = 'Shows 
     Utils.UserInputService.MouseIconEnabled = Boolean.Cursor.Value
 end)
 
-VisualsTab.CircleMoreTab:AddToggle('OscillateCursor', {Text = 'Oscillate Cursor', Tooltip = 'Oscillates your circle in a circular motion', Default = false}) -- Copy and pasted from my silent aim
+VisualsTab.CircleMoreTab:AddToggle('OscillateCursor', {Text = 'Oscillate Cursor', Tooltip = 'Oscillates your circle in a circular motion (Press F10 to turn off)', Default = false}) -- Copy and pasted from my silent aim
 
 VisualsTab.CircleMoreTab:AddDivider();
 
@@ -4147,6 +4147,13 @@ local function OnInput(Arguments: InputObject, OnChatted: boolean)
 
     if OnChatted then
         return;
+    end
+
+
+    if Arguments.KeyCode == Enum.KeyCode.F10 then
+        if Boolean.OscillateCursor.Value then
+            Boolean.OscillateCursor.Value = false;
+        end
     end
 
 
