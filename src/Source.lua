@@ -3436,7 +3436,7 @@ Select.CustomCursorColor:OnChanged(function()
     CursorImage.ImageColor3 = Select.CustomCursorColor.Value
 end)
 
-VisualsTab.CustomCursorTab:AddToggle('LogoCursor', {Text = 'Logo Cursor', Default = true}):OnChanged(function()
+VisualsTab.CustomCursorTab:AddToggle('LogoCursor', {Text = 'Logo', Default = true}):OnChanged(function()
     LogoFirst.Visible = Boolean.LogoCursor.Value;
     LogoSecond.Visible = Boolean.LogoCursor.Value;
 end)
