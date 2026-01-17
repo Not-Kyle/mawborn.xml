@@ -1381,7 +1381,7 @@ local function FindPartsOnMap(Index: Instance)
             end
         end
 
-        if Values:IsA('Part') then
+        if Values:IsA('BasePart') then
             if Values.Color == Color3.fromRGB(17, 17, 17) then
                 if Values:FindFirstChild('Barrel') then
                     AddItemEsp(Values, 'Sawed Off')
@@ -1415,7 +1415,6 @@ local function GameData()
 
             if Index.Color == Color3.fromRGB(255, 0, 191) and Index.Name == 'RandomSpawner' then
                 FindPartsOnMap(Index)
-
                 InsertItem(Items, Index)
             end
         end
@@ -4199,7 +4198,6 @@ local function WorkspaceDescendantAdded(Object: Instance)
 
         task.delay(2, function()
             FindPartsOnMap(Object)
-
             InsertItem(Items, Object)
         end)
     end
