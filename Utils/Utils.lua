@@ -120,8 +120,21 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
 
-function Utils:FWarning(Name: string, Message: string) -- Can not Import Logger when Logger imports Utils xdxdxdxd fuck this script
+function Utils.FWarning(Name: string, Message: string) -- Can not Import Logger when Logger imports Utils xdxdxdxd fuck this script
     return warn(string.format('[%s]: %'), Name, Message)
+end
+
+
+function Utils.GetVersion()
+    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, getgenv().GetCurrentVersion or '{}');
+
+    if Success and Data and Data.Version then
+        return Data.Version;
+    else
+        warn('Failed to fetch JSON File: ' .. tostring(Data))
+
+        return;
+    end
 end
 
 
@@ -261,7 +274,7 @@ end
 
 function Utils.Body(Player: Player, Name: string) : Model
     if not Player then
-        Utils:FWarning(Name, 'Player indexed as nil');
+        Utils.FWarning(Name, 'Player indexed as nil');
         return;
     end
 
