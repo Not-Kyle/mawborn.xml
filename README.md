@@ -40,7 +40,7 @@
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
-# Updates <br />
+# Updates [Current Version 0.9.97] <br />
 
 >[!NOTE]
 > ### Version: 0.9.97
