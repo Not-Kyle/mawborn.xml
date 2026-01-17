@@ -1437,35 +1437,6 @@ local function GameData()
 end
 
 
-local function AddPartsToWhitelist(Object: Instance)
-    if not Object then return end
-
-    WhitelistedItems[Object] = Object;
-
-    local Connection; Connection = Object:GetPropertyChangedSignal('Parent'):Connect(function()
-        if not Object:IsDescendantOf(Host) then
-            WhitelistedItems[Object] = nil;
-        else
-            WhitelistedItems[Object] = Object;
-        end
-    end)
-
-    Object.Destroying:Connect(function()
-        WhitelistedItems[Object] = nil;
-
-        if Connection then
-            Connection:Disconnect();
-        end
-
-        if Object:IsA('Model') then
-            for _, Value in ipairs(Object:GetDescendants()) do
-                WhitelistedItems[Value] = nil;
-            end
-        end
-    end)
-end
-
-
 local function SetInfinityZoom(State: boolean)
     if Host then
         Host.CameraMaxZoomDistance = (State and math.huge) or Originals.Zoom
@@ -4240,24 +4211,34 @@ local function BodyDescendantAdded(Object: Instance)
     FindTool(Object)
 
     if Object.Name == 'KnuxRightPart' or Object.Name == 'KnuxLeftPart' then
-        AddPartsToWhitelist(Object);
+        WhitelistedItems[Object] = Object;
     end
 
     if Object.Name == 'Baseball' then
         for _, Values in ipairs(Object:GetDescendants()) do
             if Values:IsA('BasePart') then
-                AddPartsToWhitelist(Values);
+                WhitelistedItems[Values] = Values;
             end
         end
     end
 
     if Object.Name == 'Handle' and Object:FindFirstChildOfClass('MeshPart') then -- Katana
-        AddPartsToWhitelist(Object);
+        WhitelistedItems[Object] = Object;
     end
         
     if Object:IsA('BasePart') and Object.Name == 'Bone' then
         Host:SetAttribute('KnockedOut', true)
     end
+
+    Object.Destroying:Connect(function()
+        WhitelistedItems[Object] = nil;
+
+        if Object:IsA('Model') or Object:IsA('BasePart') then
+            for _, Value in ipairs(Object:GetDescendants()) do
+                WhitelistedItems[Value] = nil;
+            end
+        end
+    end)
 end
 
 
