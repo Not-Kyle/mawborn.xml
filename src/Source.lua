@@ -146,6 +146,7 @@ local Hash = {
     Lerping = 0,
     LerpSpeed = 0.01,
 
+    OscillateAngle = 2;
     PreviousAngle = 0,
 };
 
@@ -2253,10 +2254,10 @@ local function OnRenderStepped(Delta: number)
     end
 
     if Boolean.OscillateCursor.Value then
-        Select.OscillateAngle.Value += Select.OscillateSpeed.Value * Delta
+        Hash.OscillateAngle += Select.OscillateSpeed.Value * Delta
 
         local Radius = Select.OscillateRadius.Value * 10;
-        local X, Y = math.cos(Select.OscillateAngle.Value) * Radius, math.sin(Select.OscillateAngle.Value) * Radius;
+        local X, Y = math.cos(Hash.OscillateAngle) * Radius, math.sin(Hash.OscillateAngle) * Radius;
         local PX, PY = math.cos(Hash.PreviousAngle) * Radius, math.sin(Hash.PreviousAngle) * Radius;
 
         Hash.ActualX += (X - PX);
@@ -2272,7 +2273,7 @@ local function OnRenderStepped(Delta: number)
             Hash.ActualY -= YFloored;
         end
 
-        Hash.PreviousAngle = Select.OscillateAngle.Value;
+        Hash.PreviousAngle = Hash.OscillateAngle;
     end
 end
 
@@ -3468,7 +3469,6 @@ VisualsTab.CircleMoreTab:AddDivider();
 
 VisualsTab.CircleMoreTab:AddSlider('OscillateSpeed', {Text = 'Oscillation Speed', Tooltip = 'Changes the speed of the oscillation', Default = 2, Min = 0.5, Max = 10, Rounding = 1});
 VisualsTab.CircleMoreTab:AddSlider('OscillateRadius', {Text = 'Oscillation Radius', Tooltip = 'Changes the radius of the oscillation', Default = 5, Min = 1, Max = 30, Rounding = 0});
-VisualsTab.CircleMoreTab:AddSlider('OscillateAngle', {Text = 'Oscillation Angle', Tooltip = 'Changes the angle of the oscillation', Default = 0, Min = 0, Max = 10, Rounding = 0});
 -- [] Trails Box
 
 VisualsTab.TrailsBox:AddToggle('Trails', {Text = 'Trails', Tooltip = 'Toggles Trails', Default = true})
