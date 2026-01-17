@@ -2,20 +2,7 @@ if getgenv().Mawborn.FileHandler then
     return
 end
 
-local Service = setmetatable({}, {
-    __index = function(self: Instance, ...)
-        local Arguments = {...}
-        rawset(self, Arguments, Arguments[1])
-        
-        if not cloneref then
-            return game:GetService(Arguments[1]);
-        end
-
-        return cloneref(game:GetService(Arguments[1]));
-    end
-})
-
-local HttpService = Service.HttpService;
+local Utils = Import('Utils/Utils.lua');
 
 local Folder = 'mawborn';
 local File = Folder .. '/source.xml';
@@ -23,7 +10,7 @@ local File = Folder .. '/source.xml';
 local Config = {AutoExecute = true};
 
 function Config:UpdateFile()
-    return writefile and writefile(File, HttpService:JSONEncode(Config));
+    return writefile and writefile(File, Utils.HttpService:JSONEncode(Config));
 end
 
 task.spawn(function()
@@ -42,7 +29,7 @@ task.spawn(function()
     local Connection, Contents = pcall(readfile, File)
 
     if Connection then
-        local Decode = HttpService:JSONDecode(Contents)
+        local Decode = Utils.HttpService:JSONDecode(Contents)
 
         for Index, _ in next, Config do
             if Decode[Index] then
