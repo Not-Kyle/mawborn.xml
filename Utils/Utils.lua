@@ -120,10 +120,8 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
     [9485008174] = {Name = 'nehcoIe', Reason = 'femcel, wears a doxbin shirt. Just hype up her ego, its funny', Level = 0},
 }
 
-local Logger = Import('Utils/Logging.lua');
-
-function Logger:FWarning(Name: string, Message: string)
-    return Logger:Warning(string.format('[%s]: %'), Name, Message)
+function Utils:FWarning(Name: string, Message: string) -- Can not Import Logger when Logger imports Utils xdxdxdxd fuck this script
+    return warn(string.format('[%s]: %'), Name, Message)
 end
 
 
@@ -263,7 +261,7 @@ end
 
 function Utils.Body(Player: Player, Name: string) : Model
     if not Player then
-        Logger:FWarning(Name, 'Player indexed as nil');
+        Utils:FWarning(Name, 'Player indexed as nil');
         return;
     end
 
