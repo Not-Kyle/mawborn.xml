@@ -4654,10 +4654,10 @@ local Connection; Connection = Utils.RunService.Heartbeat:Connect(function()
 end)
 
 
-CheatData();
-
-if getgenv().Mawborn.Version ~= Utils.GetVersion() then
-    Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle');
+if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion()) then
+    Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
 end
 
+
+CheatData();
 Notify(Utils.Title(2), 'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
