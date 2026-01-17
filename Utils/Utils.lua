@@ -203,7 +203,7 @@ end
 
 
 function Utils.GameTitle() : string
-    return Utils.MarketplaceService and Place and Utils.MarketplaceService:GetProductInfo(Place).Name or 'N/A';
+    return Utils.MarketplaceService and PlaceId and Utils.MarketplaceService:GetProductInfo(PlaceId).Name or 'N/A';
 end
 
 
