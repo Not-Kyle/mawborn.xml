@@ -178,12 +178,6 @@ local Originals = {
     JumpPower = Humanoid and Humanoid.JumpPower,
 }
 
-for _, Connection in next, getconnections(Utils.ScriptContext.Error) do
-    if Utils.Streets and getfenv(Connection.Function).script == PlayerGui.LocalScript then
-        Connection:Disable(); -- // Creds to Ponyhook
-    end
-end
-
 -- UI's []
 
 getgenv().mawborn = Instance.new('ScreenGui');
@@ -2451,10 +2445,6 @@ local function HookData()
             if Self == 'Stamina' and Index == 'Value' then
                 return 100;
             end
-        end
-
-        if Utils.Streets and self == Utils.ScriptContext and Index == 'Error' then
-            return {connect = function() end} -- // PlayerGui.LocalScript
         end
 
         if self == Humanoid then
