@@ -121,7 +121,7 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
 }
 
 function Utils.FWarning(Name: string, Message: string) -- Can not Import Logger when Logger imports Utils xdxdxdxd fuck this script
-    return warn(string.format('[%s]: %'), Name, Message)
+    warn(string.format('[%s]: %s', Name, Message))
 end
 
 
@@ -154,7 +154,7 @@ end
 
 
 function Utils.Mods(Specific: boolean) : table
-    if not Specific then Specific = true end
+    Specific = Specific ~= false
 
     if Specific then
         if Utils.Streets then
@@ -175,6 +175,8 @@ function Utils.AdminCheck(UserId: number, Player: Player) : boolean
     if Utils.Remake and Player:IsInGroupAsync(34316646) then
         return true
     end
+
+    return false;
 end
 
 
@@ -185,8 +187,10 @@ end
 
 function Utils.KosCheck(UserId: number) : boolean
     if TempKos[UserId] then
-        return true
+        return true;
     end
+
+    return false;
 end
 
 
@@ -197,13 +201,17 @@ end
 
 function Utils.CreatorCheck(UserId: number) : boolean
     if Creators[UserId] then
-        return true
+        return true;
     end
+
+    return false;
 end
 
 
 function Utils.GameTitle() : string
-    return Utils.MarketplaceService and PlaceId and Utils.MarketplaceService:GetProductInfo(PlaceId).Name or 'N/A';
+    local Success, Info = pcall(Utils.MarketplaceService.GetProductInfo, Utils.MarketplaceService, PlaceId);
+
+    return Success and Info and Info.Name or 'N/A';
 end
 
 
@@ -220,7 +228,11 @@ end
 
 
 function Utils.TagSystem() : ModuleScript
-    return Utils.Streets and Utils.ReplicatedStorage and require(Utils.ReplicatedStorage:FindFirstChild('TagSystem'))
+    local TagSystem = Utils.ReplicatedStorage and Utils.ReplicatedStorage:FindFirstChild('TagSystem');
+
+    if TagSystem and TagSystem:IsA('ModuleScript') then
+        return require(TagSystem);
+    end
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
 
 
@@ -255,7 +267,7 @@ function Utils.FindPlayer(Target: string) : table
     end
 
     if #PlayerTable == 0 then
-        return
+        return PlayerTable;
     end
 
     return PlayerTable
@@ -323,21 +335,12 @@ function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolea
     RaycastParmam.FilterType = Enum.RaycastFilterType.Blacklist;
     RaycastParmam.FilterDescendantsInstances = {Camera, Body, Character};
 
-    local Direction = (Part.Position - Camera.CFrame.Position);
+    local Position = Part.Position - Camera.CFrame.Position;
+    local Direction = Position.Unit * (Position.Magnitude + 1);
+
     local Result = Utils.Workspace:Raycast(Camera.CFrame.Position, Direction, RaycastParmam);
 
     return not Result;
 end -- Body = Myself, Character = Other Player
-
-
-function Utils.KnockedCheck(Player: Player)
-    if not Player then return end
-
-    Player:SetAttribute('Knocked', false)
-
-    if Utils.Head(Player):FindFirstChild('Bone', true) then
-        Player:SetAttribute('Knocked', true)
-    end
-end
 
 return Utils;
