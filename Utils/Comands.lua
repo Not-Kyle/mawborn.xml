@@ -32,9 +32,9 @@ function CommandHandler.Add(...) -- Reworked version of Ciazware command handler
     Commands[#Commands + 1] = CommandNet;
 end
 
-function CommandHandler.Index(Arguments: string)
+function CommandHandler.Index(CommandName: string)
     for _, Index in next, Commands do
-        if Index.Name == Arguments or (Index.Alias and table.find(Index.Alias, Arguments)) then
+        if Index.Name == CommandName or (Index.Alias and table.find(Index.Alias, CommandName)) then
             return Index.Function
         end
     end
@@ -48,15 +48,15 @@ function CommandHandler.Execute(Arguments: string)
             return
         end
 
-        local SplitArgs = string.split(string.lower(Arguments), ' ')
-        local IndexedCommand = CommandHandler.Index(table.remove(SplitArgs, 1))
+        local SplitArgs = string.split(Arguments, ' ')
+        local IndexedCommand = CommandHandler.Index(string.lower(table.remove(SplitArgs, 1)))
 
         if not IndexedCommand then
             return
         end
 
-        IndexedCommand(SplitArgs)
         LastCommandTime = Time
+        IndexedCommand(SplitArgs)
     end)
 
     if not Success then
