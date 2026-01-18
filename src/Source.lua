@@ -1739,10 +1739,10 @@ local function UpdateInfoCursor()
             local Text = string.format('%s\nStuds: %s\nHealth: %s\nTool: %s', MouseName, StudFinder, Health, (_Tool and _Tool.Name) or 'None')
 
             if Utils.Streets then
-                Hash.Cred = 'Cred: ' .. LeaderStats:FindFirstChild('Cred').Value
+                Hash.Cred = 'Cred: ' .. LeaderStats:FindFirstChild('Cred').Value or 'N/A';
                 
             elseif Utils.Prison then
-                Hash.Cred = 'Stomps: ' .. LeaderStats:FindFirstChild('Stomps').Value
+                Hash.Cred = 'Stomps: ' .. LeaderStats:FindFirstChild('Stomps').Value or 'N/A';
             end
 
             if _Tool and Ammo and Clips then
@@ -1952,10 +1952,10 @@ local function BoomboxEffects()
         SelectedBoombox.Volume = Select.BoomVolume.Value;
         SelectedBoombox.RollOffMaxDistance = Select.BoomDistance.Value;
 
-        Hash.OwnerBoombox = Hash.OwnerBoombox or (function()
+        Hash.OwnerBoombox = Hash.OwnerBoombox or (function() -- Change for optimization
             for _, Index in next, Body:GetDescendants() do
                 if Index:IsA('Sound') and Index.Name == 'SoundX' then
-                    return Index
+                    return Index;
                 end
             end
         end)()
@@ -1992,26 +1992,32 @@ local function BoomboxEffects()
 end
 
 
-local function SendKnockedAttributes(Player: Player, Character: Model)
-    local _Head = Utils.Head(Player)
+local function SendKnockedAttributes(Player: Player)
+    if not Player then return end
+
+    local Character = Utils.Body(Player, 'SendKnockedAttributes');
+    if not Character then return end
+
+    local _Head = Character:FindFirstChild('Head');
     if not _Head then return end
 
-    Player:SetAttribute('Knocked', _Head:FindFirstChild('Bone') ~= nil)
-
-    local function PlayerDescendantAdded()
-        if _Head:FindFirstChild('Bone') then
-            Player:SetAttribute('Knocked', true)
-        end
+    local function UpdateAttribute()
+        Player:SetAttribute('Knocked', _Head:FindFirstChild('Bone') ~= nil);
     end
 
-    local function PlayerDescendantRemoving()
-        if _Head:FindFirstChild('Bone') then
-            Player:SetAttribute('Knocked', false)
-        end
-    end
+    UpdateAttribute();
 
-    Character.DescendantAdded:Connect(PlayerDescendantAdded)
-    Character.DescendantRemoving:Connect(PlayerDescendantRemoving)
+    _Head.DescendantAdded:Connect(function(Object: Instance)
+        if Object.Name == 'Bone' then
+            UpdateAttribute();
+        end
+    end)
+
+    _Head.DescendantRemoving:Connect(function(Object: Instance)
+        if Object.Name == 'Bone' then
+            UpdateAttribute();
+        end
+    end)
 end
 
 
@@ -2447,7 +2453,7 @@ local function HookData()
             end
         end
 
-        if self == Utils.ScriptContext and Index == 'Error' then
+        if Utils.Streets and self == Utils.ScriptContext and Index == 'Error' then
             return {connect = function() end} -- // PlayerGui.LocalScript
         end
 
@@ -4434,7 +4440,7 @@ local function OnPlayerAdded(Player: Player)
             AddEsp(Player)
         end
 
-        SendKnockedAttributes(Player, Character)
+        SendKnockedAttributes(Player)
     end)
 end
 
@@ -4510,19 +4516,7 @@ local function OnPlayers(Player: Player)
         Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' is in game')
     end
 
-    local _Character = Utils.Body(Player)
-    if not _Character then return end;
-
-    local _Head = Utils.Head(Player);
-    if not _Head then return end;
-
-    Player:SetAttribute('Knocked', false)
-
-    if _Head:FindFirstChild('Bone') then
-        Player:SetAttribute('Knocked', true)
-    end
-
-    SendKnockedAttributes(Player, _Character)
+    SendKnockedAttributes(Player);
 
     Player.CharacterAdded:Connect(function(Character: Model)
         if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
@@ -4537,7 +4531,7 @@ local function OnPlayers(Player: Player)
             AddEsp(Player)
         end
 
-        SendKnockedAttributes(Player, Character)
+        SendKnockedAttributes(Player)
     end)
 end
 
