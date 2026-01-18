@@ -50,7 +50,7 @@ Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
--[[if Utils.Prison then
+--[[if Utils.Prison then
     game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
 end]]
 
