@@ -4556,7 +4556,7 @@ local function CheatData()
     ChatSpy();
     HookData();
     GameData();
-    --BodyOnChild();
+    BodyOnChild();
 
     TextProperties:TextBounds(InfoCursor, 190, 19)
 
@@ -4576,6 +4576,17 @@ local function CheatData()
         ))
     end
 
+    for _, Index in next, TaggedItems do
+        if not Index then return end
+        local Arguments = {Index.Callback}
+
+        if Index.Callback2 then
+            table.insert(Arguments, Index.Callback2)
+        end
+
+        Utils.CollectionService:GetInstanceAddedSignal(Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
+    end
+
     if Utils.Prison then
         Select.AimlockPart.Value = 'Head';
 
@@ -4587,17 +4598,6 @@ local function CheatData()
 
         Hash.PlaceSwap = 15852982099;
         GetMouse.OnClientInvoke = HookMouse;
-
-        for _, Index in next, TaggedItems do
-            if not Index then return end
-            local Arguments = {Index.Callback}
-
-            if Index.Callback2 then
-                table.insert(Arguments, Index.Callback2)
-            end
-
-            Utils.CollectionService:GetInstanceAddedSignal(Index.Tag):Connect(DebounceFunc(Index.Key, Index.IsDelay, Index.Delay, unpack(Arguments)))
-        end
 
         CashUi:GetPropertyChangedSignal('Text'):Connect(function()
             if Cash() < 200 and Boolean.LowCashIndicator.Value and not Debounce.LowCash then
