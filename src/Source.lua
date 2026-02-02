@@ -792,6 +792,7 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
 
         OutlineTracer = NewInstance('Draw', 'Line', {
             Transparency = 1,
+            Color = Color3.fromRGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
 
@@ -806,6 +807,7 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
         BoxOutline = NewInstance('Draw', 'Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
+            Color = Color3.fromRGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
@@ -813,6 +815,7 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
         HealthBarOutline = NewInstance('Draw', 'Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
+            Color = Color3.fromRGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
@@ -875,6 +878,7 @@ local function AddItemEsp(Object: Instance, Name: string)
 
         OutlineTracer = NewInstance('Draw', 'Line', {
             Transparency = 1,
+            Color = Color3.fromRGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
 
