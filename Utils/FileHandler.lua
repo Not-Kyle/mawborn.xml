@@ -5,7 +5,7 @@ end
 local Utils = Import('Utils/Utils.lua');
 
 local Folder = 'mawborn';
-local File = Folder .. '/source.xml';
+local File = Folder .. '/source.json';
 
 local Config = {AutoExecute = true};
 
