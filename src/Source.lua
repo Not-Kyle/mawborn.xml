@@ -1220,32 +1220,33 @@ end
 
 local function UpdateFly()
     if not (Hash.BodyVelocity or Hash.AlignOrientation or Hash.Float or Hash.Att0 or Hash.Att1) then
-        return
+        return;
     end
 
     local FlySpeed = (Select.FlySpeed.Value or 4) * 25;
 
-    local YAxis = math.atan2(-Camera.CFrame.LookVector.X, -Camera.CFrame.LookVector.Z)
+    local YAxis = math.atan2(-Camera.CFrame.LookVector.X, -Camera.CFrame.LookVector.Z);
     local TorsoAngles = CFrame.new(Torso.Position) * CFrame.Angles(0, YAxis, 0);
-    local FlyVelocity = -Vector3.yAxis
-    
-    Humanoid.PlatformStand = false;
-    Hash.Float.CFrame = Torso.CFrame * CFrame.new(0,-3.5,0)
+    local FlyVelocity = Vector3.zero;
 
-    if Movement.W then FlyVelocity += Camera.CFrame.LookVector * FlySpeed end
-    if Movement.A then FlyVelocity += Camera.CFrame.RightVector * -FlySpeed end
-    if Movement.S then FlyVelocity += Camera.CFrame.LookVector * -FlySpeed end
-    if Movement.D then FlyVelocity += Camera.CFrame.RightVector * FlySpeed end
+    local LookVector = Camera.CFrame.LookVector;
+    local RightVector = Camera.CFrame.RightVector;
+
+    if Movement.W then FlyVelocity = FlyVelocity + (LookVector * FlySpeed) end
+    if Movement.A then FlyVelocity = FlyVelocity + (RightVector * -FlySpeed) end
+    if Movement.S then FlyVelocity = FlyVelocity + (LookVector * -FlySpeed) end
+    if Movement.D then FlyVelocity = FlyVelocity + (RightVector * FlySpeed) end
 
     if not (Movement.W or Movement.A or Movement.S or Movement.D) then
-        FlyVelocity = Vector3.zero
+        FlyVelocity = Vector3.zero;
     end
 
-    Hash.BodyVelocity.Velocity = FlyVelocity
-    Hash.Att1.CFrame = TorsoAngles:ToObjectSpace(Hash.Float.CFrame)
+    Hash.BodyVelocity.Velocity = FlyVelocity;
+    Hash.Float.CFrame = Torso.CFrame * CFrame.new(0, -3.5, 0);
+    Hash.AlignOrientation.CFrame = TorsoAngles;
 
     if Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
-        Torso.CFrame += Vector3.new(0, 0.2, 0)
+        Torso.CFrame = Torso.CFrame + Vector3.new(0, 0.2, 0);
     end
 end
 
