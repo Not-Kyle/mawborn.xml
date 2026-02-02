@@ -4621,6 +4621,10 @@ local function CheatData()
     end)
 
     Debounce.ScriptLoaded = true;
+
+    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion()) then
+        Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
+    end
 end
 
 
@@ -4640,12 +4644,6 @@ local Connection; Connection = Utils.RunService.Heartbeat:Connect(function()
         Connection:Disconnect();
     end
 end)
-
-
-if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion()) then
-    Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
-end
-
 
 CheatData();
 Notify(Utils.Title(2), 'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
