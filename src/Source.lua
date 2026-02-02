@@ -4229,7 +4229,7 @@ local function BodyDescendantAdded(Object: Instance)
     FindTool(Object)
 
     if Object:IsA('BasePart') and Object.CanCollide then -- I don't know why I was not doing this from the start holy
-        if Hash.Float or Object.Name == 'Float' then -- For Fly
+        if Object == Hash.Float or Object.Name == 'Float' then -- For Fly
             return;
         end
 
