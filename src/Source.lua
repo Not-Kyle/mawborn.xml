@@ -1198,8 +1198,8 @@ local function Fly()
             MaxTorque = 10000;
             Attachment0 = Attachment0;
             Attachment1 = Attachment1;
-            RigidityEnabled = false;
-            MaxAngularVelocity = 9e9;
+            RigidityEnabled = true;
+            MaxAngularVelocity = 500;
         })
 
         local FlightVelocity = NewInstance('Instance', 'BodyVelocity', {
