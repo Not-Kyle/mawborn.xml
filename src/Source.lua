@@ -4228,7 +4228,7 @@ local function BodyDescendantAdded(Object: Instance)
     FindBoomboxes(Object)
     FindTool(Object)
 
-    if Object:IsA('BasePart') and Object.CanCollide then -- I don't know why I was not doing this from the start holy
+    if not Object.Name == 'Float' and Object:IsA('BasePart') and Object.CanCollide then -- I don't know why I was not doing this from the start holy
         InsertItem(WhitelistedItems, Object)
 
         if Object:IsA('BasePart') then
