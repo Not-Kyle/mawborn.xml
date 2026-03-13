@@ -4627,7 +4627,7 @@ local function CheatData()
 
     Debounce.ScriptLoaded = true;
 
-    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion()) then
+    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion(MawbornVersion)) then
         Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
     end
 end
