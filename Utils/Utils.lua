@@ -18,7 +18,7 @@ local Service = Setmetatable({}, {
         Assert(Type(ServiceName) == 'string', 'Provided class must be a string');
 
         local Success, Provider = Pcall(function()
-            return game:GetService(ServiceName);
+            return Game:GetService(ServiceName);
         end)
 
         if Success and Provider then
