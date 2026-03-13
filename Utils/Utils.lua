@@ -3,15 +3,24 @@ if getgenv().Mawborn.Utils then
 end
 
 local Service = setmetatable({}, {
-    __index = function(self, ServiceName)
-        local Service = game:GetService(ServiceName);
+    __index = function(self, ServiceName: string)
+        assert(type(ServiceName) == 'string', 'Provided class must be a string');
 
-        if cloneref then
-            Service = cloneref(Service)
+        local Success, Provider = pcall(function()
+            return game:GetService(ServiceName);
+        end)
+
+        if Success and Provider then
+            if cloneref then
+                Provider = cloneref(Provider);
+            end
+
+            rawset(self, ServiceName, Provider);
+            return Provider;
         end
 
-        rawset(self, ServiceName, Service);
-        return Service;
+        warn('Service: (' .. ServiceName .. ') not found!');
+        return;
     end
 })
 
@@ -126,7 +135,7 @@ end
 
 
 function Utils.GetVersion()
-    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, getgenv().GetCurrentVersion or '{}');
+    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, MawbornVersion or '{}');
 
     if Success and Data and Data.Version then
         return Data.Version;
