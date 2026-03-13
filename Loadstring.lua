@@ -1,3 +1,5 @@
+-- Wont work, here for documentation.
+
 if getgenv().Importer then
     return;
 end
