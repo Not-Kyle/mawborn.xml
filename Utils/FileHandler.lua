@@ -15,7 +15,6 @@ local File = Folder .. '/source.xml';
 local Utils = Import('Utils/Utils.lua');
 
 local Config = {AutoExecute = true};
-Config.__index = Config;
 
 function Config:UpdateFile()
     return Writefile and Writefile(File, Utils.HttpService:JSONEncode(Config));
