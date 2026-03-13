@@ -4,6 +4,7 @@ local IdentifyExecuter, _ = identifyexecutor or getexecutorname;
 local RawGame = game;
 local Pcall, Typeof = pcall, typeof;
 local StringSub, StringFormat, Tostring = string.sub, string.format, tostring;
+local TableFreeze = table.freeze;
 local TaskWait, TaskDefer = task.wait, task.defer;
 local Utf8Len, Utf8Offset = utf8.len, utf8.offset;
 local Mathround = math.round;
@@ -17,7 +18,7 @@ local Stats = Game:GetService('Stats');
 local Fps;
 local Ping;
 
-local Executor, _ = StringSub(Tostring(IdentifyExecuter()), 1, 4) or 'unknown';
+local Executor = StringSub(Tostring(IdentifyExecuter()), 1, 4) or 'unknown';
 
 local Watermark = {};
 local UTF8 = {};
@@ -128,7 +129,7 @@ function Watermark:MakeWatermark(Parent: string)
 
     TaskDefer(function()
         while TaskWait() do
-            local PrintLn = StringFormat(' mawborn.xml | executor: %s | %s',
+            local PrintLn = StringFormat('mawborn.xml | executor: %s | %s',
                 Executor,
                 OsDate('%a, %b %d, %I:%M %p %Y')
             )
@@ -149,4 +150,4 @@ function Watermark:MakeWatermark(Parent: string)
     return OnRenderStepped, OuterWatermark;
 end
 
-return Watermark;
+return TableFreeze(Watermark);
