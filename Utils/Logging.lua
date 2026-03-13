@@ -9,7 +9,7 @@ local Type = type;
 local Logger = {};
 Logger.__index = Logger;
 
-function Logger:Print(Message: string)
+function Logger:Cout(Message: string)
     if Type(Message) ~= 'string' then return end;
 
     Print(Message);
@@ -28,8 +28,4 @@ function Logger:Error(Message: string, Level: number)
     Error(Message, Level or 0);
 end
 
-return TableFreeze({
-    Cout = Logger.Print;
-    Warning = Logger.Warning;
-    Error = Logger.Error;
-})
+return TableFreeze(Logger);
