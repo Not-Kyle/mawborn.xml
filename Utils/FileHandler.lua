@@ -2,36 +2,44 @@ if getgenv().Mawborn.FileHandler then
     return
 end
 
-local Utils = Import('Utils/Utils.lua');
+local Readfile, Writefile = readfile, writefile;
+local Isfolder, Makefolder = isfolder, makefolder;
+
+local Pcall = pcall;
+local Next = next;
+local Defer = task.defer;
+local Freeze = table.freeze;
 
 local Folder = 'mawborn';
-local File = Folder .. '/source.xml';
+local File = Folder .. '/source.json';
+
+local Utils = Import('Utils/Utils.lua');
 
 local Config = {AutoExecute = true};
 
 function Config:UpdateFile()
-    return writefile and writefile(File, Utils.HttpService:JSONEncode(Config));
+    return Writefile and Writefile(File, Utils.HttpService:JSONEncode(Config));
 end
 
-task.spawn(function()
-    if not makefolder
-        or not isfolder
-        or not readfile
-        or not writefile then
-            
+Defer(function()
+    if not Makefolder
+        or not Isfolder
+        or not Readfile
+        or not Writefile then
+
         return
     end
 
-    if makefolder and not isfolder(Folder) then 
-        makefolder(Folder);
+    if Makefolder and not Isfolder(Folder) then 
+        Makefolder(Folder);
     end
 
-    local Connection, Contents = pcall(readfile, File)
+    local Connection, Contents = Pcall(Readfile, File)
 
     if Connection then
         local Decode = Utils.HttpService:JSONDecode(Contents)
 
-        for Index, _ in next, Config do
+        for Index, _ in Next, Config do
             if Decode[Index] then
                 Config[Index] = Decode[Index]
             end
@@ -43,4 +51,4 @@ task.spawn(function()
     end
 end)
 
-return Config;
+return Freeze(Config);
