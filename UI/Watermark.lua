@@ -7,6 +7,7 @@ local StringSub, StringFormat, Tostring = string.sub, string.format, tostring;
 local TaskWait, TaskDefer = task.wait, task.defer;
 local Utf8Len, Utf8Offset = utf8.len, utf8.offset;
 local Mathround = math.round;
+local OsDate = os.date;
 
 local RunGame, GameResult = Pcall(Cloneref, RawGame);
 local Game = (RunGame and Typeof(GameResult) == 'Instance') and GameResult or RawGame;
@@ -57,19 +58,19 @@ local function Typewrite(Method: string?, Property: Instance?, Text: string?, De
 end
 
 function Watermark:MakeWatermark(Parent: string)
-    Watermark.OuterWatermark = Instance.new("Frame")
-    Watermark.OuterWatermark.Name = "OuterWatermark"
-    Watermark.OuterWatermark.Parent = Parent
-    Watermark.OuterWatermark.AnchorPoint = Vector2.new(0.5, 0.5)
-    Watermark.OuterWatermark.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
-    Watermark.OuterWatermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Watermark.OuterWatermark.BorderSizePixel = 0
-    Watermark.OuterWatermark.Position = UDim2.fromScale(0.848, 0.985)
-    Watermark.OuterWatermark.Size = UDim2.new(0, 572, 0, 22)
+    local OuterWatermark = Instance.new("Frame")
+    OuterWatermark.Name = "OuterWatermark"
+    OuterWatermark.Parent = Parent
+    OuterWatermark.AnchorPoint = Vector2.new(0.5, 0.5)
+    OuterWatermark.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+    OuterWatermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    OuterWatermark.BorderSizePixel = 0
+    OuterWatermark.Position = UDim2.fromScale(0.848, 0.985)
+    OuterWatermark.Size = UDim2.new(0, 572, 0, 22)
 
     local BorderInner = Instance.new("Frame")
     BorderInner.Name = "InnerWatermark"
-    BorderInner.Parent = Watermark.OuterWatermark
+    BorderInner.Parent = OuterWatermark
     BorderInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     BorderInner.BorderColor3 = Color3.fromRGB(27, 27, 27)
     BorderInner.Position = UDim2.new(0.00329387072, 0, 0.0809742287, 0)
@@ -77,7 +78,7 @@ function Watermark:MakeWatermark(Parent: string)
 
     local InnerWatermark = Instance.new("Frame")
     InnerWatermark.Name = "InnerWatermark"
-    InnerWatermark.Parent = Watermark.OuterWatermark
+    InnerWatermark.Parent = OuterWatermark
     InnerWatermark.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     InnerWatermark.BorderColor3 = Color3.fromRGB(0, 0, 0)
     InnerWatermark.BorderMode = Enum.BorderMode.Inset
@@ -123,13 +124,13 @@ function Watermark:MakeWatermark(Parent: string)
 
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 4)
-    UICorner.Parent = Watermark.OuterWatermark
+    UICorner.Parent = OuterWatermark
 
     TaskDefer(function()
         while TaskWait() do
             local PrintLn = StringFormat(' mawborn.xml | executor: %s | %s',
                 Executor,
-                os.date('%a, %b %d, %I:%M %p %Y')
+                OsDate('%a, %b %d, %I:%M %p %Y')
             )
 
             Typewrite('Out', TitleWatermark, PrintLn, 0.1)
@@ -145,7 +146,7 @@ function Watermark:MakeWatermark(Parent: string)
         TitleWatermark_2.Text = StringFormat(' | fps: %s | ping: %s ', Fps, Ping)
     end
 
-    return OnRenderStepped;
+    return OnRenderStepped, OuterWatermark;
 end
 
 return Watermark;
