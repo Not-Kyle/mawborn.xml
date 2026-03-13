@@ -8,7 +8,6 @@ local Isfolder, Makefolder = isfolder, makefolder;
 local Pcall = pcall;
 local Next = next;
 local Defer = task.defer;
-local Freeze = table.freeze;
 
 local Folder = 'mawborn';
 local File = Folder .. '/source.xml';
@@ -52,4 +51,4 @@ Defer(function()
     end
 end)
 
-return Freeze(Config);
+return Config;
