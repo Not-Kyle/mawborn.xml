@@ -52,6 +52,4 @@ Defer(function()
     end
 end)
 
-return Freeze({
-    UpdateFile = Config:UpdateFile()
-})
+return Freeze(Config);
