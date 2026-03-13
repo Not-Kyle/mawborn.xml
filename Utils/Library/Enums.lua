@@ -2,6 +2,9 @@ if getgenv().Mawborn.Library.Enumerations then
     return
 end
 
+local OsClock = os.clock;
+local Pcall, Tostring = pcall, tostring;
+
 local Enumerations = {};
 local LastFired = {};
 
@@ -13,7 +16,7 @@ local Utils = Import('Utils/Utils.lua');
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 local Backpack = Host and Host:WaitForChild('Backpack', 5);
 
-local function CheckRemotes(Parent: Instance, Remote: string)
+function Enumerations.CheckRemotes(Parent: Instance, Remote: string)
     if not Parent then
         Logger:Warning('Parent to ' .. Remote .. ' was not found');
 
@@ -31,8 +34,8 @@ local function CheckRemotes(Parent: Instance, Remote: string)
 end
 
 
-local function SafeFire(Remote: RemoteEvent, ...)
-    local Now = os.clock();
+function Enumerations.SafeFire(Remote: RemoteEvent, ...)
+    local Now = OsClock();
 
     if LastFired[Remote] and Now - LastFired[Remote] < Cooldown then
         return;
@@ -40,59 +43,59 @@ local function SafeFire(Remote: RemoteEvent, ...)
 
     LastFired[Remote] = Now;
 
-    local Success, Error = pcall(Remote.FireServer, Remote, ...)
+    local Success, Error = Pcall(Remote.FireServer, Remote, ...)
 
     if not Success then
-        Logger:Warning(Remote.Name .. ' call failed: ' .. tostring(Error))
+        Logger:Warning(Remote.Name .. ' call failed: ' .. Tostring(Error))
     end
 end
 
 
-function Enumerations.SetClan(ClanId: number, Text: string)
+function Enumerations:SetClan(ClanId: number, Text: string)
     local Id = (ClanId ~= nil) and ClanId or 1;
     local Label = Text ~= nil and Text or '';
 
     if Utils.Remake then
-        local FiringRemote = CheckRemotes(Utils.ReplicatedStorage, 'Game');
+        local FiringRemote = self.CheckRemotes(Utils.ReplicatedStorage, 'Game');
 
         if not FiringRemote then
             return
         end
         
-        SafeFire(FiringRemote, 'Groups', 'Join', Id);
+        self.SafeFire(FiringRemote, 'Groups', 'Join', Id);
         return;
     end
 
-    local Stank = CheckRemotes(Backpack, 'Stank');
+    local Stank = self.CheckRemotes(Backpack, 'Stank');
 
     if not Stank then
         return
     end
 
-    SafeFire(Stank, 'pick', {Name = Id, TextLabel = {Text = Label}});
+    self.SafeFire(Stank, 'pick', {Name = Id, TextLabel = {Text = Label}});
     return;
 end
 
 
-function Enumerations.LeaveClan()
+function Enumerations:LeaveClan()
     if Utils.Remake then
-        local FiringRemote = CheckRemotes(Utils.ReplicatedStorage, 'Game');
+        local FiringRemote = self.CheckRemotes(Utils.ReplicatedStorage, 'Game');
 
         if not FiringRemote then
             return
         end
 
-        SafeFire(FiringRemote, 'Groups', 'Leave');
+        self.SafeFire(FiringRemote, 'Groups', 'Leave');
         return;
     end
 
-    local Stank = CheckRemotes(Backpack, 'Stank');
+    local Stank = self.CheckRemotes(Backpack, 'Stank');
 
     if not Stank then
         return
     end
 
-    SafeFire(Stank, 'leave');
+    self.SafeFire(Stank, 'leave');
     return;
 end
 
