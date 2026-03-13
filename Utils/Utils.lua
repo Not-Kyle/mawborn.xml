@@ -2,53 +2,64 @@ if getgenv().Mawborn.Utils then
     return
 end
 
-local Service = setmetatable({}, {
-    __index = function(self, ServiceName: string)
-        assert(type(ServiceName) == 'string', 'Provided class must be a string');
+local Cloneref = cloneref;
 
-        local Success, Provider = pcall(function()
+local Setmetatable, Rawset = setmetatable, rawset;
+local Assert, Type, Typeof, Warn, Pcall, Next, Require = assert, type, typeof, warn, pcall, next, require;
+local Format, Lower, Len, Sub, Tostring = string.format, string.lower, string.len, string.sub, tostring;
+local TableFind, TableInsert = table.find, table.insert;
+local RawGame = game;
+
+local RunGame, GameResult = Pcall(Cloneref, RawGame);
+local Game = (RunGame and Typeof(GameResult) == 'Instance') and GameResult or RawGame;
+
+local Service = Setmetatable({}, {
+    __index = function(self, ServiceName: string)
+        Assert(Type(ServiceName) == 'string', 'Provided class must be a string');
+
+        local Success, Provider = Pcall(function()
             return game:GetService(ServiceName);
         end)
 
         if Success and Provider then
-            if cloneref then
-                Provider = cloneref(Provider);
+            if Cloneref then
+                Provider = Cloneref(Provider);
             end
 
-            rawset(self, ServiceName, Provider);
+            Rawset(self, ServiceName, Provider);
             return Provider;
         end
 
-        warn('Service: (' .. ServiceName .. ') not found!');
+        Warn('Service: (' .. ServiceName .. ') not found!');
         return;
     end
 })
 
-local Utils = {
-    Stats = Service.Stats,
-    CoreGui = Service.CoreGui,
-    Players = Service.Players,
-    Lighting = Service.Lighting,
-    Workspace = Service.Workspace,
-    GuiService = Service.GuiService,
-    RunService = Service.RunService,
-    StarterGui = Service.StarterGui,
-    HttpService = Service.HttpService,
-    TweenService = Service.TweenService,
-    ScriptContext = Service.ScriptContext,
-    TeleportService = Service.TeleportService,
-    TextChatService = Service.TextChatService,
-    UserInputService = Service.UserInputService,
-    CollectionService = Service.CollectionService,
-    ReplicatedStorage = Service.ReplicatedStorage,
-    MarketplaceService = Service.MarketplaceService;
-    ProximityPromptService = Service.ProximityPromptService,
-};
+local Utils = {};
+
+Utils.Stats = Service.Stats;
+Utils.CoreGui = Service.CoreGui;
+Utils.Players = Service.Players;
+Utils.Lighting = Service.Lighting;
+Utils.Workspace = Service.Workspace;
+Utils.GuiService = Service.GuiService;
+Utils.RunService = Service.RunService;
+Utils.StarterGui = Service.StarterGui;
+Utils.HttpService = Service.HttpService;
+Utils.TweenService = Service.TweenService;
+Utils.ScriptContext = Service.ScriptContext;
+Utils.TeleportService = Service.TeleportService;
+Utils.TextChatService = Service.TextChatService;
+Utils.UserInputService = Service.UserInputService;
+Utils.CollectionService = Service.CollectionService;
+Utils.ReplicatedStorage = Service.ReplicatedStorage;
+Utils.MarketplaceService = Service.MarketplaceService;
+Utils.ProximityPromptService = Service.ProximityPromptService;
 
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 
-local PlaceId = game.PlaceId;
-local JobId = game.JobId;
+local PlaceId = Game.PlaceId;
+local JobId = Game.JobId;
 local Camera = Utils.Workspace and Utils.Workspace.CurrentCamera;
 
 Utils.Streets = PlaceId == 455366377;
@@ -60,7 +71,7 @@ Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
 if Utils.Prison then
-    game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
+    Game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
 end
 
 local Creators = {
@@ -130,17 +141,17 @@ local TempKos = { -- // Temperaory KOS // Will be adding a KOS System that runs 
 }
 
 function Utils.FWarning(Name: string, Message: string) -- Can not Import Logger when Logger imports Utils xdxdxdxd fuck this script
-    warn(string.format('[%s]: %s', Name, Message))
+    Warn(Format('[%s]: %s', Name, Message))
 end
 
 
 function Utils.GetVersion(Version: table)
-    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, Version or '{}');
+    local Success, Data = Pcall(Utils.HttpService.JSONDecode, Utils.HttpService, Version or '{}');
 
     if Success and Data and Data.Version then
         return Data.Version;
     else
-        warn('Failed to fetch JSON File: ' .. tostring(Data))
+        Warn('Failed to fetch JSON File: ' .. Tostring(Data))
 
         return 'N/A';
     end
@@ -218,7 +229,7 @@ end
 
 
 function Utils.GameTitle() : string
-    local Success, Info = pcall(Utils.MarketplaceService.GetProductInfo, Utils.MarketplaceService, PlaceId);
+    local Success, Info = Pcall(Utils.MarketplaceService.GetProductInfo, Utils.MarketplaceService, PlaceId);
 
     return Success and Info and Info.Name or 'N/A';
 end
@@ -240,38 +251,38 @@ function Utils.TagSystem() : ModuleScript
     local TagSystem = Utils.ReplicatedStorage and Utils.ReplicatedStorage:FindFirstChild('TagSystem');
 
     if TagSystem and TagSystem:IsA('ModuleScript') then
-        return require(TagSystem);
+        return Require(TagSystem);
     end
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
 
 
 function Utils.FindPlayer(Target: string) : table
-    local Target = string.lower(Target)
+    local Target = Lower(Target)
     local GetPlayers = Utils.Players:GetPlayers();
 
     local PlayerTable = {};
 
     local function Name(Index: Player, Property: string)
-        return string.sub(string.lower(tostring(Index[Property])), 1, string.len(Target))
+        return Sub(Lower(Tostring(Index[Property])), 1, Len(Target))
     end
 
-    if table.find({'myself', 'client', 'self', 'host', 'me'}, Target) then
+    if TableFind({'myself', 'client', 'self', 'host', 'me'}, Target) then
         return {Host};
     end
 
     if Target == 'all' or Target == 'users' then
-        for _, Index in next, GetPlayers do
+        for _, Index in Next, GetPlayers do
             if Index.Name ~= Host.Name then
-                table.insert(PlayerTable, Index)
+                TableInsert(PlayerTable, Index)
             end
         end
 
         return PlayerTable
     end
 
-    for _, Index in next, GetPlayers do
+    for _, Index in Next, GetPlayers do
         if Name(Index, 'Name') == Target or Name(Index, 'DisplayName') == Target then
-            table.insert(PlayerTable, Index)
+            TableInsert(PlayerTable, Index)
         end
     end
 
@@ -340,7 +351,7 @@ end
 
 
 function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolean
-    local RaycastParmam = RaycastParams.new();
+    local RaycastParmam = RaycastParams.new(); -- Not going to worry about some of these globals
     RaycastParmam.FilterType = Enum.RaycastFilterType.Blacklist;
     RaycastParmam.FilterDescendantsInstances = {Camera, Body, Character};
 
