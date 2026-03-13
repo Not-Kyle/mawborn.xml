@@ -2191,7 +2191,7 @@ local function OnRenderStepped(Delta: number)
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
         BoomboxEffects();
-        PerformanceMonitor();
+        --PerformanceMonitor();
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
         Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
