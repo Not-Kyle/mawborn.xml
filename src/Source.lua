@@ -47,13 +47,7 @@ local OsTime = (tick or os and os.time)();
 
 getgenv().Mawborn.Source = true;
 
-local Enums = Import('Utils/Library/Enums.lua');
-local Utils = Import('Utils/Utils.lua');
-local Logger = Import('Utils/Logging.lua');
-local String = Import('Utils/Library/String.lua');
-local FileHandler = Import('Utils/FileHandler.lua');
-local TextProperties = Import('Utils/TextProperties.lua');
-local CommandHandler = Import('Utils/Comands.lua');
+
 
 getgenv().Mawborn.Utils = true;
 getgenv().Mawborn.Logger = true;
