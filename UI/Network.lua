@@ -1,3 +1,5 @@
+local TableFreeze = table.freeze;
+
 local Window = {};
 
 function Window:MakeCommandCenter(Parent: string)
@@ -131,4 +133,4 @@ function Window:MakeCommandCenter(Parent: string)
     return Network;
 end
 
-return Window;
+return TableFreeze(Window);
