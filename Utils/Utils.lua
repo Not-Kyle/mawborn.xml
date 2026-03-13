@@ -7,7 +7,7 @@ local Cloneref = cloneref;
 local Setmetatable, Rawset = setmetatable, rawset;
 local Assert, Type, Typeof, Warn, Pcall, Next, Require = assert, type, typeof, warn, pcall, next, require;
 local Format, Lower, Len, Sub, Tostring = string.format, string.lower, string.len, string.sub, tostring;
-local TableFind, TableInsert = table.find, table.insert;
+local TableFind, TableInsert, TableFreeze = table.find, table.insert, table.freeze;
 local RawGame = game;
 
 local RunGame, GameResult = Pcall(Cloneref, RawGame);
@@ -363,4 +363,4 @@ function Utils.WallCheck(Body: Model, Character: Model, Part: BasePart) : boolea
     return not Result;
 end -- Body = Myself, Character = Other Player
 
-return Utils;
+return TableFreeze(Utils);
