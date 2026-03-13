@@ -4,6 +4,7 @@ end
 
 local OsClock = os.clock;
 local Pcall, Tostring = pcall, tostring;
+local TableFreeze = table.freeze;
 
 local Enumerations = {};
 local LastFired = {};
@@ -99,4 +100,4 @@ function Enumerations:LeaveClan()
     return;
 end
 
-return Enumerations;
+return TableFreeze(Enumerations);
