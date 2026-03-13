@@ -1,22 +1,10 @@
-local Cloneref = cloneref;
 local IdentifyExecuter, _ = identifyexecutor or getexecutorname;
 
-local RawGame = game;
-local Pcall, Typeof = pcall, typeof;
 local StringSub, StringFormat, Tostring = string.sub, string.format, tostring;
 local TableFreeze = table.freeze;
 local TaskWait, TaskDefer = task.wait, task.defer;
 local Utf8Len, Utf8Offset = utf8.len, utf8.offset;
-local Mathround = math.round;
 local OsDate = os.date;
-
-local RunGame, GameResult = Pcall(Cloneref, RawGame);
-local Game = (RunGame and Typeof(GameResult) == 'Instance') and GameResult or RawGame;
-
-local Stats = Game:GetService('Stats');
-
-local Fps;
-local Ping;
 
 local Executor = StringSub(Tostring(IdentifyExecuter()), 1, 4) or 'unknown';
 
@@ -140,14 +128,7 @@ function Watermark:MakeWatermark(Parent: string)
         end
     end)
 
-    local function OnRenderStepped(Delta: number)
-        Fps = Mathround(1 / Delta) -- I was using globals? How the fuck
-        Ping = Mathround(Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
-
-        TitleWatermark_2.Text = StringFormat(' | fps: %s | ping: %s ', Fps, Ping)
-    end
-
-    return OnRenderStepped, OuterWatermark;
+    return TitleWatermark_2, OuterWatermark;
 end
 
 return TableFreeze(Watermark);
