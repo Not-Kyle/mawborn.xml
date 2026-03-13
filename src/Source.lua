@@ -180,7 +180,7 @@ local Originals = {
 
 -- UI's []
 
-getgenv().mawborn = Instance.new('ScreenGui');
+local mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
     syn.protect_gui(mawborn);
 end
@@ -224,15 +224,15 @@ local Menu = Import('UI/NewMenu.lua');
 local FileMenu = Import('UI/Files.lua');
 local ThemeMenu = Import('UI/Themes.lua');
 
-local mawborn = mawborn;
-
 local Select = Select;
 local Boolean = Boolean;
 
-local CommandBar = CommandBar;
-local OuterCommand = OuterCommand;
-local OuterWatermark = OuterWatermark;
-local OuterCommandBar = OuterCommandBar;
+local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
+local CommandCenter = Network:MakeCommandCenter(mawborn)
+
+local OuterCommand = Network.OuterCommand;
+local OuterCommandBar = Network.OuterCommandBar;
+local CommandBar = Network.CommandBar;
 
 local OuterConfig = NewInstance('Instance', 'Frame', {
     Name = 'OuterConfig',
@@ -2191,6 +2191,7 @@ local function OnRenderStepped(Delta: number)
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
         BoomboxEffects();
+        PerformanceMonitor();
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
         Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
@@ -4578,7 +4579,7 @@ local function CheatData()
     end
 
     for Index, _ in next, CommandHandler.Commands do
-        Network:AddLabel(string.format('[%s]: Arguments: {%s} %s',
+        CommandCenter:AddLabel(string.format('[%s]: Arguments: {%s} %s',
             CommandHandler.Commands[Index].Name,
             CommandHandler.Commands[Index].Arguments,
             CommandHandler.Commands[Index].Description
