@@ -230,9 +230,9 @@ local Boolean = Boolean;
 local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
 local CommandCenter = Network:MakeCommandCenter(mawborn)
 
-local OuterCommand = Network.OuterCommand;
-local OuterCommandBar = Network.OuterCommandBar;
-local CommandBar = Network.CommandBar;
+local OuterCommand = CommandCenter.OuterCommand;
+local OuterCommandBar = CommandCenter.OuterCommandBar;
+local CommandBar = CommandCenter.CommandBar;
 
 local OuterConfig = NewInstance('Instance', 'Frame', {
     Name = 'OuterConfig',
