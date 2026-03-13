@@ -134,8 +134,8 @@ function Utils.FWarning(Name: string, Message: string) -- Can not Import Logger 
 end
 
 
-function Utils.GetVersion()
-    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, MawbornVersion or '{}');
+function Utils.GetVersion(Version: table)
+    local Success, Data = pcall(Utils.HttpService.JSONDecode, Utils.HttpService, Version or '{}');
 
     if Success and Data and Data.Version then
         return Data.Version;
