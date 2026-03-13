@@ -1345,6 +1345,7 @@ local function TeleportTo(Position: CFrame, Delay: number)
     TweenCreate:Play()
 end
 
+
 local function FindRound(Object: Instance)
     if Object and Object.Name == 'Trail' and not Utils.CollectionService:HasTag(Object, TagTrails) then
         Utils.CollectionService:AddTag(Object, TagTrails)
@@ -1358,6 +1359,7 @@ local function FindBoomboxes(Object: Instance)
         Utils.CollectionService:AddTag(Object, TagBoomboxes)
     end
 end
+
 
 local function FindPartsOnMap(Index: Instance)
     if not Index then return end
@@ -1553,6 +1555,14 @@ local function UpdateBulletCounter()
             OtherAmmo.TextColor3 = Color3.fromRGB(190, 0, 0);
         end
     end
+end
+
+local _Fps, _Ping;
+local function UpdatePerformanceMonitor(Delta: number)
+    _Fps = math.round(1 / Delta) -- I was using globals? How the fuck
+    _Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
+
+    PerformanceMonitor.Text = string.format(' | fps: %s | ping: %s ', _Fps, _Ping)
 end
 
 
@@ -2191,7 +2201,7 @@ local function OnRenderStepped(Delta: number)
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
         BoomboxEffects();
-        --PerformanceMonitor();
+        UpdatePerformanceMonitor(Delta);
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
         Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
