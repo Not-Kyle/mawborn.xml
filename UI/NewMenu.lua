@@ -40,43 +40,6 @@ local Mouse = LocalPlayer:GetMouse();
 local Font = Enum.Font.Code
 local FontSize = 14;
 
-local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...) -- Adding PreloadAsync bypass?
-    local Method = getnamecallmethod or get_namecall_method;
-    local Arguments = {...};
-
-    if not checkcaller() and self == game:GetService('ContentProvider') then
-        if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
-            local PreloadTable = Arguments[1];
-
-            if typeof(PreloadTable) == 'table' then
-                local ProxyTable = {};
-                local CoreGuiFound = false;
-
-                for _, Index in ipairs(PreloadTable) do
-                    if typeof(Index) == 'Instance' and (Index == game:GetService('CoreGui') or Index:IsDescendantOf(game:GetService('CoreGui'))) then
-                        CoreGuiFound = true;
-                    else
-                        table.insert(ProxyTable, Index);
-                    end
-                end
-
-                if CoreGuiFound then
-                    return OldPreloading(self, ProxyTable)
-                end
-            end
-        end
-
-        if (Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus') then
-            local Asset = Arguments[1];
-            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
-                return Enum.AssetFetchStatus.None;
-            end
-        end
-    end
-
-    return OldPreloading(self, ...)
-end))
-
 local mawborn = Instance.new('ScreenGui'); -- I made two SGs? Whatever leave it idc
 if syn and syn.product_gui then
     syn.protect_gui(mawborn)
