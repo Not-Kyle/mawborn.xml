@@ -48,6 +48,7 @@ Utils.StarterGui = Service.StarterGui;
 Utils.HttpService = Service.HttpService;
 Utils.TweenService = Service.TweenService;
 Utils.ScriptContext = Service.ScriptContext;
+Utils.ContentProvider = Service.ContentProvider;
 Utils.TeleportService = Service.TeleportService;
 Utils.TextChatService = Service.TextChatService;
 Utils.UserInputService = Service.UserInputService;
