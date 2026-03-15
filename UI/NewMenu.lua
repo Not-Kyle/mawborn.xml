@@ -41,49 +41,6 @@ local Mouse = LocalPlayer:GetMouse();
 local Font = Enum.Font.Code
 local FontSize = 14;
 
-local ProxyContentProvider = game:GetService('ContentProvider');
-local ProxyCoreGui = game:GetService('CoreGui');
-
-local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...) -- Adding PreloadAsync bypass?
-    local Method = (getnamecallmethod or get_namecall_method)();
-
-    if Method == 'PreloadAsync' or Method == 'preloadAsync' then
-        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
-            local Arguments = {...};
-            local PreloadTable = Arguments[1];
-
-            if typeof(PreloadTable) == 'table' then
-                local ProxyTable = {};
-                local CoreGuiFound = false;
-
-                for Index = 1, #PreloadTable do
-                    local Item = PreloadTable[Index];
-
-                    if typeof(Item) == 'Instance' and (Item:IsDescendantOf(ProxyCoreGui) or Item:IsDescendantOf(CoreGui) or Item == CoreGui or Item == ProxyCoreGui) then
-                        CoreGuiFound = true;
-                    else
-                        table.insert(ProxyTable, Item);
-                    end
-                end
-
-                if CoreGuiFound then
-                    return OldPreloading(self, ProxyTable, Arguments[2]);
-                end
-            end
-        end
-    elseif Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus' then
-        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
-            local Asset = ...;
-
-            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
-                return Enum.AssetFetchStatus.None
-            end
-        end
-    end
-
-    return OldPreloading(self, ...)
-end))
-
 local mawborn = Instance.new('ScreenGui'); -- I made two SGs? Whatever leave it idc
 if syn and syn.product_gui then
     syn.protect_gui(mawborn)
