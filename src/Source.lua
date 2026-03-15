@@ -34,7 +34,6 @@ Change calls to being OOP
 > Shoot (Used for guns)
 > Groups (Used for groups)
 ]]--
-do
 local Cloneref = cloneref;
 local Clonefunction = clonefunction or clonefunc;
 
@@ -3235,7 +3234,7 @@ do
     end)
 end
 
-Menu:OnUnload(function() 
+Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
@@ -4784,4 +4783,3 @@ end)
 
 CheatData();
 Notify(Utils.Title(2), 'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
-end
