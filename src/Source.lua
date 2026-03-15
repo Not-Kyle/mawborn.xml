@@ -183,43 +183,6 @@ local Originals = {
 
 -- UI's []
 
-local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
-    local Method = (getnamecallmethod or get_namecall_method)();
-    local Arguments = {...};
-
-    if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
-        if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
-            local PreloadTable = Arguments[1];
-
-            if typeof(PreloadTable) == 'table' then
-                local ProxyTable = {};
-                local CoreGuiFound = false;
-
-                for _, Index in ipairs(PreloadTable) do
-                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == CoreGui or  Index:IsDescendantOf(CoreGui))) then
-                        CoreGuiFound = true;
-                    else
-                        table.insert(ProxyTable, Index);
-                    end
-                end
-
-                if CoreGuiFound then
-                    return OldPreloading(self, ProxyTable)
-                end
-            end
-        end
-
-        if (Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus') then
-            local Asset = Arguments[1];
-            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
-                return Enum.AssetFetchStatus.None;
-            end
-        end
-    end
-
-    return OldPreloading(self, ...)
-end))
-
 local mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
     syn.protect_gui(mawborn);
@@ -1600,7 +1563,7 @@ end
 local _Fps, _Ping;
 local function UpdatePerformanceMonitor(Delta: number)
     _Fps = math.round(1 / Delta) -- I was using globals? How the fuck
-    _Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
+    _Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping)
 
     PerformanceMonitor.Text = string.format(' | fps: %s | ping: %s ', _Fps, _Ping)
 end
@@ -2241,7 +2204,7 @@ local function OnRenderStepped(Delta: number)
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
         BoomboxEffects();
-        --UpdatePerformanceMonitor(Delta);
+        UpdatePerformanceMonitor(Delta);
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
         Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
