@@ -1563,7 +1563,7 @@ end
 local _Fps, _Ping;
 local function UpdatePerformanceMonitor(Delta: number)
     _Fps = math.round(1 / Delta) -- I was using globals? How the fuck
-    _Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping)
+    _Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
 
     PerformanceMonitor.Text = string.format(' | fps: %s | ping: %s ', _Fps, _Ping)
 end
