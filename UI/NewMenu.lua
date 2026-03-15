@@ -1,55 +1,28 @@
 --[[
 Creds to Xaxa and I think Calls for editting this, I do not have time or care to make another UI Lib
 ]]--
-
-local RawGame = game; -- Most likely will not be localizing the globals for mico optimizations.
-local RunGame, GameResult = pcall(cloneref, RawGame);
-local Game = (RunGame and typeof(GameResult) == 'Instance') and GameResult or RawGame;
-
-local Service = setmetatable({}, {
-    __index = function(self, ServiceName: string)
-        assert(type(ServiceName) == 'string', 'Provided class must be a string');
-
-        local Success, Provider = pcall(function()
-            return Game:GetService(ServiceName);
-        end)
-
-        if Success and Provider then
-            if cloneref then
-                Provider = cloneref(Provider);
-            end
-
-            rawset(self, ServiceName, Provider);
-            return Provider;
-        end
-
-        warn('Service: (' .. ServiceName .. ') not found!');
-        return;
-    end
-})
-
-local InputService = Service.UserInputService;
-local TextService = Service.TextService;
-local TweenService = Service.TweenService;
-local CoreGui = Service.CoreGui;
-local RunService = Service.RunService;
+--Title
+local InputService = game:GetService('UserInputService');
+local TextService = game:GetService('TextService');
+local TweenService = game:GetService('TweenService');
+local CoreGui = game:GetService('CoreGui');
+local RunService = game:GetService('RunService')
 local RenderStepped = RunService.RenderStepped;
-local ContentProvider = Service.ContentProvider;
-local LocalPlayer = Service.Players.LocalPlayer;
+local LocalPlayer = game:GetService('Players').LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
 
 local Font = Enum.Font.Code
 local FontSize = 14;
 
-local mawborn = Instance.new('ScreenGui'); -- I made two SGs? Whatever leave it idc
+shared.mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
     syn.protect_gui(mawborn)
 end
-mawborn.Name = '_'
-mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-mawborn.Parent = gethui() or CoreGui;
-mawborn.ResetOnSpawn = false
-mawborn.IgnoreGuiInset = true
+shared.mawborn.Name = 'mawborn.xml'
+shared.mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Global;
+shared.mawborn.Parent = gethui() or CoreGui;
+shared.mawborn.ResetOnSpawn = false
+shared.mawborn.IgnoreGuiInset = true
 
 local Bools = {};
 local Selected = {};
@@ -74,7 +47,7 @@ local Library = {
     OpenedFrames = {};
 
     Signals = {};
-    ScreenGui = mawborn;
+    ScreenGui = shared.mawborn;
 };
 
 local RainbowStep = 0
@@ -342,14 +315,14 @@ function Library:Unload()
         Library.OnUnload()
     end
 
-    mawborn:Destroy()
+    shared.mawborn:Destroy()
 end
 
 function Library:OnUnload(Callback)
     Library.OnUnload = Callback
 end
 
-Library:GiveSignal(mawborn.DescendantRemoving:Connect(function(Instance)
+Library:GiveSignal(shared.mawborn.DescendantRemoving:Connect(function(Instance)
     if Library.RegistryMap[Instance] then
         Library:RemoveFromRegistry(Instance);
     end;
@@ -2145,7 +2118,7 @@ do
         Position = UDim2.new(0, 0, 0, 350);
         Size = UDim2.new(0, 300, 0, 200);
         ZIndex = 100;
-        Parent = mawborn;
+        Parent = shared.mawborn;
     });
 
     Library:Create('UIListLayout', {
@@ -2161,7 +2134,7 @@ do
         Size = UDim2.new(0, 213, 0, 20);
         ZIndex = 200;
         Visible = false;
-        Parent = mawborn;
+        Parent = shared.mawborn;
     });
 
     local WatermarkInner = Library:Create('Frame', {
@@ -2226,7 +2199,7 @@ do
         Size = UDim2.new(0, 210, 0, 20);
         Visible = false;
         ZIndex = 100;
-        Parent = mawborn;
+        Parent = shared.mawborn;
     });
 
     local KeybindInner = Library:Create('Frame', {
@@ -2425,7 +2398,7 @@ function Library:CreateWindow(...)
         Size = Config.Size,
         Visible = false;
         ZIndex = 1;
-        Parent = mawborn;
+        Parent = shared.mawborn;
     });
 
     Library:MakeDraggable(Outer, 25);
@@ -2923,7 +2896,7 @@ function Library:CreateWindow(...)
         Visible = true;
         Text = '';
         Modal = false;
-        Parent = mawborn;
+        Parent = shared.mawborn;
     });
 
     function Library.Toggle()
