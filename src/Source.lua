@@ -183,11 +183,11 @@ local Originals = {
 
 -- UI's []
 
-local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...) -- Adding PreloadAsync bypass?
+local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
     local Method = (getnamecallmethod or get_namecall_method)();
 
     if Method == 'PreloadAsync' or Method == 'preloadAsync' then
-        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
+        if not checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
             local Arguments = {...};
             local PreloadTable = Arguments[1];
 
@@ -198,7 +198,7 @@ local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclos
                 for Index = 1, #PreloadTable do
                     local Item = PreloadTable[Index];
 
-                    if typeof(Item) == 'Instance' and (Item:IsDescendantOf(ProxyCoreGui) or Item:IsDescendantOf(CoreGui) or Item == CoreGui or Item == ProxyCoreGui) then
+                    if typeof(Item) == 'Instance' and (Item:IsDescendantOf(ProxyCoreGui) or Item:IsDescendantOf(Utils.CoreGui) or Item == Utils.CoreGui or Item == ProxyCoreGui) then
                         CoreGuiFound = true;
                     else
                         table.insert(ProxyTable, Item);
@@ -211,7 +211,7 @@ local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclos
             end
         end
     elseif Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus' then
-        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
+        if not checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
             local Asset = ...;
 
             if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
