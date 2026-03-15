@@ -46,34 +46,37 @@ local ProxyCoreGui = game:GetService('CoreGui');
 
 local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...) -- Adding PreloadAsync bypass?
     local Method = (getnamecallmethod or get_namecall_method)();
-    local Arguments = {...};
 
-    if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
-        if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
+    if Method == 'PreloadAsync' or Method == 'preloadAsync' then
+        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
+            local Arguments = {...};
             local PreloadTable = Arguments[1];
 
             if typeof(PreloadTable) == 'table' then
                 local ProxyTable = {};
                 local CoreGuiFound = false;
 
-                for _, Index in ipairs(PreloadTable) do
-                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == CoreGui or  Index:IsDescendantOf(CoreGui))) then
+                for Index = 1, #PreloadTable do
+                    local Item = PreloadTable[Index];
+
+                    if typeof(Item) == 'Instance' and (Item:IsDescendantOf(ProxyCoreGui) or Item:IsDescendantOf(CoreGui) or Item == CoreGui or Item == ProxyCoreGui) then
                         CoreGuiFound = true;
                     else
-                        table.insert(ProxyTable, Index);
+                        table.insert(ProxyTable, Item);
                     end
                 end
 
                 if CoreGuiFound then
-                    return OldPreloading(self, ProxyTable)
+                    return OldPreloading(self, ProxyTable, Arguments[2]);
                 end
             end
         end
+    elseif Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus' then
+        if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
+            local Asset = ...;
 
-        if (Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus') then
-            local Asset = Arguments[1];
             if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
-                return Enum.AssetFetchStatus.None;
+                return Enum.AssetFetchStatus.None
             end
         end
     end
