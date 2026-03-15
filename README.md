@@ -40,25 +40,11 @@
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
-# Updates [Current Version 0.9.98] <br />
+# Updates [Current Version 0.9.99] <br />
 
 >[!NOTE]
-> ### Version: 0.9.98
-> 1. Converted script into OOP, now safer, faster and fixed some bugs
->
-> 2. Reverted almost all globals into locals
->
-> 3. Removed Prison combatiblity (You will be kicked if you execute on Prison for your own safety)
->
-> 4. Prison has been rewritten and I will not be attempting a rewrite on Mawborn.xml for Prison
-> 
-> 5. Fixed Noclip as it was a heavy load
->
-> 6. Removed getinstances() as its unsecure in an exploit and can be detected
->
-> 7. Added Oscillation to the cursor tab
->
-> 8. Fixed multiple memory leaks and redundant code, hooks are now safer!
+> ### Version: 0.9.99
+> 1. Small security and micro optimization update!
 
 # Loadstring <br />
 
