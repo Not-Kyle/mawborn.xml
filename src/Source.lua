@@ -64,6 +64,9 @@ getgenv().Mawborn.TextProperties = true;
 getgenv().Mawborn.Library.String = true;
 getgenv().Mawborn.Library.Enumerations = true;
 
+local ProxyContentProvider = game:GetService('ContentProvider');
+local ProxyCoreGui = game:GetService('CoreGui');
+
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 local Body, Head, Humanoid, Root, Torso;
 
@@ -180,11 +183,48 @@ local Originals = {
 
 -- UI's []
 
+local OldPreloading; OldPreloading = EEnv.Hookmetamethod(game, '__namecall', EEnv.Newcclosure(function(self, ...)
+    local Method = EEnv.Getnamecallmethod()
+    local Arguments = {...};
+
+    if not EEnv.Checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
+        if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
+            local PreloadTable = Arguments[1];
+
+            if typeof(PreloadTable) == 'table' then
+                local ProxyTable = {};
+                local CoreGuiFound = false;
+
+                for _, Index in ipairs(PreloadTable) do
+                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == Utils.CoreGui or Index:IsDescendantOf(Utils.CoreGui))) then
+                        CoreGuiFound = true;
+                    else
+                        table.insert(ProxyTable, Index);
+                    end
+                end
+
+                if CoreGuiFound then
+                    return OldPreloading(self, ProxyTable)
+                end
+            end
+        end
+
+        if (Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus') then
+            local Asset = Arguments[1];
+            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
+                return Enum.AssetFetchStatus.None;
+            end
+        end
+    end
+
+    return OldPreloading(self, ...)
+end))
+
 local mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
     syn.protect_gui(mawborn);
 end
-mawborn.Name = 'mawborn.xml';
+mawborn.Name = '_';
 mawborn.Parent = gethui() or Utils.CoreGui;
 mawborn.ResetOnSpawn = false;
 mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
@@ -2201,7 +2241,7 @@ local function OnRenderStepped(Delta: number)
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
         BoomboxEffects();
-        --UpdatePerformanceMonitor(Delta);
+        UpdatePerformanceMonitor(Delta);
 
         ColorCorrection.TintColor = Boolean.TintColor.Value and Select.TintColor.Value or ColorCorrection.TintColor;
         Utils.Lighting.Ambient = Boolean.Ambient.Value and Select.AmbientColor.Value or Utils.Lighting.Ambient;
