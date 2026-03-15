@@ -183,11 +183,11 @@ local Originals = {
 
 -- UI's []
 
-local OldPreloading; OldPreloading = EEnv.Hookmetamethod(game, '__namecall', EEnv.Newcclosure(function(self, ...)
-    local Method = EEnv.Getnamecallmethod()
+local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
+    local Method = (getnamecallmethod or get_namecall_method)();
     local Arguments = {...};
 
-    if not EEnv.Checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
+    if not checkcaller() and (self == ProxyContentProvider or self == ContentProvider) then
         if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
             local PreloadTable = Arguments[1];
 
@@ -196,7 +196,7 @@ local OldPreloading; OldPreloading = EEnv.Hookmetamethod(game, '__namecall', EEn
                 local CoreGuiFound = false;
 
                 for _, Index in ipairs(PreloadTable) do
-                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == Utils.CoreGui or Index:IsDescendantOf(Utils.CoreGui))) then
+                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == CoreGui or  Index:IsDescendantOf(CoreGui))) then
                         CoreGuiFound = true;
                     else
                         table.insert(ProxyTable, Index);
