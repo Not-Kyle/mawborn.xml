@@ -19,7 +19,7 @@ Change calls to being OOP
 
     Calls - for letting me know about :GetBoundingBox()
     Xaxa - for giving me his Aimlock method
-    Cyrus - for letting me know about using hookmetamethod __namecall correctly (I don't have it in this verison but in the private one I do)
+    Cyrus - for letting me know about using EEnv.Hookmetamethod __namecall correctly (I don't have it in this verison but in the private one I do)
     Lurk - I used the same bullet trails in pie.solutions (Gave it to me about 3 years ago)
 
     Ponyhook - for being a reference
@@ -34,35 +34,97 @@ Change calls to being OOP
 > Shoot (Used for guns)
 > Groups (Used for groups)
 ]]--
+do
+local Cloneref = cloneref;
+local Clonefunction = clonefunction or clonefunc;
 
-if getgenv().Mawborn.Source then
-    return;
-end
-
-if not game:IsLoaded() then
-    game.Loaded:Wait();
+local function SafeClone(Func)
+    return (Clonefunction and type(Func) == 'function') and Clonefunction(Func) or Func;
 end
 
 local OsTime = (tick or os and os.time)();
 
-getgenv().Mawborn.Source = true;
+local Renv = {
+    Cframe = SafeClone(CFrame.new),
+    CframeAngles = SafeClone(CFrame.Angles),
 
-local Enums = Import('Utils/Library/Enums.lua');
-local Utils = Import('Utils/Utils.lua');
-local Logger = Import('Utils/Logging.lua');
-local String = Import('Utils/Library/String.lua');
-local FileHandler = Import('Utils/FileHandler.lua');
-local TextProperties = Import('Utils/TextProperties.lua');
-local CommandHandler = Import('Utils/Comands.lua');
+    Vec2 = SafeClone(Vector2.new),
+    Vec3 = SafeClone(Vector3.new),
+    Vec3Zero = SafeClone(Vector3.zero),
 
-getgenv().Mawborn.Utils = true;
-getgenv().Mawborn.Logger = true;
-getgenv().Mawborn.Commands = true;
-getgenv().Mawborn.FileHandler = true;
-getgenv().Mawborn.TextProperties = true;
+    Color3New = SafeClone(Color3.new),
+    Color3RGB = SafeClone(Color3.fromRGB),
+    Color3HSV = SafeClone(Color3.fromHSV),
+    ColorSeqNew = SafeClone(ColorSequence.new),
+    ColorSeqKeypoint = SafeClone(ColorSequenceKeypoint.new),
 
-getgenv().Mawborn.Library.String = true;
-getgenv().Mawborn.Library.Enumerations = true;
+    UD2fromOffset = SafeClone(UDim2.fromOffset),
+    UD2fromScale = SafeClone(UDim2.fromScale),
+    UDimNew = SafeClone(UDim.new),
+    NumberSeq = SafeClone(NumberSequence.new),
+
+    TweenInfoNew = SafeClone(TweenInfo.new),
+    InstanceNew = SafeClone(Instance.new),
+} 
+
+local EEnv = {
+    Getgenv = SafeClone(getgenv),
+    HttpRequest = SafeClone(syn and syn.request) or SafeClone(http and http.request) or SafeClone(http_request) or SafeClone(request),
+    QueueOnTeleport = SafeClone(syn and syn.queue_on_teleport) or SafeClone(queueonteleport) or SafeClone(syn and syn.queueonteleport),
+    Clearteleportqueue = SafeClone(Clearteleportqueue),
+    ProtectGui = SafeClone(syn and syn.product_gui),
+    HUI = SafeClone(gethui),
+    DrawingNew = SafeClone(Drawing.new),
+    SetRenderProperty = SafeClone(setrenderproperty) or SafeClone(set_render_property) or SafeClone(setrenderobj),
+    IsRenderProperty = SafeClone(isrenderproperty) or SafeClone(is_render_property) or SafeClone(isrenderobj),
+    GetRenderProperty = SafeClone(getrenderproperty) or SafeClone(get_render_property) or SafeClone(getrenderobj),
+    Cleardrawingcache = SafeClone(cleardrawcache),
+    Protectinstance = SafeClone(protectinstance),
+    Fireproximityprompt = SafeClone(fireproximityprompt),
+    Mousemoverel = SafeClone(mousemoverel),
+    Hookmetamethod = SafeClone(hookmetamethod),
+    Newcclosure = SafeClone(newcclosure),
+    Checkcaller = SafeClone(checkcaller),
+    Getnamecallmethod = SafeClone(getnamecallmethod) or SafeClone(get_namecall_method),
+    ReplicateSignal = SafeClone(replicatesignal),
+    Mouse1click = SafeClone(mouse1click),
+    Getfpscap = SafeClone(getfpscap),
+    Setfpscap = SafeClone(setfpscap),
+
+    Drawing = Drawing,
+    Import = Import,
+    MawbornVersion = MawbornVersion
+}
+
+if EEnv.Getgenv().Mawborn.Source then
+    return;
+end
+
+EEnv.Getgenv().Mawborn.Source = true;
+
+local RawGame = SafeClone(game);
+local RunGame, GameResult = pcall(Cloneref, RawGame);
+local Game = (RunGame and typeof(GameResult) == 'Instance') and GameResult or RawGame;
+
+local Enums = EEnv.Import('Utils/Library/Enums.lua');
+local Utils = EEnv.Import('Utils/Utils.lua');
+local Logger = EEnv.Import('Utils/Logging.lua');
+local String = EEnv.Import('Utils/Library/String.lua');
+local FileHandler = EEnv.Import('Utils/FileHandler.lua');
+local TextProperties = EEnv.Import('Utils/TextProperties.lua');
+local CommandHandler = EEnv.Import('Utils/Comands.lua');
+
+EEnv.Getgenv().Mawborn.Utils = true;
+EEnv.Getgenv().Mawborn.Logger = true;
+EEnv.Getgenv().Mawborn.Commands = true;
+EEnv.Getgenv().Mawborn.FileHandler = true;
+EEnv.Getgenv().Mawborn.TextProperties = true;
+
+EEnv.Getgenv().Mawborn.Library.String = true;
+EEnv.Getgenv().Mawborn.Library.Enumerations = true;
+
+local ProxyContentProvider = game:GetService('ContentProvider');
+local ProxyCoreGui = game:GetService('CoreGui');
 
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 local Body, Head, Humanoid, Root, Torso;
@@ -86,16 +148,13 @@ local AmmoUi = Hud and Hud:FindFirstChild('Ammo');
 local CurrentAmmo = Hud and Hud:FindFirstChild('CurrentAmmo');
 
 local GetMouse = Body and Body:FindFirstChild('GetMouse');
-local DeathPosition = CFrame.new();
+local DeathPosition = Renv.Cframe();
 local MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation();
 local SnaplineMethod = MousePosition;
 
 local ExperienceChat = Utils.CoreGui and Utils.CoreGui:FindFirstChild('ExperienceChat');
 local ChatFrame = Utils.TextChatService and Utils.TextChatService:FindFirstChild('ChatWindowConfiguration');
 local ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass('ColorCorrectionEffect');
-
-local HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request;
-local QueueOnTeleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport);
 
 local AimlockTarget;
 local AudioTarget;
@@ -130,13 +189,13 @@ local VehicleSeats = {};
 local WhitelistedItems = {};
 
 local Colors = {
-    ScriptColor = Color3.fromRGB(225, 225, 225),
-    AccentColor = Color3.fromRGB(170, 170, 255),
-    ModeratorColor = Color3.fromRGB(255, 170, 170),
-    MouseColorOff = Color3.fromRGB(170, 170, 255),
-    MouseColorOffTint = Color3.fromRGB(120, 120, 255),
-    MouseColorOn = Color3.fromRGB(255, 0, 0),
-    MouseColorOnTint = Color3.fromRGB(200, 0, 0),
+    ScriptColor = Renv.Color3RGB(225, 225, 225),
+    AccentColor = Renv.Color3RGB(170, 170, 255),
+    ModeratorColor = Renv.Color3RGB(255, 170, 170),
+    MouseColorOff = Renv.Color3RGB(170, 170, 255),
+    MouseColorOffTint = Renv.Color3RGB(120, 120, 255),
+    MouseColorOn = Renv.Color3RGB(255, 0, 0),
+    MouseColorOnTint = Renv.Color3RGB(200, 0, 0),
 }
 
 local Hash = {
@@ -180,28 +239,62 @@ local Originals = {
 
 -- UI's []
 
-local mawborn = Instance.new('ScreenGui');
-if syn and syn.product_gui then
-    syn.protect_gui(mawborn);
+local mawborn = Renv.InstanceNew('ScreenGui');
+if EEnv.ProtectGui then
+    EEnv.ProtectGui(mawborn);
 end
-mawborn.Name = 'mawborn.xml';
-mawborn.Parent = gethui() or Utils.CoreGui;
+mawborn.Name = '_';
+mawborn.Parent = EEnv.HUI() or Utils.CoreGui;
 mawborn.ResetOnSpawn = false;
 mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
 mawborn.IgnoreGuiInset = true;
 
 
-local function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
-    if Type == 'Draw' and Drawing then
-        Class = Drawing.new(Class);
+local function NewDrawing(Class: string, Properties: any)
+    local Success, DrawingInstance = pcall(EEnv.DrawingNew, Class);
+    if not Success then return nil end;
+
+    if Properties and type(Properties) == 'table' then
+        for Property, Value in next, Properties do
+            local RealProperty = Property;
+            
+            if Class == 'Line' then
+                if Property == 'PointA' or Property == 'From' then
+                    RealProperty = EEnv.IsRenderProperty(DrawingInstance, 'From') and 'From' or 'PointA';
+
+                elseif Property == 'PointB' or Property == 'To' then
+                    RealProperty = EEnv.IsRenderProperty(DrawingInstance, 'To') and 'To' or 'PointB';
+                end
+            end
+
+            pcall(EEnv.SetRenderProperty, DrawingInstance, RealProperty, Value);
+            RealProperty = nil;
+        end
     end
 
-    if Type == 'Instance' then
-        Class = Instance.new(Class);
+    local Proxy = {};
+    setmetatable(Proxy, {
+        __index = function(_, Key)
+            if Key == 'Clearcache' then
+                return function() EEnv.Cleardrawingcache() end;
+            end
 
-        if protectinstance then
-            protectinstance(Class)
-        end
+            return EEnv.GetRenderProperty(DrawingInstance, Key);
+        end,
+
+        __newindex = function(_, Key, Value)
+            EEnv.SetRenderProperty(DrawingInstance, Key, Value);
+        end,
+    })
+
+    return Proxy;
+end
+
+local function NewInstance(Class: string, Properties: any)
+    Class = Renv.InstanceNew(Class);
+
+    if EEnv.Protectinstance then
+        EEnv.Protectinstance(Class)
     end
 
     for Index, Values in next, Properties do
@@ -211,18 +304,55 @@ local function NewInstance(Type: string, Class: string, Properties: any) -- Than
     return Class;
 end
 
-local Circle = NewInstance('Draw', 'Circle', {
+local OldPreloading; OldPreloading = EEnv.Hookmetamethod(game, '__namecall', EEnv.Newcclosure(function(self, ...)
+    local Method = EEnv.Getnamecallmethod()
+    local Arguments = {...};
+
+    if not EEnv.Checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
+        if (Method == 'PreloadAsync' or Method == 'preloadAsync') then
+            local PreloadTable = Arguments[1];
+
+            if typeof(PreloadTable) == 'table' then
+                local ProxyTable = {};
+                local CoreGuiFound = false;
+
+                for _, Index in ipairs(PreloadTable) do
+                    if typeof(Index) == 'Instance' and ((Index == ProxyCoreGui or Index:IsDescendantOf(ProxyCoreGui)) or (Index == Utils.CoreGui or Index:IsDescendantOf(Utils.CoreGui))) then
+                        CoreGuiFound = true;
+                    else
+                        table.insert(ProxyTable, Index);
+                    end
+                end
+
+                if CoreGuiFound then
+                    return OldPreloading(self, ProxyTable)
+                end
+            end
+        end
+
+        if (Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus') then
+            local Asset = Arguments[1];
+            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
+                return Enum.AssetFetchStatus.None;
+            end
+        end
+    end
+
+    return OldPreloading(self, ...)
+end))
+
+local Circle = NewDrawing('Circle', {
     Filled = false;
     Transparency = 1;
     ZIndex = 1;
     NumSides = 250;
 })
 
-local Network = Import('UI/Network.lua');
-local Watermark = Import('UI/Watermark.lua');
-local Menu = Import('UI/NewMenu.lua');
-local FileMenu = Import('UI/Files.lua');
-local ThemeMenu = Import('UI/Themes.lua');
+local Network = EEnv.Import('UI/Network.lua');
+local Watermark = EEnv.Import('UI/Watermark.lua');
+local Menu = EEnv.Import('UI/NewMenu.lua');
+local FileMenu = EEnv.Import('UI/Files.lua');
+local ThemeMenu = EEnv.Import('UI/Themes.lua');
 
 local Select = Select;
 local Boolean = Boolean;
@@ -234,58 +364,58 @@ local OuterCommand = CommandCenter.OuterCommand;
 local OuterCommandBar = CommandCenter.OuterCommandBar;
 local CommandBar = CommandCenter.CommandBar;
 
-local OuterConfig = NewInstance('Instance', 'Frame', {
+local OuterConfig = NewInstance('Frame', {
     Name = 'OuterConfig',
-    AnchorPoint = Vector2.new(0.5, 0.5),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
     Parent = mawborn,
-    BackgroundColor3 = Color3.fromRGB(14, 14, 14),
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    BackgroundColor3 = Renv.Color3RGB(14, 14, 14),
+    BorderColor3 = Renv.Color3RGB(0, 0, 0),
     BorderSizePixel = 0,
-    Position = UDim2.fromScale(0.05, 0.52),
-    Size = UDim2.fromOffset(176, 366),
+    Position = Renv.UD2fromScale(0.05, 0.52),
+    Size = Renv.UD2fromOffset(176, 366),
     Visible = false;
 })
 
-local UICorner = NewInstance('Instance', 'UICorner', {
-    CornerRadius = UDim.new(0, 4),
+local UICorner = NewInstance('UICorner', {
+    CornerRadius = Renv.UDimNew(0, 4),
     Parent = OuterConfig,
 })
 
-local BorderInner = NewInstance('Instance', 'Frame', {
+local BorderInner = NewInstance('Frame', {
     Name = 'InnerConfig',
     Parent = OuterConfig,
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-    BorderColor3 = Color3.fromRGB(27, 27, 27),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
+    BorderColor3 = Renv.Color3RGB(27, 27, 27),
     BorderSizePixel = 1,
-    Position = UDim2.fromScale(0.012, 0.007),
-    Size = UDim2.fromOffset(172, 362),
+    Position = Renv.UD2fromScale(0.012, 0.007),
+    Size = Renv.UD2fromOffset(172, 362),
 })
 
-local InnerConfig = NewInstance('Instance', 'Frame', {
+local InnerConfig = NewInstance('Frame', {
     Name = 'InnerConfig',
     Parent = OuterConfig,
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-    BorderColor3 = Color3.fromRGB(225, 225, 255),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
+    BorderColor3 = Renv.Color3RGB(225, 225, 255),
     BorderSizePixel = 1,
     BorderMode = Enum.BorderMode.Inset,
-    Position = UDim2.fromScale(0.012, 0.007),
-    Size = UDim2.fromOffset(172, 362),
+    Position = Renv.UD2fromScale(0.012, 0.007),
+    Size = Renv.UD2fromOffset(172, 362),
 })
 
-local UIGradient = NewInstance('Instance', 'UIGradient', {
-    Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(12, 12, 12)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(18, 18, 18))},
+local UIGradient = NewInstance('UIGradient', {
+    Color = Renv.ColorSeqNew{Renv.ColorSeqKeypoint(0.00, Renv.Color3RGB(12, 12, 12)), Renv.ColorSeqKeypoint(1.00, Renv.Color3RGB(18, 18, 18))},
     Rotation = -90,
     Parent = InnerConfig,
 })
 
-local Health = NewInstance('Instance', 'TextLabel', {
+local Health = NewInstance('TextLabel', {
     Parent = mawborn,
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
     BackgroundTransparency = 1,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    BorderColor3 = Renv.Color3RGB(0, 0, 0),
     BorderSizePixel = 0,
-    Size = UDim2.fromOffset(162, 18),
+    Size = Renv.UD2fromOffset(162, 18),
     Font = Enum.Font.Code,
     Text = '',
     TextColor3 = Colors.ScriptColor,
@@ -293,14 +423,14 @@ local Health = NewInstance('Instance', 'TextLabel', {
     TextStrokeTransparency = 0;
 })
 
-local Ko = NewInstance('Instance', 'TextLabel', {
+local Ko = NewInstance('TextLabel', {
     Parent = mawborn,
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
     BackgroundTransparency = 1,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    BorderColor3 = Renv.Color3RGB(0, 0, 0),
     BorderSizePixel = 0,
-    Size = UDim2.fromOffset(162, 18),
+    Size = Renv.UD2fromOffset(162, 18),
     Font = Enum.Font.Code,
     TextStrokeTransparency = 0;
     Text = '',
@@ -308,14 +438,14 @@ local Ko = NewInstance('Instance', 'TextLabel', {
     TextSize = 13,
 })
 
-local Stam = NewInstance('Instance', 'TextLabel', {
+local Stam = NewInstance('TextLabel', {
     Parent = mawborn,
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
     BackgroundTransparency = 1,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    BorderColor3 = Renv.Color3RGB(0, 0, 0),
     BorderSizePixel = 0,
-    Size = UDim2.fromOffset(162, 18),
+    Size = Renv.UD2fromOffset(162, 18),
     Font = Enum.Font.Code,
     TextStrokeTransparency = 0;
     Text = '',
@@ -323,44 +453,44 @@ local Stam = NewInstance('Instance', 'TextLabel', {
     TextSize = 13,
 })
 
-local GunInfoBillboard = NewInstance('Instance', 'BillboardGui', {
+local GunInfoBillboard = NewInstance('BillboardGui', {
     Parent = mawborn;
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
     Active = true;
-    Size = UDim2.fromScale(3, 1);
+    Size = Renv.UD2fromScale(3, 1);
     LightInfluence = 0;
     AlwaysOnTop = true;
-    StudsOffset = Vector3.new(4.5, 0.5, 0);
+    StudsOffset = Renv.Vec3(4.5, 0.5, 0);
 })
 
-local AmmoText = NewInstance('Instance', 'TextLabel', {
+local AmmoText = NewInstance('TextLabel', {
     Parent = GunInfoBillboard;
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+    BackgroundColor3 = Renv.Color3RGB(0, 0, 0);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Size = UDim2.fromScale(1, 1);
+    Size = Renv.UD2fromScale(1, 1);
     Font = Enum.Font.Code;
-    TextColor3 = Color3.fromRGB(225, 225, 225);
+    TextColor3 = Renv.Color3RGB(225, 225, 225);
     Text = '';
     TextSize = 14;
-    AnchorPoint = Vector2.new(0.5, 0.5),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
     TextStrokeTransparency = 0;
     TextWrapped = true;
     TextXAlignment = Enum.TextXAlignment.Left;
     ZIndex = 2;
 })
 
-local ClipsText = NewInstance('Instance', 'TextLabel', {
+local ClipsText = NewInstance('TextLabel', {
     Parent = GunInfoBillboard;
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+    BackgroundColor3 = Renv.Color3RGB(0, 0, 0);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Size = UDim2.fromScale(1, 1);
+    Size = Renv.UD2fromScale(1, 1);
     Font = Enum.Font.Code;
-    TextColor3 = Color3.fromRGB(225, 225, 225);
-    AnchorPoint = Vector2.new(0.5, 0.5),
+    TextColor3 = Renv.Color3RGB(225, 225, 225);
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
     TextSize = 14;
     Text = '';
     TextStrokeTransparency = 0;
@@ -370,16 +500,16 @@ local ClipsText = NewInstance('Instance', 'TextLabel', {
 })
 
 
-local OtherAmmo = NewInstance('Instance', 'TextLabel', {
+local OtherAmmo = NewInstance('TextLabel', {
     Parent = mawborn;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.3, 0.84);
-    Size = UDim2.fromOffset(140, 25);
+    Position = Renv.UD2fromScale(0.3, 0.84);
+    Size = Renv.UD2fromOffset(140, 25);
     Font = Enum.Font.Code;
-    TextColor3 = Color3.fromRGB(225, 225, 225);
+    TextColor3 = Renv.Color3RGB(225, 225, 225);
     TextSize = 14;
     Text = '';
     TextStrokeTransparency = 0;
@@ -387,16 +517,16 @@ local OtherAmmo = NewInstance('Instance', 'TextLabel', {
     Visible = false;
 })
 
-local OtherClip = NewInstance('Instance', 'TextLabel', {
+local OtherClip = NewInstance('TextLabel', {
     Parent = mawborn;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.6, 0.84);
-    Size = UDim2.fromOffset(140, 25);
+    Position = Renv.UD2fromScale(0.6, 0.84);
+    Size = Renv.UD2fromOffset(140, 25);
     Font = Enum.Font.Code;
-    TextColor3 = Color3.fromRGB(225, 225, 225);
+    TextColor3 = Renv.Color3RGB(225, 225, 225);
     TextSize = 14;
     Text = '';
     TextStrokeTransparency = 0;
@@ -404,176 +534,176 @@ local OtherClip = NewInstance('Instance', 'TextLabel', {
     Visible = false
 })
 
-local LogoFirst = NewInstance('Instance', 'TextLabel', {
+local LogoFirst = NewInstance('TextLabel', {
     Parent = mawborn;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Size = UDim2.fromOffset(100, 20);
+    Size = Renv.UD2fromOffset(100, 20);
     Font = Enum.Font.Code;
     Text = 'mawborn';
-    TextColor3 = Color3.fromRGB(225, 225, 225);
+    TextColor3 = Renv.Color3RGB(225, 225, 225);
     TextSize = 14;
     TextStrokeTransparency = 0;
     TextXAlignment = Enum.TextXAlignment.Right;
     ZIndex = 3;
 })
 
-local LogoSecond = NewInstance('Instance', 'TextLabel', {
+local LogoSecond = NewInstance('TextLabel', {
     Parent = mawborn;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Size = UDim2.fromOffset(100, 20);
+    Size = Renv.UD2fromOffset(100, 20);
     Font = Enum.Font.Code;
     Text = '.xml';
-    TextColor3 = Color3.fromRGB(170, 170, 255);
+    TextColor3 = Renv.Color3RGB(170, 170, 255);
     TextSize = 14;
     TextStrokeTransparency = 0;
     TextXAlignment = Enum.TextXAlignment.Left;
     ZIndex = 3;
 })
 
-local TopLeft = NewInstance('Instance', 'Frame', {
+local TopLeft = NewInstance('Frame', {
     Parent = LogoFirst;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.44, 0.4);
-    Size = UDim2.fromOffset(5, -5);
+    Position = Renv.UD2fromScale(0.44, 0.4);
+    Size = Renv.UD2fromOffset(5, -5);
     ZIndex = 3;
 })
 
-local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
+local TopLeftStroke = NewInstance('UIStroke', {
     Parent = TopLeft;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
-    Color = Color3.fromRGB(200, 200, 200);
+    Color = Renv.Color3RGB(200, 200, 200);
     LineJoinMode = Enum.LineJoinMode.Round;
     Thickness = 0.5;
 })
 
-local BottomRight = NewInstance('Instance', 'Frame', {
+local BottomRight = NewInstance('Frame', {
     Parent = LogoSecond;
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.31, 0.78);
+    Position = Renv.UD2fromScale(0.31, 0.78);
     Rotation = 360;
-    Size = UDim2.fromOffset(5, 5);
+    Size = Renv.UD2fromOffset(5, 5);
     ZIndex = 3;
 })
 
-local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
+local TopLeftStroke = NewInstance('UIStroke', {
     Parent = BottomRight;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
-    Color = Color3.fromRGB(200, 200, 200);
+    Color = Renv.Color3RGB(200, 200, 200);
     LineJoinMode = Enum.LineJoinMode.Round;
     Thickness = 0.5;
 })
 
-local CircleCursor = NewInstance('Instance', 'Frame', {
+local CircleCursor = NewInstance('Frame', {
     Parent = mawborn;
-    AnchorPoint = Vector2.new(0.5, 0.5);
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    AnchorPoint = Renv.Vec2(0.5, 0.5);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.81, 0.79);
-    Size = UDim2.fromOffset(75, 75);
+    Position = Renv.UD2fromScale(0.81, 0.79);
+    Size = Renv.UD2fromOffset(75, 75);
     ZIndex = 2
 })
 
-local UICornerOuter = NewInstance('Instance', 'UICorner', {
-    CornerRadius = UDim.new(0, 60);
+local UICornerOuter = NewInstance('UICorner', {
+    CornerRadius = Renv.UDimNew(0, 60);
     Parent = CircleCursor;
 })
 
-local UIStrokeOuter = NewInstance('Instance', 'UIStroke', {
+local UIStrokeOuter = NewInstance('UIStroke', {
     Parent = CircleCursor;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
-    Color = Color3.fromRGB(255, 255, 255);
+    Color = Renv.Color3RGB(255, 255, 255);
     LineJoinMode = Enum.LineJoinMode.Round;
     Thickness = 1;
     ZIndex = 2;
 })
 
-local UIGradientStroke = NewInstance('Instance', 'UIGradient', {
-    Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(0.30, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))};
+local UIGradientStroke = NewInstance('UIGradient', {
+    Color = Renv.ColorSeqNew{Renv.ColorSeqKeypoint(0.00, Renv.Color3RGB(170, 170, 255)), Renv.ColorSeqKeypoint(0.30, Renv.Color3RGB(170, 170, 255)), Renv.ColorSeqKeypoint(1.00, Renv.Color3RGB(225, 225, 225))};
     Parent = UIStrokeOuter
 })
 
-local CircleInner = NewInstance('Instance', 'Frame', {
+local CircleInner = NewInstance('Frame', {
     Parent = CircleCursor;
-    BackgroundColor3 = Color3.fromRGB(200, 200, 200);
+    BackgroundColor3 = Renv.Color3RGB(200, 200, 200);
     BackgroundTransparency = 0.85;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Size = UDim2.fromOffset(75, 75);
+    Size = Renv.UD2fromOffset(75, 75);
 })
 
-local UICornerInner = NewInstance('Instance', 'UICorner', {
-    CornerRadius = UDim.new(0, 60);
+local UICornerInner = NewInstance('UICorner', {
+    CornerRadius = Renv.UDimNew(0, 60);
     Parent = CircleInner;
 })
 
-local UIGradientInner = NewInstance('Instance', 'UIGradient', {
-    Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(120, 120, 255)), ColorSequenceKeypoint.new(0.30, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))};
+local UIGradientInner = NewInstance('UIGradient', {
+    Color = Renv.ColorSeqNew{Renv.ColorSeqKeypoint(0.00, Renv.Color3RGB(120, 120, 255)), Renv.ColorSeqKeypoint(0.30, Renv.Color3RGB(170, 170, 255)), Renv.ColorSeqKeypoint(1.00, Renv.Color3RGB(225, 225, 225))};
     Parent = CircleInner;
 })
 
-local CursorImage = NewInstance('Instance', 'ImageLabel', {
+local CursorImage = NewInstance('ImageLabel', {
     Parent = mawborn,
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    AnchorPoint = Renv.Vec2(0.5, 0.5),
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255),
     BackgroundTransparency = 1,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    BorderColor3 = Renv.Color3RGB(0, 0, 0),
     BorderSizePixel = 0,
     Image = 'rbxassetid://316279304',
     ImageTransparency = 0.020,
 })
 
-local Ratio = NewInstance('Instance', 'UIAspectRatioConstraint', {
+local Ratio = NewInstance('UIAspectRatioConstraint', {
     Parent = CursorImage,
 })
 
-local RatioCursorCircle = NewInstance('Instance', 'UIAspectRatioConstraint', {
+local RatioCursorCircle = NewInstance('UIAspectRatioConstraint', {
     Parent = CircleCursor,
 })
 
-local InfoCursor = NewInstance('Instance', 'TextLabel', {
+local InfoCursor = NewInstance('TextLabel', {
     Parent = mawborn;
     Name = 'InfoCursor';
-    AnchorPoint = Vector2.new(-0.1, 0.1);
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+    AnchorPoint = Renv.Vec2(-0.1, 0.1);
+    BackgroundColor3 = Renv.Color3RGB(255, 255, 255);
     BackgroundTransparency = 1;
-    BorderColor3 = Color3.fromRGB(0, 0, 0);
+    BorderColor3 = Renv.Color3RGB(0, 0, 0);
     BorderSizePixel = 0;
-    Position = UDim2.fromScale(0.04, 0.5);
+    Position = Renv.UD2fromScale(0.04, 0.5);
     Font = Enum.Font.Code;
-    TextColor3 = Color3.fromRGB(255, 255, 255);
+    TextColor3 = Renv.Color3RGB(255, 255, 255);
     TextSize = 13;
     TextXAlignment = Enum.TextXAlignment.Left;
     TextStrokeTransparency = 0;
     Visible = false;
 })
 
-local Info = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 0)
-local TweenCursor = TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 1)
-local InfoSize = TweenInfo.new(0.85, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 0.8)
+local Info = Renv.TweenInfoNew(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 0)
+local TweenCursor = Renv.TweenInfoNew(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 1)
+local InfoSize = Renv.TweenInfoNew(0.85, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true, 0.8)
 
 Utils.TweenService:Create(CursorImage, Info, {Rotation = 360}):Play()
-Utils.TweenService:Create(CursorImage, InfoSize, {Size = UDim2.fromScale(0.045, 0.045)}):Play()
+Utils.TweenService:Create(CursorImage, InfoSize, {Size = Renv.UD2fromScale(0.045, 0.045)}):Play()
 Utils.TweenService:Create(UIGradientStroke, TweenCursor, {Rotation = -360}):Play()
 Utils.TweenService:Create(UIGradientInner, TweenCursor, {Rotation = 360}):Play()
 
-local OffGradient = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Colors.MouseColorOnTint:Lerp(Colors.MouseColorOffTint, 1)),
-    ColorSequenceKeypoint.new(0.3, Colors.MouseColorOn:Lerp(Colors.MouseColorOff, 1)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(225,225,225))
+local OffGradient = Renv.ColorSeqNew{
+    Renv.ColorSeqKeypoint(0, Colors.MouseColorOnTint:Lerp(Colors.MouseColorOffTint, 1)),
+    Renv.ColorSeqKeypoint(0.3, Colors.MouseColorOn:Lerp(Colors.MouseColorOff, 1)),
+    Renv.ColorSeqKeypoint(1, Renv.Color3RGB(225,225,225))
 }
 
 local function UpdateLabel() -- Don't feel like deleting all of them
@@ -582,8 +712,8 @@ end
 CommandBar.FocusLost:Connect(function()
     if utf8.len(CommandBar.Text) > 0 then
 
-        local _Info = TweenInfo.new( 0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-        Utils.TweenService:Create(OuterCommand, _Info, {Position = UDim2.fromOffset(775, -300)}):Play()
+        local _Info = Renv.TweenInfoNew( 0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+        Utils.TweenService:Create(OuterCommand, _Info, {Position = Renv.UD2fromOffset(775, -300)}):Play()
 
         CommandHandler.Execute(CommandBar.Text)
 
@@ -615,7 +745,7 @@ local function ChatSpy()
 
     if HasChatWindow then
         HasChatWindow.Visible = true;
-        HasChatWindow.Size = UDim2.fromScale(1, 0.8);
+        HasChatWindow.Size = Renv.UD2fromScale(1, 0.8);
     end
 end
 
@@ -676,7 +806,7 @@ local function GrabItem(Table: table, Radius: number) : CFrame
     for _, Item in next, ItemsArray do
         if Item then
             local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Item.Position)
-            local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
+            local Distance = OnScreen and (Renv.Vec2(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
 
             if OnScreen and Distance < ClosestDistance and Distance <= Radius then
                 ClosestDistance = Distance;
@@ -715,7 +845,7 @@ local function TargetPlayer(Radius: number) : Player?
         if not Index then return end
 
         local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Utils.Root(Index).Position)
-        local Distance = OnScreen and (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
+        local Distance = OnScreen and (Renv.Vec2(ScreenPosition.X, ScreenPosition.Y) - MousePosition).Magnitude
 
         if OnScreen and Distance < ClosestDistance and Distance <= Radius then
             ClosestDistance = Distance;
@@ -762,41 +892,41 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
     RemoveEsp(Player)
 
     local CreateEsp = {
-        TopText = NewInstance('Draw', 'Text', {
+        TopText = NewDrawing('Text', {
             Center = true,
             Outline = true,
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
+            OutlineColor = Renv.Color3New(0, 0, 0),
+            Font = EEnv.Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
             Transparency = 1,
         }),
 
-        BottomText = NewInstance('Draw', 'Text', {
+        BottomText = NewDrawing('Text', {
             Center = true,
             Outline = true,
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
+            OutlineColor = Renv.Color3New(0, 0, 0),
+            Font = EEnv.Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
             Transparency = 1,
         }),
 
-        Tracer = NewInstance('Draw', 'Line', {
+        Tracer = NewDrawing('Line', {
             Transparency = 1,
             Thickness = Select.DrawingThickness.Value,
             ZIndex = 2,
         }),
 
-        OutlineTracer = NewInstance('Draw', 'Line', {
+        OutlineTracer = NewDrawing('Line', {
             Transparency = 1,
-            Color = Color3.fromRGB(0, 0, 0);
+            Color = Renv.Color3RGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
 
-        Box = NewInstance('Draw', 'Square', {
+        Box = NewDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
             Filled = false,
@@ -804,41 +934,41 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
             ZIndex = 2,
         }),
 
-        BoxOutline = NewInstance('Draw', 'Square', {
+        BoxOutline = NewDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
-            Color = Color3.fromRGB(0, 0, 0);
+            Color = Renv.Color3RGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
 
-        HealthBarOutline = NewInstance('Draw', 'Square', {
+        HealthBarOutline = NewDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
-            Color = Color3.fromRGB(0, 0, 0);
+            Color = Renv.Color3RGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
 
-        HealthBar = NewInstance('Draw', 'Square', {
+        HealthBar = NewDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
             Transparency = 1,
             Filled = false,
             ZIndex = 2,
         }),
 
-        SideText = NewInstance('Draw', 'Text', {
+        SideText = NewDrawing('Text', {
             Center = true,
             Outline = true,
-            Color = Color3.fromRGB(225,0,0),
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
+            Color = Renv.Color3RGB(225,0,0),
+            OutlineColor = Renv.Color3New(0, 0, 0),
+            Font = EEnv.Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
             Transparency = 1,
         }),
 
-        Chams = NewInstance('Instance', 'Highlight', {
+        Chams = NewInstance('Highlight', {
             Enabled = true,
             FillTransparency = 0,
             Parent = Player.Character,
@@ -858,27 +988,27 @@ local function AddItemEsp(Object: Instance, Name: string)
     RemoveItemEsp(Object)
 
     local CreateItemEsp = {
-        TopText = NewInstance('Draw', 'Text', {
+        TopText = NewDrawing('Text', {
             Center = true,
             Outline = true,
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
+            OutlineColor = Renv.Color3New(0, 0, 0),
+            Font = EEnv.Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
             Transparency = 1,
         }),
 
-        Tracer = NewInstance('Draw', 'Line', {
+        Tracer = NewDrawing('Line', {
             Transparency = 1,
             Thickness = Select.DrawingThickness.Value,
             Color = Colors.ScriptColor,
             ZIndex = 2,
         }),
 
-        OutlineTracer = NewInstance('Draw', 'Line', {
+        OutlineTracer = NewDrawing('Line', {
             Transparency = 1,
-            Color = Color3.fromRGB(0, 0, 0);
+            Color = Renv.Color3RGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
 
@@ -917,7 +1047,7 @@ local function UpdateItemEsp()
             Index.Tracer.Thickness = Select.DrawingThickness.Value
             Index.OutlineTracer.Thickness = Select.DrawingThickness.Value + 3
 
-            Index.TopText.Font = Drawing.Fonts[Select.EspFont.Value]
+            Index.TopText.Font = EEnv.Drawing.Fonts[Select.EspFont.Value]
             Index.TopText.Size = NoScale(12, Object)
 
             Index.Tracer.Visible = Boolean.ItemTracers.Value
@@ -928,13 +1058,13 @@ local function UpdateItemEsp()
                 Index.TopText.Visible = true
 
                 Index.Tracer.From = SnaplineMethod
-                Index.Tracer.To = Vector2.new(ObjectPosition.X, ObjectPosition.Y)
+                Index.Tracer.To = Renv.Vec2(ObjectPosition.X, ObjectPosition.Y)
 
                 Index.OutlineTracer.From = SnaplineMethod
-                Index.OutlineTracer.To = Vector2.new(ObjectPosition.X, ObjectPosition.Y)
+                Index.OutlineTracer.To = Renv.Vec2(ObjectPosition.X, ObjectPosition.Y)
 
                 Index.TopText.Position =
-                    Vector2.new(ObjectPosition.X, ObjectPosition.Y - NoScale(12, Object))
+                    Renv.Vec2(ObjectPosition.X, ObjectPosition.Y - NoScale(12, Object))
             else
                 SetVisible(Index, false)
             end
@@ -984,8 +1114,8 @@ local function UpdateEsp()
         if Boolean.Esp.Value and Player and EspHumanoid and EspHead then
             local Orientation, Size = Player:GetBoundingBox();
 
-            local TopPosition = Orientation.Position + Vector3.new(0, Size.Y / 2, 0)
-            local BottomPosition = Orientation.Position - Vector3.new(0, Size.Y / 2, 0)
+            local TopPosition = Orientation.Position + Renv.Vec3(0, Size.Y / 2, 0)
+            local BottomPosition = Orientation.Position - Renv.Vec3(0, Size.Y / 2, 0)
 
             local TopPos = Camera:WorldToViewportPoint(TopPosition)
             local BottomPos = Camera:WorldToViewportPoint(BottomPosition)
@@ -993,7 +1123,7 @@ local function UpdateEsp()
 
             local Height = math.abs(TopPos.Y - BottomPos.Y)
             local Width = Height / 1.6
-            local BoxPos = Vector2.new(ScreenPos.X - Width / 2, ScreenPos.Y - Height / 2)
+            local BoxPos = Renv.Vec2(ScreenPos.X - Width / 2, ScreenPos.Y - Height / 2)
 
             local Raycast = Utils.WallCheck(Body, Player, EspHead)
 
@@ -1035,9 +1165,9 @@ local function UpdateEsp()
             Index.OutlineTracer.Thickness = Select.DrawingThickness.Value + 3;
             Index.HealthBarOutline.Thickness = Select.DrawingThickness.Value;
 
-            Index.TopText.Font = Drawing.Fonts[Select.EspFont.Value];
-            Index.SideText.Font = Drawing.Fonts[Select.EspFont.Value];
-            Index.BottomText.Font = Drawing.Fonts[Select.EspFont.Value];
+            Index.TopText.Font = EEnv.Drawing.Fonts[Select.EspFont.Value];
+            Index.SideText.Font = EEnv.Drawing.Fonts[Select.EspFont.Value];
+            Index.BottomText.Font = EEnv.Drawing.Fonts[Select.EspFont.Value];
 
             EspHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
             
@@ -1064,7 +1194,7 @@ local function UpdateEsp()
                 Index.OutlineTracer.Visible = Boolean.EspSnapline.Value;
                 Index.HealthBarOutline.Visible = Boolean.EspHealthBar.Value;
 
-                Index.SideText.Color = Raycast and Color3.fromRGB(0, 225, 0) or Color3.fromRGB(225, 0, 0);
+                Index.SideText.Color = Raycast and Renv.Color3RGB(0, 225, 0) or Renv.Color3RGB(225, 0, 0);
                 Index.Chams.OutlineColor = Boolean.ChamsOutline.Value and Select.ChamsOutlineColor.Value or Index.Chams.OutlineColor
 
                 Index.Chams.OutlineTransparency = Boolean.ChamsOutline.Value and 0 or 1
@@ -1099,41 +1229,41 @@ local function UpdateEsp()
                     end
                 end
 
-                Index.Box.Size = Vector2.new(Width, Height)
-                Index.BoxOutline.Size = Vector2.new(Width, Height)
+                Index.Box.Size = Renv.Vec2(Width, Height)
+                Index.BoxOutline.Size = Renv.Vec2(Width, Height)
 
                 Index.Box.Position = BoxPos;
                 Index.BoxOutline.Position = BoxPos;
 
-                Index.HealthBar.Size = Vector2.new(1, Height * (EspHumanoid.Health / EspHumanoid.MaxHealth))
-                Index.HealthBarOutline.Size = Vector2.new(4, Height + 2)
+                Index.HealthBar.Size = Renv.Vec2(1, Height * (EspHumanoid.Health / EspHumanoid.MaxHealth))
+                Index.HealthBarOutline.Size = Renv.Vec2(4, Height + 2)
 
-                Index.HealthBar.Position = Vector2.new(BoxPos.X - 5, BottomPos.Y - (Height * (EspHumanoid.Health / EspHumanoid.MaxHealth)))
-                Index.HealthBarOutline.Position = Vector2.new(BoxPos.X - 6, BoxPos.Y - 1)
+                Index.HealthBar.Position = Renv.Vec2(BoxPos.X - 5, BottomPos.Y - (Height * (EspHumanoid.Health / EspHumanoid.MaxHealth)))
+                Index.HealthBarOutline.Position = Renv.Vec2(BoxPos.X - 6, BoxPos.Y - 1)
 
-                Index.HealthBar.Color = Color3.fromRGB(255 * (1 - (EspHumanoid.Health / EspHumanoid.MaxHealth)), 255 * (EspHumanoid.Health / EspHumanoid.MaxHealth), 0)
+                Index.HealthBar.Color = Renv.Color3RGB(255 * (1 - (EspHumanoid.Health / EspHumanoid.MaxHealth)), 255 * (EspHumanoid.Health / EspHumanoid.MaxHealth), 0)
 
                 Index.Tracer.From = SnaplineMethod
-                Index.Tracer.To = Vector2.new(BottomPos.X, BottomPos.Y)
+                Index.Tracer.To = Renv.Vec2(BottomPos.X, BottomPos.Y)
 
                 Index.OutlineTracer.From = SnaplineMethod
-                Index.OutlineTracer.To = Vector2.new(BottomPos.X, BottomPos.Y)
+                Index.OutlineTracer.To = Renv.Vec2(BottomPos.X, BottomPos.Y)
 
-                Index.TopText.Position = Vector2.new(ScreenPos.X, BoxPos.Y - (NoScale(13, EspHead)));
-                Index.BottomText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 1)
+                Index.TopText.Position = Renv.Vec2(ScreenPos.X, BoxPos.Y - (NoScale(13, EspHead)));
+                Index.BottomText.Position = Renv.Vec2(ScreenPos.X, BoxPos.Y + Height + 1)
 
                 Index.TopText.Size = NoScale(12, EspHead)
                 Index.BottomText.Size = NoScale(12, EspHead)
                 Index.SideText.Size = NoScale(12, EspHead)
 
                 if Debounce.EspHoldingTool and not Debounce.EspToolHasAmmo then
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 11.5)
+                    Index.SideText.Position = Renv.Vec2(ScreenPos.X, BoxPos.Y + Height + 11.5)
 
                 elseif Debounce.EspHoldingTool and Debounce.EspToolHasAmmo then 
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 25)
+                    Index.SideText.Position = Renv.Vec2(ScreenPos.X, BoxPos.Y + Height + 25)
 
                 else
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 2.5)
+                    Index.SideText.Position = Renv.Vec2(ScreenPos.X, BoxPos.Y + Height + 2.5)
                 end
             else
                 SetVisible(Index, false)
@@ -1173,25 +1303,25 @@ local function Fly()
         Humanoid:ChangeState(Enum.HumanoidStateType.Running)
         Humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
 
-        local FloatPart = NewInstance('Instance', 'Part', {
+        local FloatPart = NewInstance('Part', {
             Name = 'Float';
             Transparency = 1;
-            Size = Vector3.new(100, 1, 100); -- Fuck it we ball
+            Size = Renv.Vec3(100, 1, 100); -- Fuck it we ball
             Anchored = true;
             Parent = Body;
         })
 
-        local Attachment0 = NewInstance('Instance', 'Attachment', {
+        local Attachment0 = NewInstance('Attachment', {
             Name = 'Att0';
             Parent = Torso;
         })
 
-        local Attachment1 = NewInstance('Instance', 'Attachment', {
+        local Attachment1 = NewInstance('Attachment', {
             Name = 'Att1';
             Parent = Torso;
         })
 
-        local AlignOrientation = NewInstance('Instance', 'AlignOrientation', {
+        local AlignOrientation = NewInstance('AlignOrientation', {
             Name = 'AlignOrientation';
             Parent = Torso;
             Responsiveness = 200;
@@ -1202,10 +1332,10 @@ local function Fly()
             MaxAngularVelocity = 500;
         })
 
-        local FlightVelocity = NewInstance('Instance', 'BodyVelocity', {
+        local FlightVelocity = NewInstance('BodyVelocity', {
             Name = 'BodyVelocity';
             P = 9e9;
-            MaxForce = Vector3.new(9e9, 9e9, 9e9);
+            MaxForce = Renv.Vec3(9e9, 9e9, 9e9);
             Parent = Torso;
         })
 
@@ -1226,8 +1356,8 @@ local function UpdateFly()
     local FlySpeed = (Select.FlySpeed.Value or 4) * 25;
 
     local YAxis = math.atan2(-Camera.CFrame.LookVector.X, -Camera.CFrame.LookVector.Z);
-    local TorsoAngles = CFrame.new(Torso.Position) * CFrame.Angles(0, YAxis, 0);
-    local FlyVelocity = Vector3.zero;
+    local TorsoAngles = Renv.Cframe(Torso.Position) * Renv.CframeAngles(0, YAxis, 0);
+    local FlyVelocity = Renv.Vec3Zero;
 
     local LookVector = Camera.CFrame.LookVector;
     local RightVector = Camera.CFrame.RightVector;
@@ -1238,15 +1368,15 @@ local function UpdateFly()
     if Movement.D then FlyVelocity = FlyVelocity + (RightVector * FlySpeed) end
 
     if not (Movement.W or Movement.A or Movement.S or Movement.D) then
-        FlyVelocity = Vector3.zero;
+        FlyVelocity = Renv.Vec3Zero;
     end
 
     Hash.BodyVelocity.Velocity = FlyVelocity;
-    Hash.Float.CFrame = Torso.CFrame * CFrame.new(0, -3.5, 0);
+    Hash.Float.CFrame = Torso.CFrame * Renv.Cframe(0, -3.5, 0);
     Hash.AlignOrientation.CFrame = TorsoAngles;
 
     if Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) and not Debounce.Typing then
-        Torso.CFrame = Torso.CFrame + Vector3.new(0, 0.2, 0);
+        Torso.CFrame = Torso.CFrame + Renv.Vec3(0, 0.2, 0);
     end
 end
 
@@ -1277,10 +1407,10 @@ local function Airwalk()
     if not Boolean.Airwalk.Value then return end
     if Body:FindFirstChild('Airwalk') then return end
 
-    local AirwalkPart = NewInstance('Instance', 'Part', {
+    local AirwalkPart = NewInstance('Part', {
         Name = 'Airwalk';
         Transparency = 1;
-        Size = Vector3.new(5, 1, 5);
+        Size = Renv.Vec3(5, 1, 5);
         Anchored = true;
         Parent = Body;
         Massless = true;
@@ -1320,8 +1450,8 @@ end
 local function TeleportTo(Position: CFrame, Delay: number)
     if not (Root and Utils.TweenService) then return end
 
-    local Info = TweenInfo.new(Delay or Select.TeleportDelay.Value, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
-    local TweenCreate = Utils.TweenService:Create(Root, Info, {CFrame = Position * Root.CFrame.Rotation + Vector3.new(0, 3, 0)})
+    local Info = Renv.TweenInfoNew(Delay or Select.TeleportDelay.Value, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+    local TweenCreate = Utils.TweenService:Create(Root, Info, {CFrame = Position * Root.CFrame.Rotation + Renv.Vec3(0, 3, 0)})
 
     Debounce.TeleportCompleted = false
     Debounce.NoClip = false;
@@ -1383,7 +1513,7 @@ local function FindPartsOnMap(Index: Instance)
         end
 
         if Values:IsA('BasePart') then
-            if Values.Color == Color3.fromRGB(17, 17, 17) then
+            if Values.Color == Renv.Color3RGB(17, 17, 17) then
                 if Values:FindFirstChild('Barrel') then
                     AddItemEsp(Values, 'Sawed Off')
                 end
@@ -1393,7 +1523,7 @@ local function FindPartsOnMap(Index: Instance)
                 end
             end
 
-            if Values.Color == Color3.fromRGB(150, 85, 85) and Values.Material == Enum.Material.Concrete then
+            if Values.Color == Renv.Color3RGB(150, 85, 85) and Values.Material == Enum.Material.Concrete then
                 AddItemEsp(Values, 'Brick')
             end
         end
@@ -1414,7 +1544,7 @@ local function GameData()
         if Index:IsA('Part') and Index.Material == Enum.Material.Neon then
             table.insert(Lights, Index)
 
-            if Index.Color == Color3.fromRGB(255, 0, 191) and Index.Name == 'RandomSpawner' then
+            if Index.Color == Renv.Color3RGB(255, 0, 191) and Index.Name == 'RandomSpawner' then
                 FindPartsOnMap(Index)
                 InsertItem(Items, Index)
             end
@@ -1471,7 +1601,7 @@ local function UpdateBulletCounterPositions()
         return
     end
 
-    ClipsText.Position = UDim2.fromScale(0, 0.5);
+    ClipsText.Position = Renv.UD2fromScale(0, 0.5);
 
     if Utils.Streets then
         if CurrentAmmo then
@@ -1479,17 +1609,17 @@ local function UpdateBulletCounterPositions()
         end
 
         GunInfoBillboard.Parent = Weapon.Handle;
-        GunInfoBillboard.StudsOffset = Vector3.new(3.2, 0.5, 1.5);
+        GunInfoBillboard.StudsOffset = Renv.Vec3(3.2, 0.5, 1.5);
 
-        OtherAmmo.Position = UDim2.fromScale(0.3, 0.875);
-        OtherClip.Position = UDim2.fromScale(0.6, 0.875);
+        OtherAmmo.Position = Renv.UD2fromScale(0.3, 0.875);
+        OtherClip.Position = Renv.UD2fromScale(0.6, 0.875);
     end
 
     if Debounce.FirstPerson then
-        ClipsText.Position = UDim2.fromScale(0, 0.1);
+        ClipsText.Position = Renv.UD2fromScale(0, 0.1);
 
         if Utils.Streets then
-            GunInfoBillboard.StudsOffset = Vector3.new(3.5, 0.2, 0);
+            GunInfoBillboard.StudsOffset = Renv.Vec3(3.5, 0.2, 0);
         end
     end
 end
@@ -1546,13 +1676,13 @@ local function UpdateBulletCounter()
         end
 
         if Clips.Value <= 1 then
-            ClipsText.TextColor3 = Color3.fromRGB(190, 0, 0)
-            OtherClip.TextColor3 = Color3.fromRGB(190, 0, 0);
+            ClipsText.TextColor3 = Renv.Color3RGB(190, 0, 0)
+            OtherClip.TextColor3 = Renv.Color3RGB(190, 0, 0);
         end
 
         if Ammo.Value <= Threshold then
-            AmmoText.TextColor3 = Color3.fromRGB(190, 0, 0);
-            OtherAmmo.TextColor3 = Color3.fromRGB(190, 0, 0);
+            AmmoText.TextColor3 = Renv.Color3RGB(190, 0, 0);
+            OtherAmmo.TextColor3 = Renv.Color3RGB(190, 0, 0);
         end
     end
 end
@@ -1657,10 +1787,10 @@ local function OnGradient(Lerp: number) : ColorSequence
     local Cached = GradientCache[Key]
     if Cached then return Cached end -- Searches if Gradient is cached, prevents caching on each frame
 
-    Cached = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Colors.MouseColorOffTint:Lerp(Colors.MouseColorOnTint, Lerp)),
-        ColorSequenceKeypoint.new(0.3, Colors.MouseColorOff:Lerp(Colors.MouseColorOn, Lerp)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(225,225,225))
+    Cached = Renv.ColorSeqNew{
+        Renv.ColorSeqKeypoint(0, Colors.MouseColorOffTint:Lerp(Colors.MouseColorOnTint, Lerp)),
+        Renv.ColorSeqKeypoint(0.3, Colors.MouseColorOff:Lerp(Colors.MouseColorOn, Lerp)),
+        Renv.ColorSeqKeypoint(1, Renv.Color3RGB(225,225,225))
     }
 
     GradientCache[Key] = Cached
@@ -1768,7 +1898,7 @@ local function UpdateInfoCursor()
         end
     end
 
-    InfoCursor.Position = UDim2.fromOffset(MousePosition.X + 40, MousePosition.Y - 24.5)
+    InfoCursor.Position = Renv.UD2fromOffset(MousePosition.X + 40, MousePosition.Y - 24.5)
 end
 
 
@@ -1782,7 +1912,7 @@ local function BulletColors(Object: Instance)
     TrailClone.Parent = Object.Parent;
 
     TrailClone.Texture = 'rbxassetid://8522442091'; -- Creds to DranghetaLurk, I used your texture
-    TrailClone.Transparency = NumberSequence.new(0);
+    TrailClone.Transparency = Renv.NumberSeq(0);
     TrailClone.Lifetime = Select.TrailLifetime.Value;
     TrailClone.TextureMode = Enum.TextureMode.Wrap;
     TrailClone.TextureLength = 5;
@@ -1794,26 +1924,26 @@ local function BulletColors(Object: Instance)
     --TrailClone.WidthScale = NumberSequence.new(0, 1);
 
     if Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, CycleHSV), 
-            ColorSequenceKeypoint.new(1.00, CycleHSV)
+        Color = Renv.ColorSeqNew{
+            Renv.ColorSeqKeypoint(0.00, CycleHSV), 
+            Renv.ColorSeqKeypoint(1.00, CycleHSV)
         }
 
     elseif Boolean.TrailColorOne.Value and not Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
-            ColorSequenceKeypoint.new(1.00, Select.TrailColors1.Value)
+        Color = Renv.ColorSeqNew{
+            Renv.ColorSeqKeypoint(0.00, Select.TrailColors1.Value), 
+            Renv.ColorSeqKeypoint(1.00, Select.TrailColors1.Value)
         }
 
     elseif Boolean.TrailColorOne.Value and Boolean.TrailColorTwo.Value and not Boolean.TrailRainbow.Value then
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Select.TrailColors1.Value), 
-            ColorSequenceKeypoint.new(1.00, Select.TrailColors2.Value)
+        Color = Renv.ColorSeqNew{
+            Renv.ColorSeqKeypoint(0.00, Select.TrailColors1.Value),
+            Renv.ColorSeqKeypoint(1.00, Select.TrailColors2.Value)
         }
     else
-        Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(225, 225, 225)), 
-            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))
+        Color = Renv.ColorSeqNew{
+            Renv.ColorSeqKeypoint(0.00, Renv.Color3RGB(225, 225, 225)),
+            Renv.ColorSeqKeypoint(1.00, Renv.Color3RGB(225, 225, 225))
         }
     end
 
@@ -1853,20 +1983,20 @@ local function Boombox(Object: Instance)
 
     if (FindReverb or FindChorus or FindDistortion) then return end
 
-    local Reverb = NewInstance('Instance', 'ReverbSoundEffect', { 
+    local Reverb = NewInstance('ReverbSoundEffect', { 
         Name = 'Reverb';
         Parent = Object;
         Enabled = Boolean.Reverb.Value;
     })
 
-    local Distortion = NewInstance('Instance', 'DistortionSoundEffect', {
+    local Distortion = NewInstance('DistortionSoundEffect', {
         Name = 'Distortion';
         Parent = Object;
         Level = 0;
         Enabled = Boolean.Distortion.Value;
     })
 
-    local Chorus = NewInstance('Instance', 'ChorusSoundEffect', {
+    local Chorus = NewInstance('ChorusSoundEffect', {
         Name = 'Chorus';
         Parent = Object;
         Enabled = Boolean.Chorus.Value;
@@ -2030,7 +2160,7 @@ local function SendKnockedAttributes(Player: Player)
 end
 
 
-local function Cash() : number -- Creds to whoever on devforums
+local function Cash() : number
     local Cash = CashUi.Text
 
     if not Cash then
@@ -2120,7 +2250,7 @@ local function AutoHeal()
 
     repeat
         task.wait(0.5)
-        fireproximityprompt(Proxy)
+        EEnv.Fireproximityprompt(Proxy)
         task.wait(1.5);
 
         local Tool = Backpack and Backpack:FindFirstChild('Taco')
@@ -2160,7 +2290,7 @@ local function VelocityType(...) : Vector3?
         return (VelocitySet.Part.MoveDirection * VelocitySet.Velocity);
     end
 
-    return Vector3.zero
+    return Renv.Vec3Zero
 end
 
 
@@ -2168,18 +2298,18 @@ local function OnRenderStepped(Delta: number)
     local HostTorsoToWorld = Camera:WorldToViewportPoint(Torso.Position);
 
     local CountTicks = os.clock() * ((Boolean.ToolRainbow.Value and Select.RainbowSpeed.Value) or 0.3)
-    CycleHSV = Color3.fromHSV(CountTicks % 1, 1, 1) -- Thanks to devforums
+    CycleHSV = Renv.Color3HSV(CountTicks % 1, 1, 1) -- Thanks to devforums
 
     MousePosition = Utils.UserInputService and Utils.UserInputService:GetMouseLocation()
 
-    LogoFirst.Position = UDim2.fromOffset(MousePosition.X - 85, MousePosition.Y + 40);
-    LogoSecond.Position = UDim2.fromOffset(MousePosition.X + 15, MousePosition.Y + 40);
-    CursorImage.Position = UDim2.fromOffset(MousePosition.X, MousePosition.Y);
-    CircleCursor.Position = UDim2.fromOffset(MousePosition.X, MousePosition.Y);
+    LogoFirst.Position = Renv.UD2fromOffset(MousePosition.X - 85, MousePosition.Y + 40);
+    LogoSecond.Position = Renv.UD2fromOffset(MousePosition.X + 15, MousePosition.Y + 40);
+    CursorImage.Position = Renv.UD2fromOffset(MousePosition.X, MousePosition.Y);
+    CircleCursor.Position = Renv.UD2fromOffset(MousePosition.X, MousePosition.Y);
 
-    CircleInner.Size = UDim2.fromOffset(Select.CursorSize.Value + 10, Select.CursorSize.Value + 10);
-    CursorImage.Size = UDim2.fromOffset(Select.CursorSize.Value, Select.CursorSize.Value);
-    CircleCursor.Size = UDim2.fromOffset(CursorImage.Size.X.Offset + 10, CursorImage.Size.Y.Offset + 10);
+    CircleInner.Size = Renv.UD2fromOffset(Select.CursorSize.Value + 10, Select.CursorSize.Value + 10);
+    CursorImage.Size = Renv.UD2fromOffset(Select.CursorSize.Value, Select.CursorSize.Value);
+    CircleCursor.Size = Renv.UD2fromOffset(CursorImage.Size.X.Offset + 10, CursorImage.Size.Y.Offset + 10);
 
     if Circle then
         Circle.Visible = Boolean.FOVCircle.Value
@@ -2188,7 +2318,7 @@ local function OnRenderStepped(Delta: number)
         Circle.Thickness = Select.CircleThickness.Value
 
         if Boolean.FOVMiddleCircle.Value then
-            Circle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2);
+            Circle.Position = Renv.Vec2(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2);
         else
             Circle.Position = MousePosition 
         end
@@ -2235,7 +2365,7 @@ local function OnRenderStepped(Delta: number)
     end
 
     if Boolean.Camlock.Value and CamlockTarget and FindPlayersPart(CamlockTarget) then
-        Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
+        Camera.CFrame = Renv.Cframe(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
     end
 
     if Select.SnaplineDirection.Value == 'From Mouse' then
@@ -2243,11 +2373,11 @@ local function OnRenderStepped(Delta: number)
     end
 
     if Select.SnaplineDirection.Value == 'From Screen' then
-        SnaplineMethod = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 1)
+        SnaplineMethod = Renv.Vec2(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 1)
     end
 
     if Select.SnaplineDirection.Value == 'From Player' then
-        SnaplineMethod = Vector2.new(HostTorsoToWorld.X, HostTorsoToWorld.Y)
+        SnaplineMethod = Renv.Vec2(HostTorsoToWorld.X, HostTorsoToWorld.Y)
     end
 
     if Boolean.OscillateCursor.Value then
@@ -2264,7 +2394,7 @@ local function OnRenderStepped(Delta: number)
         local YFloored = math.floor(Hash.ActualY);
 
         if XFloored ~= 0 or YFloored ~= 0 then
-            mousemoverel(XFloored, YFloored);
+            EEnv.Mousemoverel(XFloored, YFloored);
 
             Hash.ActualX -= XFloored;
             Hash.ActualY -= YFloored;
@@ -2278,7 +2408,7 @@ end
 local function OnHeartbeat(Delta: number)
     Ping = math.round(Utils.Stats:FindFirstChild('PerformanceStats').Ping:GetValue())
 
-    local MoveDirection = (Humanoid and Humanoid.MoveDirection) or Vector3.zero
+    local MoveDirection = (Humanoid and Humanoid.MoveDirection) or Renv.Vec3Zero
     Debounce.Typing = Utils.UserInputService and Utils.UserInputService:GetFocusedTextBox() ~= nil
 
     if Boolean.Flying.Value then
@@ -2289,7 +2419,7 @@ local function OnHeartbeat(Delta: number)
         local AirwalkPart = Body:FindFirstChild('Airwalk')
 
         if AirwalkPart and Root then
-            AirwalkPart.CFrame = CFrame.new(Root.Position + Vector3.new(0, -3.5, 0))
+            AirwalkPart.CFrame = Renv.Cframe(Root.Position + Renv.Vec3(0, -3.5, 0))
         end
     end
 
@@ -2297,17 +2427,17 @@ local function OnHeartbeat(Delta: number)
         local BlinkSpeed = Select.BlinkSpeed.Value / 6.5
 
         if Select.BlinkMethod.Value == 'Movedirection' and MoveDirection then
-            Root.CFrame += Vector3.new(MoveDirection.X * BlinkSpeed, 0, MoveDirection.Z * BlinkSpeed)
+            Root.CFrame += Renv.Vec3(MoveDirection.X * BlinkSpeed, 0, MoveDirection.Z * BlinkSpeed)
         end
 
         if Select.BlinkMethod.Value == 'Cframe' and Root then
             local XAxis = (Movement.D and 1 or 0) - (Movement.A and 1 or 0)
             local ZAxis = (Movement.S and 1 or 0) - (Movement.W and 1 or 0)
-            local Offset = Vector3.new(XAxis, 0, ZAxis);
+            local Offset = Renv.Vec3(XAxis, 0, ZAxis);
 
             if Offset.Magnitude > 0 then
                 Offset = Offset.Unit * BlinkSpeed
-                Root.CFrame *= CFrame.new(Offset)
+                Root.CFrame *= Renv.Cframe(Offset)
             end
         end
 
@@ -2355,33 +2485,33 @@ local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boole
                 IsRotVelocity = VelocityType('RotVelocity', SetHitBox, SetAimlockVelocity);
             end
 
-            return SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / IsRotVelocity)
+            return SetHitBox.CFrame + Renv.Vec3(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / IsRotVelocity)
         end
 
         if Method == 'Movedirection' then
-            return SetHitBox.CFrame + Vector3.new(VelocityType('MoveDirection', AimlockedTarget.Humanoid, SetAimlockVelocity))
+            return SetHitBox.CFrame + Renv.Vec3(VelocityType('MoveDirection', AimlockedTarget.Humanoid, SetAimlockVelocity))
         end
 
         if Method == 'Ponyhook' then -- Like the name suggests, It's Ponyhooks aimlock
-            local IsRandomVelocity = Vector3.new();
+            local IsRandomVelocity = Renv.Vec3();
             local Vel = SetHitBox.AssemblyLinearVelocity -- It's an attribute in Ponyhook named Velocity, I'm just going to assume that its the targets velocity
 
-            Vel *= Vector3.new(1, 0, 1); 
+            Vel *= Renv.Vec3(1, 0, 1); 
             Vel *= Select.PonyhookVelocity.Value;
 
             if IsPonyhook then
-                IsRandomVelocity = Vector3.new(math.random(-5,5) / 10, math.random(-5,5) / 10, math.random(-5,5) / 10);
+                IsRandomVelocity = Renv.Vec3(math.random(-5,5) / 10, math.random(-5,5) / 10, math.random(-5,5) / 10);
             end
 
             return SetHitBox.CFrame + IsRandomVelocity + (Vel * Ping / 1000);
         end
         
         if Method == 'Vector' then
-            return SetHitBox.CFrame + Vector3.new(1, 0, 1) + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity));
+            return SetHitBox.CFrame + Renv.Vec3(1, 0, 1) + Renv.Vec3(VelocityType('Velocity', SetHitBox, SetAimlockVelocity));
         end
         
         if Method == 'Velocity' then -- Test Methods
-            return SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / Select.Humanization.Value)
+            return SetHitBox.CFrame + Renv.Vec3(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / Select.Humanization.Value)
         end
     end
 
@@ -2396,7 +2526,7 @@ local function FireAimlock()
 
     if not AimlockCharacter then 
         Logger:Warning('No Aimlock Character found')
-        return 
+        return nil
     end
 
     local AimlockOnTarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
@@ -2415,7 +2545,7 @@ local function FireAimlock()
             })
         end
 
-        return
+        return nil
     end
 
     if Utils.Prison and Weapon and Weapon.Tool then
@@ -2447,11 +2577,11 @@ end
 
 
 local function HookData()
-    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(...)
+    local GetIndex; GetIndex = EEnv.Hookmetamethod(Game, '__index', EEnv.Newcclosure(function(...)
         local self = select(1, ...);
         local Index = select(2, ...);
 
-        if typeof(self) ~= 'Instance' or checkcaller() then
+        if typeof(self) ~= 'Instance' or EEnv.Checkcaller() then
             return GetIndex(...);
         end
 
@@ -2493,12 +2623,12 @@ local function HookData()
     end));
 
 
-    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(...)
+    local GetNewIndex; GetNewIndex = EEnv.Hookmetamethod(Game, '__newindex', EEnv.Newcclosure(function(...)
         local self = select(1, ...);
         local Index = select(2, ...);
         local Value = select(3, ...);
 
-        if typeof(self) ~= 'Instance' or checkcaller() then
+        if typeof(self) ~= 'Instance' or EEnv.Checkcaller() then
            return GetNewIndex(...);
         end
 
@@ -2551,7 +2681,7 @@ local function HookData()
             end
         end
 
-        if self == Root then -- Detectable
+        if self == Root then
             if Index == 'CFrame' or Index == 'Position' then
                 return
             end
@@ -2569,10 +2699,6 @@ local function HookData()
             end
         end
 
-        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then -- Creds to Ponyhook because I'm not that great with hookfunction
-            Value = HookMouse;
-        end -- Detectable
-
         if self == Camera then
             if Index == 'FieldOfView' then -- Because of the new chat commands
                 Value = Select.FOV.Value or Originals.FOV;
@@ -2583,11 +2709,11 @@ local function HookData()
     end));
 
 
-    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
+    local GetNameCalls; GetNameCalls = EEnv.Hookmetamethod(Game, '__namecall', EEnv.Newcclosure(function(...)
         local self = select(1, ...);
         local Arguments = { select(2, ...) };
 
-        local GetMethod = getnamecallmethod or get_namecall_method;
+        local GetMethod = EEnv.Getnamecallmethod();
         local IndexMethod = nil;
 
         if GetMethod then
@@ -2596,7 +2722,7 @@ local function HookData()
 
         local SetMethod = String.sentenceCase(IndexMethod);
 
-        if typeof(self) ~= 'Instance' or checkcaller() then
+        if typeof(self) ~= 'Instance' or EEnv.Checkcaller() then
             return GetNameCalls(...);
         end
 
@@ -2697,11 +2823,6 @@ local function HookData()
     
         return GetNameCalls(...);
     end))
-
-
-    local HookKick; HookKick = hookfunction(Host.Kick or Host.kick, newcclosure(function(self: Instance, ...)
-        return HookKick(self, ...)
-    end));
 end
 
 -- Commands []
@@ -2817,7 +2938,7 @@ do
             WatchRejoinTarget = Utils.FindPlayer(Arguments[1])[1] or Arguments[1]
 
             if not Utils.FindPlayer(Arguments[1])[1] then
-                Notify('Watch On Rejoin', 'Player not found in game, you can type out their full name (Ignore if you typed their name)')
+                Notify('Watch On Rejoin', 'Player not found in Game, you can type out their full name (Ignore if you typed their name)')
             end
         end
 
@@ -2968,7 +3089,7 @@ do
     end)
 
 
-    CommandHandler.Add('noshake', {}, 'Toggles camera shake when people use that stupid mech, legit has nothing to do with the game', '', true, function()
+    CommandHandler.Add('noshake', {}, 'Toggles camera shake when people use that stupid mech, legit has nothing to do with the Game', '', true, function()
         Boolean.NoCameraShake.Value = not Boolean.NoCameraShake.Value
         Notify('No CameraShake','No CameraShake is now '..tostring(Boolean.NoCameraShake.Value))
     end)
@@ -2997,16 +3118,16 @@ do
 
 
     CommandHandler.Add('fpscap', {'setfpscap'}, 'Changes your FPS cap', '', true, function(Arguments)
-        if getfpscap and setfpscap then
+        if EEnv.Getfpscap and EEnv.Setfpscap then
 
             if Arguments[1] then
                 assert(tonumber(Arguments[1]), 'FPS Cap must be a number')
             end
 
-            Logger:Cout(getfpscap())
-            setfpscap(Arguments[1])
+            Logger:Cout(EEnv.Getfpscap())
+            EEnv.Setfpscap(Arguments[1])
         else
-            Notify('Set FPS Cap', 'FPS Cap is now '..tonumber(getfpscap()))
+            Notify('Set FPS Cap', 'FPS Cap is now '..tonumber(EEnv.Getfpscap()))
         end 
     end)
 
@@ -3022,8 +3143,8 @@ do
     end)
 
 
-    CommandHandler.Add('exit', {'leave'}, 'Makes you leave the current game', '', true, function()
-        game:shutdown()
+    CommandHandler.Add('exit', {'leave'}, 'Makes you leave the current Game', '', true, function()
+        Game:shutdown()
     end)
 
 
@@ -3034,29 +3155,29 @@ do
 
 
     CommandHandler.Add('remotespy', {'rspy'}, 'Allows you to spy on remotes', '', true, function() -- Just in here so I don't have to load IY
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
+        loadstring(Game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
     end)
 
 
     CommandHandler.Add('darkdex', {'dex'}, 'Allows you to explorer the games files', '', true, function() -- Just in here so I don't have to load IY 
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))()
+        loadstring(Game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/dex.lua'))()
     end)
 
 
-    CommandHandler.Add('rejoin', {'rj'}, 'Rejoins the current game', '', true, function()
+    CommandHandler.Add('rejoin', {'rj'}, 'Rejoins the current Game', '', true, function()
         Utils.TeleportService:TeleportToPlaceInstance(Utils.PlaceId(), Utils.JobId())
     end)
 
 
-    CommandHandler.Add('swap', {}, 'Swaps the current game between Streets and Prison', '', true, function()
+    CommandHandler.Add('swap', {}, 'Swaps the current Game between Streets and Prison', '', true, function()
         Utils.TeleportService:Teleport(Hash.PlaceSwap, Host)
     end)
 
 
     CommandHandler.Add('serverhop', {'shop'}, 'Hops servers', '', true, function() -- Creds to IY
-        if HttpRequest then
+        if EEnv.HttpRequest then
             local Servers = {};
-            local Url = Utils.HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Utils.PlaceId())})
+            local Url = EEnv.HttpRequest({Url = string.format('https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true', Utils.PlaceId())})
             local HtmlBody = Utils.HttpService:JSONDecode(Url.Body)
 
             if HtmlBody and HtmlBody.data then
@@ -3130,11 +3251,11 @@ FileMenu:SetFolder('mawborn/Menu');
 -- Also can not use CommandHandler.Execute, as the UI will figure that command should be turned on :/
 
 local Tabs = {
-    Combat = Window:AddTab('Combat'), 
-    Visuals = Window:AddTab('Visuals'), 
-    MovementTab = Window:AddTab('Movement'), 
-    World = Window:AddTab('World'), 
-    Misc = Window:AddTab('Misc'), 
+    Combat = Window:AddTab('Combat'),
+    Visuals = Window:AddTab('Visuals'),
+    MovementTab = Window:AddTab('Movement'),
+    World = Window:AddTab('World'),
+    Misc = Window:AddTab('Misc'),
     Data = Window:AddTab('Data')
 }
 
@@ -3396,7 +3517,7 @@ VisualsTab.EspTab:AddDropdown('SnaplineDirection', {Text = 'Snapline Offset', To
 -- [] Chams Box
 
 VisualsTab.ChamsTab:AddToggle('EspChams', {Text = 'Chams', Tooltip = 'Toggles Chams', Default = false});
-VisualsTab.ChamsTab:AddToggle('ChamsOutline', {Text = 'Outline Color', Default = false}):AddColorPicker('ChamsOutlineColor', {Default = Color3.fromRGB(225, 225, 225)});
+VisualsTab.ChamsTab:AddToggle('ChamsOutline', {Text = 'Outline Color', Default = false}):AddColorPicker('ChamsOutlineColor', {Default = Renv.Color3RGB(225, 225, 225)});
 
 VisualsTab.ChamsTab:AddBlank(5);
 
@@ -3410,8 +3531,8 @@ VisualsTab.ChamsTab:AddDivider();
 VisualsTab.ChamsTab:AddLabel('Esp More')
 VisualsTab.ChamsTab:AddBlank(5);
 
-VisualsTab.ChamsTab:AddToggle('HitCheck', {Text = 'Visualize Hittable', Tooltip = 'Turns the esp a different color if the player is not hittable from a far', Default = true}):AddColorPicker('HitCheckColor', {Default = Color3.fromRGB(255, 65, 0)});
-VisualsTab.ChamsTab:AddToggle('KosCheck', {Text = 'Visualize KOS', Tooltip = 'Esps a player that is in the KOS', Default = true}):AddColorPicker('KosColor', {Default = Color3.fromRGB(255, 175, 0)});
+VisualsTab.ChamsTab:AddToggle('HitCheck', {Text = 'Visualize Hittable', Tooltip = 'Turns the esp a different color if the player is not hittable from a far', Default = true}):AddColorPicker('HitCheckColor', {Default = Renv.Color3RGB(255, 65, 0)});
+VisualsTab.ChamsTab:AddToggle('KosCheck', {Text = 'Visualize KOS', Tooltip = 'Esps a player that is in the KOS', Default = true}):AddColorPicker('KosColor', {Default = Renv.Color3RGB(255, 175, 0)});
 VisualsTab.ChamsTab:AddBlank(2);
 VisualsTab.ChamsTab:AddDropdown('EspFont', {Text = 'Font', Values = {'Monospace', 'UI', 'System', 'Plex'}, Default = 'System', Multi = false})
 
@@ -3472,8 +3593,8 @@ VisualsTab.CircleMoreTab:AddSlider('OscillateRadius', {Text = 'Oscillation Radiu
 
 VisualsTab.TrailsBox:AddToggle('Trails', {Text = 'Trails', Tooltip = 'Toggles Trails', Default = true})
 VisualsTab.TrailsBox:AddToggle('TrailRainbow', {Text = 'Rainbow', Default = false})
-VisualsTab.TrailsBox:AddToggle('TrailColorOne', {Text = 'Trail Color One', Default = true}):AddColorPicker('TrailColors1', {Default = Color3.fromRGB(11, 11, 255)})
-VisualsTab.TrailsBox:AddToggle('TrailColorTwo', {Text = 'Trail Color Two', Default = true}):AddColorPicker('TrailColors2', {Default = Color3.fromRGB(150, 150, 150)})
+VisualsTab.TrailsBox:AddToggle('TrailColorOne', {Text = 'Trail Color One', Default = true}):AddColorPicker('TrailColors1', {Default = Renv.Color3RGB(11, 11, 255)})
+VisualsTab.TrailsBox:AddToggle('TrailColorTwo', {Text = 'Trail Color Two', Default = true}):AddColorPicker('TrailColors2', {Default = Renv.Color3RGB(150, 150, 150)})
 
 VisualsTab.TrailsBox:AddBlank(3);
 
@@ -3618,7 +3739,7 @@ end);
 
 MovementTab.TeleportTab:AddToggle('ClickTp', {Text = 'Click Teleport', Tooltip = 'Teleports you to where ever your mouse is', Default = false}):AddKeyPicker('ClickTpKeybind', {Default = '', SyncToggleState = false, Mode = 'Toggle', Text = 'ClickTp'}) Select.ClickTpKeybind:OnClick(function()
     if Boolean.ClickTp.Value then
-        TeleportTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0)))
+        TeleportTo(Renv.Cframe(Mouse.Hit.Position + Renv.Vec3(0, 3, 0)))
     end
 end)
 
@@ -3734,7 +3855,7 @@ MiscTab.MiscBox:AddBlank(3)
 
 MiscTab.MiscBox:AddSlider('ChatSize', {Text = 'ChatSize', Default = 0.8, Min = 0.1, Max = 1.2, Rounding = 1}):OnChanged(function()
     if ExperienceChat:FindFirstChild('chatWindow') then
-        ExperienceChat.chatWindow.Size = UDim2.fromScale(1, Select.ChatSize.Value);
+        ExperienceChat.chatWindow.Size = Renv.UD2fromScale(1, Select.ChatSize.Value);
     end
 end)
 
@@ -3774,13 +3895,13 @@ end)
 -- [] Script Data Box
 
 MiscTab.ScriptDataBox:AddToggle('AutoExec', {Text = 'Auto Execute', Tooltip = 'Auto executes the script', Default = FileHandler.AutoExecute})
-MiscTab.ScriptDataBox:AddToggle('AutoRejoin', {Text = 'Auto Rejoin', Tooltip = 'Auto joins the game if you got kicked'})
+MiscTab.ScriptDataBox:AddToggle('AutoRejoin', {Text = 'Auto Rejoin', Tooltip = 'Auto joins the Game if you got kicked'})
 
 MiscTab.ScriptDataBox:AddLabel('Moderator Detection')
 MiscTab.ScriptDataBox:AddBlank(2)
 
 MiscTab.ScriptDataBox:AddToggle('AdminDetection', {Text = 'Moderator Detection', Default = true}):AddColorPicker('Colors.ModeratorColor', {Default = Colors.ModeratorColor})
-MiscTab.ScriptDataBox:AddToggle('KickOnJoin', {Text = 'Leave On Join', Tooltip = 'Leaves the game if an admin joins'})
+MiscTab.ScriptDataBox:AddToggle('KickOnJoin', {Text = 'Leave On Join', Tooltip = 'Leaves the Game if an admin joins'})
 
 -- [] Keybinds Box
 
@@ -3858,7 +3979,7 @@ end)
 
 Boolean.AutomaticReload:OnChanged(function()
     getgenv().AutomaticReload = function()
-        local ProcessHandler = DebounceFunc('ProcessReload', true, 0.6, mouse1click)
+        local ProcessHandler = DebounceFunc('ProcessReload', true, 0.6, EEnv.Mouse1click)
 
         task.spawn(function()
             while Boolean.AutomaticReload.Value and Debounce.ScriptLoaded do
@@ -3893,7 +4014,7 @@ end);
 Boolean.InstantPrompts:OnChanged(function()
     if Boolean.InstantPrompts.Value then
         Hash.ProcessingProxy = Utils.ProximityPromptService.PromptButtonHoldBegan:Connect(function(Prompt)
-            fireproximityprompt(Prompt)
+            EEnv.Fireproximityprompt(Prompt)
         end)
         
         Debounce.InstantPrompt = true
@@ -3930,7 +4051,7 @@ Select.BuyAmmoKeybind:OnClick(function()
 
     if Proxy then
         task.wait(0.5)
-        fireproximityprompt(Proxy)
+        EEnv.Fireproximityprompt(Proxy)
         task.wait(0.5);
     end
 
@@ -3948,12 +4069,12 @@ CombatTab.ItemPurchase:AddButton('Confirm', function()
         if not Proxy or not Target then return false end
 
         TeleportTo(Target.CFrame)
-        fireproximityprompt(Proxy)
+        EEnv.Fireproximityprompt(Proxy)
         task.wait(0.5)
 
         if Hash.InitializePart.BrickColor == BrickColor.new(21) then
             TeleportTo(Target.CFrame)
-            fireproximityprompt(Proxy)
+            EEnv.Fireproximityprompt(Proxy)
             task.wait(0.5)
         end
 
@@ -3985,11 +4106,11 @@ end)
 
 Boolean.InfiniteForcefield:OnChanged(function()
     while task.wait(0.1) and Boolean.InfiniteForcefield.Value do
-        DeathPosition = CFrame.new(Root.Position, Root.Position + (Root.CFrame.Rotation * Vector3.new(1, 0, 1)).Unit)
+        DeathPosition = Renv.Cframe(Root.Position, Root.Position + (Root.CFrame.Rotation * Renv.Vec3(1, 0, 1)).Unit)
 
-        replicatesignal(Host.ConnectDiedSignalBackend)
+        EEnv.ReplicateSignal(Host.ConnectDiedSignalBackend)
         task.wait(Utils.Players.RespawnTime - 0.01)
-        replicatesignal(Host.Kill)
+        EEnv.ReplicateSignal(Host.Kill)
     end
 end)
 
@@ -4102,16 +4223,16 @@ Select.CommandBarKeybind:OnClick(function()
     Debounce.CommandState = not Debounce.CommandState
 
     if Debounce.CommandState then
-        OuterCommand:TweenPosition(UDim2.fromOffset(775, 25), 'InOut', 'Linear', 0.5, true);
-        OuterCommandBar:TweenPosition(UDim2.fromScale(0, 1.005), 'InOut', 'Linear', 0.65, true);
+        OuterCommand:TweenPosition(Renv.UD2fromOffset(775, 25), 'InOut', 'Linear', 0.5, true);
+        OuterCommandBar:TweenPosition(Renv.UD2fromScale(0, 1.005), 'InOut', 'Linear', 0.65, true);
 
         CommandBar.Text = '';
         task.wait()
         CommandBar:CaptureFocus();
 
     else
-        OuterCommandBar:TweenPosition(UDim2.fromScale(0, 0.1), 'InOut', 'Linear', 0.25, true);
-        OuterCommand:TweenPosition(UDim2.fromOffset(775, -300), 'InOut', 'Linear', 0.4, true)
+        OuterCommandBar:TweenPosition(Renv.UD2fromScale(0, 0.1), 'InOut', 'Linear', 0.25, true);
+        OuterCommand:TweenPosition(Renv.UD2fromOffset(775, -300), 'InOut', 'Linear', 0.4, true)
     end
 end)
 
@@ -4386,7 +4507,7 @@ local function OnPlayerAdded(Player: Player)
         Notify('Admin Detection', 'Admin: '.. Player.Name .. ' has joined')
 
         if Boolean.KickOnJoin.Value then
-            game:shutdown() -- Better than Host.Kick(), it's near instant
+            Game:shutdown() -- Better than Host.Kick(), it's near instant
         end
     end
 
@@ -4513,7 +4634,7 @@ local function OnPlayers(Player: Player)
     if Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Player) then
         AddEsp(Player)
 
-        Notify('Admin Detection', 'Admin: ' .. tostring(Player.Name) .. ' is in game')
+        Notify('Admin Detection', 'Admin: ' .. tostring(Player.Name) .. ' is in Game')
     end
 
     if Boolean.KosCheck.Value and Utils.KosCheck(UserId) then
@@ -4523,7 +4644,7 @@ local function OnPlayers(Player: Player)
     if Utils.CreatorCheck(UserId) then
         AddEsp(Player)
 
-        Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' is in game')
+        Notify('Creator', 'Creator: '.. tostring(Player.Name) .. ' is in Game')
     end
 
     SendKnockedAttributes(Player);
@@ -4638,18 +4759,18 @@ local function CheatData()
 
     Debounce.ScriptLoaded = true;
 
-    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion(MawbornVersion)) then
+    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion(EEnv.MawbornVersion)) then
         Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
     end
 end
 
 
 Host.OnTeleport:Connect(function()
-    if QueueOnTeleport and FileHandler.AutoExecute then
-        repeat Utils.RunService.Heartbeat:Wait() until game:IsLoaded()
+    if EEnv.QueueOnTeleport and FileHandler.AutoExecute then
+        repeat Utils.RunService.Heartbeat:Wait() until Game:IsLoaded()
 
-        QueueOnTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua"))()');
-        clearteleportqueue();
+        EEnv.QueueOnTeleport('loadstring(Game:HttpGet("https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua"))()');
+        EEnv.Clearteleportqueue();
     end
 end)
 
@@ -4663,3 +4784,4 @@ end)
 
 CheatData();
 Notify(Utils.Title(2), 'Took '..math.floor(tick() - OsTime)..' Seconds\nPress period for command bar with ' .. #CommandHandler.Commands .. ' Commands!')
+end
