@@ -4676,8 +4676,8 @@ local function CheatData()
     Utils.UserInputService.InputBegan:Connect(OnInput);
     Utils.UserInputService.InputEnded:Connect(OnEnded);
 
-    Utils.RunService.RenderStepped:Connect(OnRenderStepped);
-    Utils.RunService.Heartbeat:Connect(OnHeartbeat);
+    --Utils.RunService.RenderStepped:Connect(OnRenderStepped);
+    --Utils.RunService.Heartbeat:Connect(OnHeartbeat);
 
     Host.CharacterAdded:Connect(OnCharacterAdded);
     Host.Chatted:Connect(CommandHandler.Execute);
