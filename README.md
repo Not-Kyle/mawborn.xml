@@ -9,11 +9,7 @@
     </a>
 </p>
 
-# BEST WAY TO USE MAWBORN
-> 1. Putting the loadstring in your AutoExec folder is best for Mawborn as it have bypasses for GUI detections!
->
-> 2. Best Executer to use: Wave (Wave has been heavily updated to be better than it used to be)
->
+# BEST WAY TO USE MAWBORN.XML IS TO USE WAVE AND PUT IT IN YOUR AUTOEXEC FOLDER. MAWBORN HAS BYPASSES FOR CERTAIN ANTI-CHEATS!
 
 # About
 
