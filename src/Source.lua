@@ -47,6 +47,12 @@ local OsTime = (tick or os and os.time)();
 
 getgenv().Mawborn.Source = true;
 
+local Network = Import('UI/Network.lua');
+local Watermark = Import('UI/Watermark.lua');
+local Menu = Import('UI/NewMenu.lua');
+local FileMenu = Import('UI/Files.lua');
+local ThemeMenu = Import('UI/Themes.lua');
+
 local Enums = Import('Utils/Library/Enums.lua');
 local Utils = Import('Utils/Utils.lua');
 local Logger = Import('Utils/Logging.lua');
@@ -183,46 +189,6 @@ local Originals = {
 
 -- UI's []
 
-local OldPreloading; OldPreloading = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
-    local Method = (getnamecallmethod or get_namecall_method)();
-
-    if Method == 'PreloadAsync' or Method == 'preloadAsync' then
-        if not checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
-            local Arguments = {...};
-            local PreloadTable = Arguments[1];
-
-            if typeof(PreloadTable) == 'table' then
-                local ProxyTable = {};
-                local CoreGuiFound = false;
-
-                for Index = 1, #PreloadTable do
-                    local Item = PreloadTable[Index];
-
-                    if typeof(Item) == 'Instance' and (Item:IsDescendantOf(ProxyCoreGui) or Item:IsDescendantOf(Utils.CoreGui) or Item == Utils.CoreGui or Item == ProxyCoreGui) then
-                        CoreGuiFound = true;
-                    else
-                        table.insert(ProxyTable, Item);
-                    end
-                end
-
-                if CoreGuiFound then
-                    return OldPreloading(self, ProxyTable, Arguments[2]);
-                end
-            end
-        end
-    elseif Method == 'GetAssetFetchStatus' or Method == 'getAssetFetchStatus' then
-        if not checkcaller() and (self == ProxyContentProvider or self == Utils.ContentProvider) then
-            local Asset = ...;
-
-            if typeof(Asset) == 'string' and Asset:find('rbxassetid://') then
-                return Enum.AssetFetchStatus.None
-            end
-        end
-    end
-
-    return OldPreloading(self, ...)
-end))
-
 local mawborn = Instance.new('ScreenGui');
 if syn and syn.product_gui then
     syn.protect_gui(mawborn);
@@ -260,12 +226,6 @@ local Circle = NewInstance('Draw', 'Circle', {
     ZIndex = 1;
     NumSides = 250;
 })
-
-local Network = Import('UI/Network.lua');
-local Watermark = Import('UI/Watermark.lua');
-local Menu = Import('UI/NewMenu.lua');
-local FileMenu = Import('UI/Files.lua');
-local ThemeMenu = Import('UI/Themes.lua');
 
 local Select = Select;
 local Boolean = Boolean;
@@ -4599,8 +4559,8 @@ local function CheatData()
     Utils.UserInputService.InputBegan:Connect(OnInput);
     Utils.UserInputService.InputEnded:Connect(OnEnded);
 
-    Utils.RunService.RenderStepped:Connect(OnRenderStepped);
-    Utils.RunService.Heartbeat:Connect(OnHeartbeat);
+    --Utils.RunService.RenderStepped:Connect(OnRenderStepped);
+    --Utils.RunService.Heartbeat:Connect(OnHeartbeat);
 
     Host.CharacterAdded:Connect(OnCharacterAdded);
     Host.Chatted:Connect(CommandHandler.Execute);
@@ -4617,7 +4577,7 @@ local function CheatData()
     Host:SetAttribute('TpBypass', false)
 
     ChatSpy();
-    HookData();
+    --HookData();
     GameData();
     BodyOnChild();
 
