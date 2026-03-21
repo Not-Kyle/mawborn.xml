@@ -9,6 +9,25 @@
     </a>
 </p>
 
+# BEST WAY TO USE MAWBORN
+> 1. Putting the loadstring in your AutoExec folder is best for Mawborn as it have bypasses for GUI detections!
+>
+> 2. Best Executer to use: Wave (Wave has been heavily updated to be better than it used to be)
+>
+
+# About
+
+> [!NOTE]
+> 1. Mawborn is a smooth and modern way to exploit in The Streets, its robust and provides a smooth and lightweight feel while able to handle heavy items in the background.
+>
+> 2. Performance drops is next to null when using Mawborn. Performance was a big issue in earlier versions and have all been fixed.
+>
+> 3. Mawborn is open source, meaning you can look at the code, change it, and even use it as a reference yourself or copy it; who cares. I am a firm believer in open source products and code!
+>
+> 4. Mawborn may not provide the most game breaking exploits; but will provide a great exploiting experience.
+>
+> 5. A downside of Mawborn is that while open sourcing is great, its terrible for an exploit. Built anti-cheats can be easily impliented for Mawborn as its open source.
+
 # Helpful Tips
 
 > [!TIP]
