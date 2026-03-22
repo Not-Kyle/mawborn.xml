@@ -4309,6 +4309,8 @@ end
 
 
 local function OnCharacterAdded(Character: Model)
+    Import('Utils/Library/Ignores.lua');
+
     Body = Character or Host.Character;
     Head = Body and Body:WaitForChild('Head');
     Humanoid = Body and Body:WaitForChild('Humanoid') or Body:FindFirstChildOfClass('Humanoid');
