@@ -54,10 +54,10 @@ mawborn.IgnoreGuiInset = true
 local Bools = {};
 local Selected = {};
 
-getgenv().Boolean = Bools;
-getgenv().Select = Selected;
-
 local Library = {
+    Boolean = Bools;
+    Select = Selected;
+    
     Registry = {};
     RegistryMap = {};
 
