@@ -3,6 +3,7 @@ if getgenv().Mawborn.Utils then
 end
 
 local Cloneref = cloneref;
+local Ismoduleloaded = ismoduleloaded;
 
 local Setmetatable, Rawset = setmetatable, rawset;
 local Assert, Type, Typeof, Warn, Pcall, Next, Require = assert, type, typeof, warn, pcall, next, require;
@@ -70,6 +71,10 @@ Utils.Remake = PlaceId == 81769606750513;
 Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
+
+if Utils.Prison then
+    Game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
+end
 
 local Creators = {
     [5388525718]  = {Name = 'hellokittysouljia'},
@@ -247,7 +252,7 @@ end
 function Utils.TagSystem() : ModuleScript
     local TagSystem = Utils.ReplicatedStorage and Utils.ReplicatedStorage:FindFirstChild('TagSystem');
 
-    if TagSystem and TagSystem:IsA('ModuleScript') then
+    if TagSystem and TagSystem:IsA('ModuleScript') and (Ismoduleloaded and Ismoduleloaded()) then
         return Require(TagSystem);
     end
 end -- greenbull | action | Action | creator | creatorslow | reloading | KO | gunslow | Dragging \\ PlayerGui.LocalScript
