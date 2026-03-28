@@ -70,9 +70,6 @@ getgenv().Mawborn.TextProperties = true;
 getgenv().Mawborn.Library.String = true;
 getgenv().Mawborn.Library.Enumerations = true;
 
-local ProxyContentProvider = game:GetService('ContentProvider');
-local ProxyCoreGui = game:GetService('CoreGui');
-
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 local Body, Head, Humanoid, Root, Torso;
 
@@ -227,8 +224,8 @@ local Circle = NewInstance('Draw', 'Circle', {
     NumSides = 250;
 })
 
-local Select = Select;
-local Boolean = Boolean;
+local Select = Menu.Select;
+local Boolean = Menu.Boolean;
 
 local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
 local CommandCenter = Network:MakeCommandCenter(mawborn)
@@ -2100,6 +2097,26 @@ local function PurchaseItem(Item: string) : Instance?
 end
 
 
+local function AutoReload()
+    local ProcessHandler = DebounceFunc('ProcessReload', true, 0.6, mouse1click)
+
+    task.defer(function()
+        while Boolean.AutomaticReload.Value and Debounce.ScriptLoaded do
+            Utils.RunService.Heartbeat:Wait();
+            
+            if Weapon and Weapon.Ammo and Weapon.Clips then
+                local Ammo = Weapon.Ammo;
+                local Clips = Weapon.Clips;
+
+                if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 and not Utils.TagSystem().has(Body, 'reloading') then
+                    ProcessHandler();
+                end
+            end
+        end
+    end)
+end
+
+
 local function AutoHeal()
     if not Utils.Streets or not Body or not Root or not Humanoid or not Boolean.Autoheal.Value then return end
 
@@ -3817,7 +3834,7 @@ Select.AimlockKeybind:OnClick(function()
     local ProcessedInput = DebounceFunc('ProcessedInput', true, Select.AutofireDelay.Value, FireAimlock)
 
     if Select.AimlockMode.Value == 'Ciazware' then
-        task.spawn(function()
+        task.defer(function()
             while Utils.RunService.Heartbeat:Wait() do
 
                 if Weapon and Weapon.Ammo then
@@ -3830,7 +3847,7 @@ Select.AimlockKeybind:OnClick(function()
     end
 
     if Select.AimlockMode.Value == 'Automatic' then
-        task.spawn(function()
+        task.defer(function()
             while Select.AimlockMode.Value == 'Automatic'
                 and Body and Utils.RunService.Heartbeat:Wait()
                 and Boolean.Aimlock.Value do
@@ -3860,26 +3877,7 @@ end)
 
 
 Boolean.AutomaticReload:OnChanged(function()
-    getgenv().AutomaticReload = function()
-        local ProcessHandler = DebounceFunc('ProcessReload', true, 0.6, mouse1click)
-
-        task.spawn(function()
-            while Boolean.AutomaticReload.Value and Debounce.ScriptLoaded do
-                Utils.RunService.Heartbeat:Wait()
-                
-                if Weapon and Weapon.Ammo and Weapon.Clips then
-                    local Ammo = Weapon.Ammo;
-                    local Clips = Weapon.Clips
-
-                    if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 and not Utils.TagSystem().has(Body, 'reloading') then
-                        ProcessHandler()
-                    end
-                end
-            end
-        end)
-    end
-
-    getgenv().AutomaticReload()
+    AutoReload();
 end)
 
 -- [] Camlock Box
@@ -4336,14 +4334,14 @@ local function OnCharacterAdded(Character: Model)
     BodyOnChild();
 
     if Boolean.AutomaticReload.Value then
-        getgenv().AutomaticReload()
+        AutoReload();
     end
 
     if Boolean.InfiniteForcefield.Value and Root then
         Root.CFrame = DeathPosition
     end
 
-    task.delay(0.1, function() -- Waiting for shit to load      
+    task.delay(0.1, function() -- Waiting for shit to load
         if Select.BulletCounter.Value ~= 'Default' then
             AmmoUi.Visible = false;
 
