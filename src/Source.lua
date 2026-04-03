@@ -2563,10 +2563,17 @@ local function HookData()
                 return 100;
             end
 
-        elseif self.Name == 'GetMouse' and Index == 'OnClientInvoke' then
-            Value = HookMouse;
-
         elseif self == Camera then
+            if Index == 'FieldOfView' then -- Because of the new chat commands
+                Value = Select.FOV.Value or Originals.FOV;
+            end
+        end
+
+        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then
+            Value = HookMouse;
+        end
+
+        if self == Camera then
             if Index == 'FieldOfView' then -- Because of the new chat commands
                 Value = Select.FOV.Value or Originals.FOV;
             end
@@ -2587,7 +2594,37 @@ local function HookData()
         end
 
         if SetMethod == 'FireServer' then
-            if Utils.Prison then
+            if Utils.Streets then
+                local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
+                local Dragging = {'e', 'drag', 'dragoff'}
+
+                if self.Name == 'Input' and self.ClassName == 'RemoteEvent' then
+                    if table.find({'I', 'm1', 'moff1'}, Arguments[1]) then
+                        Arguments[2].mousehit = Mouse.Hit;
+                        Arguments[2].velo = 16;
+                        Arguments[2].shift = false;
+                        Arguments[2].mousetarget = Mouse.Target;
+
+                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
+                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                        end
+
+                        os.clock();
+                    end
+
+                    if table.find(Blacklisted, Arguments[1]) then
+                        return;
+                    end
+
+                    if table.find(Dragging, Arguments[1]) then
+                        Arguments = {Arguments[1], {}}
+                    end
+                end
+
+            elseif Utils.Prison then
                 if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
                     Arguments[1] = Mouse.Hit;
                     Arguments[2] = Mouse.Target;
@@ -2615,34 +2652,6 @@ local function HookData()
                             Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
                             Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
-                    end
-                end
-
-            elseif Utils.Streets then
-                local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
-                local Dragging = {'e', 'drag', 'dragoff'}
-
-                if self.Name == 'Input' and self.ClassName == 'RemoteEvent' then
-                    if table.find({'I', 'm1', 'moff1'}, Arguments[1]) then
-                        Arguments[2].mousehit = Mouse.Hit;
-                        Arguments[2].velo = 16;
-                        Arguments[2].shift = false;
-                        Arguments[2].mousetarget = Mouse.Target;
-
-                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
-                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
-
-                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
-                            Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
-                        end
-
-                        os.clock();
-
-                    elseif table.find(Blacklisted, Arguments[1]) then
-                        return;
-
-                    elseif table.find(Dragging, Arguments[1]) then
-                        Arguments = {Arguments[1], {}}
                     end
                 end
             end
