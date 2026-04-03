@@ -68,6 +68,9 @@ local ColorCorrection = Utils.Lighting and Utils.Lighting:FindFirstChildOfClass(
 
 local HttpRequest = (syn and syn.request) or (http and http.request) or http_request or request;
 local QueueOnTeleport = (syn and syn.queue_on_teleport) or queueonteleport or (syn and syn.queueonteleport);
+local GetRenderProperty = getrenderproperty or get_render_property or getrenderobj;
+local IsRenderProperty = isrenderproperty or is_render_property or isrenderobj;
+local SetRenderProperty = setrenderproperty or set_render_property or setrenderobj;
 
 local AimlockTarget;
 local AudioTarget;
@@ -163,17 +166,73 @@ mawborn.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
 mawborn.IgnoreGuiInset = true;
 
 
-local function NewInstance(Type: string, Class: string, Properties: any) -- Thanks to Xaxa
-    if Type == 'Draw' and Drawing then
-        Class = Drawing.new(Class);
+local function CreateDrawing(ClassName: string, Properties: table)
+    local Success, DrawingInstance = pcall(Drawing.new, ClassName);
+    if not Success then return nil end;
+
+    SetRenderProperty(DrawingInstance, 'Visible', false);
+    SetRenderProperty(DrawingInstance, 'Transparency', 1);
+
+    if ClassName ~= 'Text' then
+        SetRenderProperty(DrawingInstance, 'Thickness', 1);
+
+    elseif ClassName == 'Text' then
+        SetRenderProperty(DrawingInstance, 'Font', Drawing.Fonts.Monospace);
+        SetRenderProperty(DrawingInstance, 'OutlineColor', Color3.fromRGB(0, 0, 0));
+        SetRenderProperty(DrawingInstance, 'Center', false);
+        SetRenderProperty(DrawingInstance, 'Outline', true);
     end
 
-    if Type == 'Instance' then
-        Class = Instance.new(Class);
+    if Properties and type(Properties) == 'table' then
+        for Property, Value in next, Properties do
+            local RealProperty = Property;
+            
+            if ClassName == 'Line' then
+                if Property == 'PointA' or Property == 'From' then
+                    RealProperty = IsRenderProperty(DrawingInstance, 'From') and 'From' or 'PointA';
 
-        if protectinstance then
-            protectinstance(Class)
+                elseif Property == 'PointB' or Property == 'To' then
+                    RealProperty = IsRenderProperty(DrawingInstance, 'To') and 'To' or 'PointB';
+                end
+            end
+
+            pcall(SetRenderProperty, DrawingInstance, RealProperty, Value);
+            RealProperty = nil;
         end
+    end
+
+    local Proxy = {}
+    setmetatable(Proxy, {
+        __metatable = 'Locked',
+
+        __index = function(_, Key)
+            if Key == 'Remove' or Key == 'Destroy' then
+                return function() DrawingInstance.Remove(DrawingInstance) end;
+            end
+
+            if Key == 'Clearcache' then
+                return function() cleardrawcache() end;
+            end
+
+            return GetRenderProperty(DrawingInstance, Key);
+        end,
+
+        __newindex = function(_, Key, Value)
+            SetRenderProperty(DrawingInstance, Key, Value);
+        end,
+
+        __type = 'Vector3',
+    })
+
+    return Proxy;
+end
+
+
+local function NewInstance(Class: string, Properties: any)
+    Class = Instance.new(Class);
+
+    if protectinstance then
+        protectinstance(Class)
     end
 
     for Index, Values in next, Properties do
@@ -183,15 +242,15 @@ local function NewInstance(Type: string, Class: string, Properties: any) -- Than
     return Class;
 end
 
-local Circle = NewInstance('Draw', 'Circle', {
+
+local Circle = CreateDrawing('Circle', {
     Filled = false;
-    Transparency = 1;
     ZIndex = 1;
     NumSides = 250;
 })
 
-local Select = Menu.Select;
-local Boolean = Menu.Boolean;
+local Select = Select;
+local Boolean = Boolean;
 
 local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
 local CommandCenter = Network:MakeCommandCenter(mawborn)
@@ -200,7 +259,7 @@ local OuterCommand = CommandCenter.OuterCommand;
 local OuterCommandBar = CommandCenter.OuterCommandBar;
 local CommandBar = CommandCenter.CommandBar;
 
-local OuterConfig = NewInstance('Instance', 'Frame', {
+local OuterConfig = NewInstance('Frame', {
     Name = 'OuterConfig',
     AnchorPoint = Vector2.new(0.5, 0.5),
     Parent = mawborn,
@@ -212,12 +271,12 @@ local OuterConfig = NewInstance('Instance', 'Frame', {
     Visible = false;
 })
 
-local UICorner = NewInstance('Instance', 'UICorner', {
+local UICorner = NewInstance('UICorner', {
     CornerRadius = UDim.new(0, 4),
     Parent = OuterConfig,
 })
 
-local BorderInner = NewInstance('Instance', 'Frame', {
+local BorderInner = NewInstance('Frame', {
     Name = 'InnerConfig',
     Parent = OuterConfig,
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -227,7 +286,7 @@ local BorderInner = NewInstance('Instance', 'Frame', {
     Size = UDim2.fromOffset(172, 362),
 })
 
-local InnerConfig = NewInstance('Instance', 'Frame', {
+local InnerConfig = NewInstance('Frame', {
     Name = 'InnerConfig',
     Parent = OuterConfig,
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -238,13 +297,13 @@ local InnerConfig = NewInstance('Instance', 'Frame', {
     Size = UDim2.fromOffset(172, 362),
 })
 
-local UIGradient = NewInstance('Instance', 'UIGradient', {
+local UIGradient = NewInstance('UIGradient', {
     Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(12, 12, 12)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(18, 18, 18))},
     Rotation = -90,
     Parent = InnerConfig,
 })
 
-local Health = NewInstance('Instance', 'TextLabel', {
+local Health = NewInstance('TextLabel', {
     Parent = mawborn,
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -259,7 +318,7 @@ local Health = NewInstance('Instance', 'TextLabel', {
     TextStrokeTransparency = 0;
 })
 
-local Ko = NewInstance('Instance', 'TextLabel', {
+local Ko = NewInstance('TextLabel', {
     Parent = mawborn,
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -274,7 +333,7 @@ local Ko = NewInstance('Instance', 'TextLabel', {
     TextSize = 13,
 })
 
-local Stam = NewInstance('Instance', 'TextLabel', {
+local Stam = NewInstance('TextLabel', {
     Parent = mawborn,
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -289,7 +348,7 @@ local Stam = NewInstance('Instance', 'TextLabel', {
     TextSize = 13,
 })
 
-local GunInfoBillboard = NewInstance('Instance', 'BillboardGui', {
+local GunInfoBillboard = NewInstance('BillboardGui', {
     Parent = mawborn;
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
     Active = true;
@@ -299,7 +358,7 @@ local GunInfoBillboard = NewInstance('Instance', 'BillboardGui', {
     StudsOffset = Vector3.new(4.5, 0.5, 0);
 })
 
-local AmmoText = NewInstance('Instance', 'TextLabel', {
+local AmmoText = NewInstance('TextLabel', {
     Parent = GunInfoBillboard;
     BackgroundColor3 = Color3.fromRGB(0, 0, 0);
     BackgroundTransparency = 1;
@@ -317,7 +376,7 @@ local AmmoText = NewInstance('Instance', 'TextLabel', {
     ZIndex = 2;
 })
 
-local ClipsText = NewInstance('Instance', 'TextLabel', {
+local ClipsText = NewInstance('TextLabel', {
     Parent = GunInfoBillboard;
     BackgroundColor3 = Color3.fromRGB(0, 0, 0);
     BackgroundTransparency = 1;
@@ -336,7 +395,7 @@ local ClipsText = NewInstance('Instance', 'TextLabel', {
 })
 
 
-local OtherAmmo = NewInstance('Instance', 'TextLabel', {
+local OtherAmmo = NewInstance('TextLabel', {
     Parent = mawborn;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -353,7 +412,7 @@ local OtherAmmo = NewInstance('Instance', 'TextLabel', {
     Visible = false;
 })
 
-local OtherClip = NewInstance('Instance', 'TextLabel', {
+local OtherClip = NewInstance('TextLabel', {
     Parent = mawborn;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -370,7 +429,7 @@ local OtherClip = NewInstance('Instance', 'TextLabel', {
     Visible = false
 })
 
-local LogoFirst = NewInstance('Instance', 'TextLabel', {
+local LogoFirst = NewInstance('TextLabel', {
     Parent = mawborn;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -386,7 +445,7 @@ local LogoFirst = NewInstance('Instance', 'TextLabel', {
     ZIndex = 3;
 })
 
-local LogoSecond = NewInstance('Instance', 'TextLabel', {
+local LogoSecond = NewInstance('TextLabel', {
     Parent = mawborn;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -402,7 +461,7 @@ local LogoSecond = NewInstance('Instance', 'TextLabel', {
     ZIndex = 3;
 })
 
-local TopLeft = NewInstance('Instance', 'Frame', {
+local TopLeft = NewInstance('Frame', {
     Parent = LogoFirst;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -413,7 +472,7 @@ local TopLeft = NewInstance('Instance', 'Frame', {
     ZIndex = 3;
 })
 
-local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
+local TopLeftStroke = NewInstance('UIStroke', {
     Parent = TopLeft;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
     Color = Color3.fromRGB(200, 200, 200);
@@ -421,7 +480,7 @@ local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
     Thickness = 0.5;
 })
 
-local BottomRight = NewInstance('Instance', 'Frame', {
+local BottomRight = NewInstance('Frame', {
     Parent = LogoSecond;
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     BackgroundTransparency = 1;
@@ -433,7 +492,7 @@ local BottomRight = NewInstance('Instance', 'Frame', {
     ZIndex = 3;
 })
 
-local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
+local TopLeftStroke = NewInstance('UIStroke', {
     Parent = BottomRight;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
     Color = Color3.fromRGB(200, 200, 200);
@@ -441,7 +500,7 @@ local TopLeftStroke = NewInstance('Instance', 'UIStroke', {
     Thickness = 0.5;
 })
 
-local CircleCursor = NewInstance('Instance', 'Frame', {
+local CircleCursor = NewInstance('Frame', {
     Parent = mawborn;
     AnchorPoint = Vector2.new(0.5, 0.5);
     BackgroundColor3 = Color3.fromRGB(255, 255, 255);
@@ -453,12 +512,12 @@ local CircleCursor = NewInstance('Instance', 'Frame', {
     ZIndex = 2
 })
 
-local UICornerOuter = NewInstance('Instance', 'UICorner', {
+local UICornerOuter = NewInstance('UICorner', {
     CornerRadius = UDim.new(0, 60);
     Parent = CircleCursor;
 })
 
-local UIStrokeOuter = NewInstance('Instance', 'UIStroke', {
+local UIStrokeOuter = NewInstance('UIStroke', {
     Parent = CircleCursor;
     BorderStrokePosition = Enum.BorderStrokePosition.Inner;
     Color = Color3.fromRGB(255, 255, 255);
@@ -467,12 +526,12 @@ local UIStrokeOuter = NewInstance('Instance', 'UIStroke', {
     ZIndex = 2;
 })
 
-local UIGradientStroke = NewInstance('Instance', 'UIGradient', {
+local UIGradientStroke = NewInstance('UIGradient', {
     Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(0.30, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))};
     Parent = UIStrokeOuter
 })
 
-local CircleInner = NewInstance('Instance', 'Frame', {
+local CircleInner = NewInstance('Frame', {
     Parent = CircleCursor;
     BackgroundColor3 = Color3.fromRGB(200, 200, 200);
     BackgroundTransparency = 0.85;
@@ -481,17 +540,17 @@ local CircleInner = NewInstance('Instance', 'Frame', {
     Size = UDim2.fromOffset(75, 75);
 })
 
-local UICornerInner = NewInstance('Instance', 'UICorner', {
+local UICornerInner = NewInstance('UICorner', {
     CornerRadius = UDim.new(0, 60);
     Parent = CircleInner;
 })
 
-local UIGradientInner = NewInstance('Instance', 'UIGradient', {
+local UIGradientInner = NewInstance('UIGradient', {
     Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(120, 120, 255)), ColorSequenceKeypoint.new(0.30, Color3.fromRGB(170, 170, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(225, 225, 225))};
     Parent = CircleInner;
 })
 
-local CursorImage = NewInstance('Instance', 'ImageLabel', {
+local CursorImage = NewInstance('ImageLabel', {
     Parent = mawborn,
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -502,15 +561,15 @@ local CursorImage = NewInstance('Instance', 'ImageLabel', {
     ImageTransparency = 0.020,
 })
 
-local Ratio = NewInstance('Instance', 'UIAspectRatioConstraint', {
+local Ratio = NewInstance('UIAspectRatioConstraint', {
     Parent = CursorImage,
 })
 
-local RatioCursorCircle = NewInstance('Instance', 'UIAspectRatioConstraint', {
+local RatioCursorCircle = NewInstance('UIAspectRatioConstraint', {
     Parent = CircleCursor,
 })
 
-local InfoCursor = NewInstance('Instance', 'TextLabel', {
+local InfoCursor = NewInstance('TextLabel', {
     Parent = mawborn;
     Name = 'InfoCursor';
     AnchorPoint = Vector2.new(-0.1, 0.1);
@@ -728,83 +787,62 @@ local function AddEsp(Player: Player) -- Creds to Ponyhook for being a refrence
     RemoveEsp(Player)
 
     local CreateEsp = {
-        TopText = NewInstance('Draw', 'Text', {
-            Center = true,
-            Outline = true,
+        TopText = CreateDrawing('Text', {
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
-            Transparency = 1,
         }),
 
-        BottomText = NewInstance('Draw', 'Text', {
-            Center = true,
-            Outline = true,
+        BottomText = CreateDrawing('Text', {
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
-            Transparency = 1,
         }),
 
-        Tracer = NewInstance('Draw', 'Line', {
-            Transparency = 1,
+        Tracer = CreateDrawing('Line', {
             Thickness = Select.DrawingThickness.Value,
             ZIndex = 2,
         }),
 
-        OutlineTracer = NewInstance('Draw', 'Line', {
-            Transparency = 1,
+        OutlineTracer = CreateDrawing('Line', {
             Color = Color3.fromRGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
 
-        Box = NewInstance('Draw', 'Square', {
+        Box = CreateDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
-            Transparency = 1,
             Filled = false,
             Color = Colors.ScriptColor,
             ZIndex = 2,
         }),
 
-        BoxOutline = NewInstance('Draw', 'Square', {
+        BoxOutline = CreateDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
-            Transparency = 1,
             Color = Color3.fromRGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
 
-        HealthBarOutline = NewInstance('Draw', 'Square', {
+        HealthBarOutline = CreateDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
-            Transparency = 1,
             Color = Color3.fromRGB(0, 0, 0);
             Filled = false,
             ZIndex = 1,
         }),
 
-        HealthBar = NewInstance('Draw', 'Square', {
+        HealthBar = CreateDrawing('Square', {
             Thickness = Select.DrawingThickness.Value,
-            Transparency = 1,
             Filled = false,
             ZIndex = 2,
         }),
 
-        SideText = NewInstance('Draw', 'Text', {
-            Center = true,
-            Outline = true,
+        SideText = CreateDrawing('Text', {
             Color = Color3.fromRGB(225,0,0),
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
-            Transparency = 1,
         }),
 
-        Chams = NewInstance('Instance', 'Highlight', {
+        Chams = NewInstance('Highlight', {
             Enabled = true,
             FillTransparency = 0,
             Parent = Player.Character,
@@ -824,26 +862,19 @@ local function AddItemEsp(Object: Instance, Name: string)
     RemoveItemEsp(Object)
 
     local CreateItemEsp = {
-        TopText = NewInstance('Draw', 'Text', {
-            Center = true,
-            Outline = true,
+        TopText = CreateDrawing('Text', {
             Color = Colors.ScriptColor,
-            OutlineColor = Color3.new(0, 0, 0),
-            Font = Drawing.Fonts.Monospace;
             Size = 12,
             ZIndex = 3,
-            Transparency = 1,
         }),
 
-        Tracer = NewInstance('Draw', 'Line', {
-            Transparency = 1,
+        Tracer = CreateDrawing('Line', {
             Thickness = Select.DrawingThickness.Value,
             Color = Colors.ScriptColor,
             ZIndex = 2,
         }),
 
-        OutlineTracer = NewInstance('Draw', 'Line', {
-            Transparency = 1,
+        OutlineTracer = CreateDrawing('Line', {
             Color = Color3.fromRGB(0, 0, 0);
             Thickness = Select.DrawingThickness.Value,
         }),
@@ -1139,7 +1170,7 @@ local function Fly()
         Humanoid:ChangeState(Enum.HumanoidStateType.Running)
         Humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
 
-        local FloatPart = NewInstance('Instance', 'Part', {
+        local FloatPart = NewInstance('Part', {
             Name = 'Float';
             Transparency = 1;
             Size = Vector3.new(100, 1, 100); -- Fuck it we ball
@@ -1147,17 +1178,17 @@ local function Fly()
             Parent = Body;
         })
 
-        local Attachment0 = NewInstance('Instance', 'Attachment', {
+        local Attachment0 = NewInstance('Attachment', {
             Name = 'Att0';
             Parent = Torso;
         })
 
-        local Attachment1 = NewInstance('Instance', 'Attachment', {
+        local Attachment1 = NewInstance('Attachment', {
             Name = 'Att1';
             Parent = Torso;
         })
 
-        local AlignOrientation = NewInstance('Instance', 'AlignOrientation', {
+        local AlignOrientation = NewInstance('AlignOrientation', {
             Name = 'AlignOrientation';
             Parent = Torso;
             Responsiveness = 200;
@@ -1168,7 +1199,7 @@ local function Fly()
             MaxAngularVelocity = 500;
         })
 
-        local FlightVelocity = NewInstance('Instance', 'BodyVelocity', {
+        local FlightVelocity = NewInstance('BodyVelocity', {
             Name = 'BodyVelocity';
             P = 9e9;
             MaxForce = Vector3.new(9e9, 9e9, 9e9);
@@ -1243,7 +1274,7 @@ local function Airwalk()
     if not Boolean.Airwalk.Value then return end
     if Body:FindFirstChild('Airwalk') then return end
 
-    local AirwalkPart = NewInstance('Instance', 'Part', {
+    local AirwalkPart = NewInstance('Part', {
         Name = 'Airwalk';
         Transparency = 1;
         Size = Vector3.new(5, 1, 5);
@@ -1819,20 +1850,20 @@ local function Boombox(Object: Instance)
 
     if (FindReverb or FindChorus or FindDistortion) then return end
 
-    local Reverb = NewInstance('Instance', 'ReverbSoundEffect', { 
+    local Reverb = NewInstance('ReverbSoundEffect', { 
         Name = 'Reverb';
         Parent = Object;
         Enabled = Boolean.Reverb.Value;
     })
 
-    local Distortion = NewInstance('Instance', 'DistortionSoundEffect', {
+    local Distortion = NewInstance('DistortionSoundEffect', {
         Name = 'Distortion';
         Parent = Object;
         Level = 0;
         Enabled = Boolean.Distortion.Value;
     })
 
-    local Chorus = NewInstance('Instance', 'ChorusSoundEffect', {
+    local Chorus = NewInstance('ChorusSoundEffect', {
         Name = 'Chorus';
         Parent = Object;
         Enabled = Boolean.Chorus.Value;
