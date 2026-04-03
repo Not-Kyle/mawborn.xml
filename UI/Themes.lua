@@ -1,23 +1,21 @@
-local Menu = Import('UI/NewMenu.lua'); -- Don't worry, this gets the cached version of Menu from my Import function.
-
-local HttpService = game:GetService('HttpService')
+local httpService = game:GetService('HttpService')
 local ThemeManager = {} do
 	ThemeManager.Folder = 'LinoriaLibSettings'
 	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
 	ThemeManager.BuiltInThemes = {
-		['Default'] 		= { 1, HttpService:JSONDecode('{"FontColor":"e1e1e1","MainColor":"0e0e0e","AccentColor":"e1e1e1","BackgroundColor":"0c0c0c","OutlineColor":"1b1b1b"}') },
-		['Dracula'] 		= { 2, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232533","AccentColor":"6271a5","BackgroundColor":"1b1c27","OutlineColor":"7c82a7"}') },
-		['Bitch Bot'] 		= { 3, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
-		['Kiriot Hub'] 		= { 4, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"30333b","AccentColor":"ffaa00","BackgroundColor":"1a1c20","OutlineColor":"141414"}') },
-		['Fatality'] 		= { 5, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
-		['Green'] 			= { 6, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"141414","AccentColor":"00ff8b","BackgroundColor":"1c1c1c","OutlineColor":"3c3c3c"}') },
-		['Jester'] 			= { 7, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"db4467","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
-		['Mint'] 			= { 8, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
-		['Tokyo Night'] 	= { 9, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
-		['Ubuntu'] 			= { 10, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"3e3e3e","AccentColor":"e2581e","BackgroundColor":"323232","OutlineColor":"191919"}') },
-		["Ciazware"]        = { 11, HttpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1a1a1a","AccentColor":"674e74","BackgroundColor":"141414","OutlineColor":"433e44"}') }, -- I'll leave this in for Xaxa
+		['Default'] 		= { 1, httpService:JSONDecode('{"FontColor":"e1e1e1","MainColor":"0e0e0e","AccentColor":"e1e1e1","BackgroundColor":"0c0c0c","OutlineColor":"1b1b1b"}') },
+		['Dracula'] 		= { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232533","AccentColor":"6271a5","BackgroundColor":"1b1c27","OutlineColor":"7c82a7"}') },
+		['Bitch Bot'] 		= { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
+		['Kiriot Hub'] 		= { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"30333b","AccentColor":"ffaa00","BackgroundColor":"1a1c20","OutlineColor":"141414"}') },
+		['Fatality'] 		= { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
+		['Green'] 			= { 6, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"141414","AccentColor":"00ff8b","BackgroundColor":"1c1c1c","OutlineColor":"3c3c3c"}') },
+		['Jester'] 			= { 7, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"db4467","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
+		['Mint'] 			= { 8, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
+		['Tokyo Night'] 	= { 9, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
+		['Ubuntu'] 			= { 10, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"3e3e3e","AccentColor":"e2581e","BackgroundColor":"323232","OutlineColor":"191919"}') },
+		["Ciazware"]        = { 11, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1a1a1a","AccentColor":"674e74","BackgroundColor":"141414","OutlineColor":"433e44"}') }, -- I'll leave this in for Xaxa
 	}
 
 	function ThemeManager:ApplyTheme(theme)
@@ -32,8 +30,8 @@ local ThemeManager = {} do
 		for idx, col in next, customThemeData or scheme do
 			self.Library[idx] = Color3.fromHex(col)
 			
-			if Menu.Select[idx] then
-				Menu.Select[idx]:SetValueRGB(Color3.fromHex(col))
+			if Select[idx] then
+				Select[idx]:SetValueRGB(Color3.fromHex(col))
 			end
 		end
 
@@ -41,11 +39,11 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:ThemeUpdate()
-		self.Library.FontColor = Menu.Select.FontColor.Value
-		self.Library.MainColor = Menu.Select.MainColor.Value
-		self.Library.AccentColor = Menu.Select.AccentColor.Value
-		self.Library.BackgroundColor = Menu.Select.BackgroundColor.Value
-		self.Library.OutlineColor = Menu.Select.OutlineColor.Value
+		self.Library.FontColor = Select.FontColor.Value
+		self.Library.MainColor = Select.MainColor.Value
+		self.Library.AccentColor = Select.AccentColor.Value
+		self.Library.BackgroundColor = Select.BackgroundColor.Value
+		self.Library.OutlineColor = Select.OutlineColor.Value
 
 		self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor);
 		self.Library:UpdateColorsUsingRegistry()
@@ -68,7 +66,7 @@ local ThemeManager = {} do
 		end
 
 		if isDefault then
-			Menu.Select.ThemeManager_ThemeList:SetValue(theme)
+			Select.ThemeManager_ThemeList:SetValue(theme)
 		else
 			self:ApplyTheme(theme)
 		end
@@ -96,12 +94,12 @@ local ThemeManager = {} do
 		groupbox:AddDropdown('ThemeManager_ThemeList', { Text = 'Theme list', Values = ThemesArray, Default = 1 })
 
 		groupbox:AddButton('Set as default', function()
-			self:SaveDefault(Menu.Select.ThemeManager_ThemeList.Value)
-			self.Library:Notify(string.format('Set default theme to %q', Menu.Select.ThemeManager_ThemeList.Value))
+			self:SaveDefault(Select.ThemeManager_ThemeList.Value)
+			self.Library:Notify(string.format('Set default theme to %q', Select.ThemeManager_ThemeList.Value))
 		end)
 
-		Menu.Select.ThemeManager_ThemeList:OnChanged(function()
-			self:ApplyTheme(Menu.Select.ThemeManager_ThemeList.Value)
+		Select.ThemeManager_ThemeList:OnChanged(function()
+			self:ApplyTheme(Select.ThemeManager_ThemeList.Value)
 		end)
 
 		groupbox:AddDivider()
@@ -109,27 +107,27 @@ local ThemeManager = {} do
 		groupbox:AddInput('ThemeManager_CustomThemeName', { Text = 'Custom theme name' })
 
 		groupbox:AddButton('Load custom theme', function() 
-			self:ApplyTheme(Menu.Select.ThemeManager_CustomThemeList.Value) 
+			self:ApplyTheme(Select.ThemeManager_CustomThemeList.Value) 
 		end)
 
 		groupbox:AddButton('Save custom theme', function() 
-			self:SaveCustomTheme(Menu.Select.ThemeManager_CustomThemeName.Value)
+			self:SaveCustomTheme(Select.ThemeManager_CustomThemeName.Value)
 
-			Menu.Select.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
-			Menu.Select.ThemeManager_CustomThemeList:SetValues()
-			Menu.Select.ThemeManager_CustomThemeList:SetValue(nil)
+			Select.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
+			Select.ThemeManager_CustomThemeList:SetValues()
+			Select.ThemeManager_CustomThemeList:SetValue(nil)
 		end)
 
 		groupbox:AddButton('Refresh list', function()
-			Menu.Select.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
-			Menu.Select.ThemeManager_CustomThemeList:SetValues()
-			Menu.Select.ThemeManager_CustomThemeList:SetValue(nil)
+			Select.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
+			Select.ThemeManager_CustomThemeList:SetValues()
+			Select.ThemeManager_CustomThemeList:SetValue(nil)
 		end)
 
 		groupbox:AddButton('Set as default', function()
-			if Menu.Select.ThemeManager_CustomThemeList.Value ~= nil and Menu.Select.ThemeManager_CustomThemeList.Value ~= '' then
-				self:SaveDefault(Menu.Select.ThemeManager_CustomThemeList.Value)
-				self.Library:Notify(string.format('Set default theme to %q', Menu.Select.ThemeManager_CustomThemeList.Value))
+			if Select.ThemeManager_CustomThemeList.Value ~= nil and Select.ThemeManager_CustomThemeList.Value ~= '' then
+				self:SaveDefault(Select.ThemeManager_CustomThemeList.Value)
+				self.Library:Notify(string.format('Set default theme to %q', Select.ThemeManager_CustomThemeList.Value))
 			end
 		end)
 
@@ -139,11 +137,11 @@ local ThemeManager = {} do
 			self:ThemeUpdate()
 		end
 
-		Menu.Select.BackgroundColor:OnChanged(UpdateTheme)
-		Menu.Select.MainColor:OnChanged(UpdateTheme)
-		Menu.Select.AccentColor:OnChanged(UpdateTheme)
-		Menu.Select.OutlineColor:OnChanged(UpdateTheme)
-		Menu.Select.FontColor:OnChanged(UpdateTheme)
+		Select.BackgroundColor:OnChanged(UpdateTheme)
+		Select.MainColor:OnChanged(UpdateTheme)
+		Select.AccentColor:OnChanged(UpdateTheme)
+		Select.OutlineColor:OnChanged(UpdateTheme)
+		Select.FontColor:OnChanged(UpdateTheme)
 	end
 
 	function ThemeManager:GetCustomTheme(file)
@@ -153,7 +151,7 @@ local ThemeManager = {} do
 		end
 
 		local data = readfile(path)
-		local success, decoded = pcall(HttpService.JSONDecode, HttpService, data)
+		local success, decoded = pcall(httpService.JSONDecode, httpService, data)
 		
 		if not success then
 			return nil
@@ -171,10 +169,10 @@ local ThemeManager = {} do
 		local fields = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
 
 		for _, field in next, fields do
-			theme[field] = Menu.Select[field].Value:ToHex()
+			theme[field] = Select[field].Value:ToHex()
 		end
 
-		writefile(self.Folder .. '/themes/' .. file .. '.json', HttpService:JSONEncode(theme))
+		writefile(self.Folder .. '/themes/' .. file .. '.json', httpService:JSONEncode(theme))
 	end
 
 	function ThemeManager:ReloadCustomThemes()
