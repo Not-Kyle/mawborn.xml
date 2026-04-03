@@ -3310,7 +3310,7 @@ CombatTab.AimlockTab:AddBlank(5)
 
 CombatTab.AimlockTab:AddDropdown('AimlockPart', { Text = 'Aimlock Part', Tooltip = 'Changes your aimlock part', Values = {'Head', 'Torso', 'HumanoidRootPart'}, Default = 'HumanoidRootPart', Multi = false })
 
-CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Velocity', Multi = false }):OnChanged(function()
+CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Ponyhook', Multi = false }):OnChanged(function()
     UpdateLabel()
 end)
 
