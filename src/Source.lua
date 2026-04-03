@@ -1,41 +1,7 @@
---[[ TODO:
-Add A damage meter (Maybe a calculation that will tell you how many more hits out of the item you're holding to KO the player)
-Add an Autostomp (Add whitelist to it)
-Add Anti Groundhit
-Add Loop Teleport to Player
-Add Auto Equip
-Add Autoheal -- (Works but not done)
-Add Auto Cash or Auto Items
-Add Corner Esp
-Add Hitchams
+local Import = Import;
+local Getgenv = getgenv;
 
-Revert all Index calls to Namecall -- UPDATE, I think I did? If I missed one whatever
-Change calls to being OOP
-
--- ALL OLD UPDATE IDEAS, WILL NOT BE ADDED. MAWBORN.XML WILL ALWAYS BE ON 0.9.95
-
--- //
-    People or scripts who have contribed to the script in someway
-
-    Calls - for letting me know about :GetBoundingBox()
-    Xaxa - for giving me his Aimlock method
-    Cyrus - for letting me know about using hookmetamethod __namecall correctly (I don't have it in this verison but in the private one I do)
-    Lurk - I used the same bullet trails in pie.solutions (Gave it to me about 3 years ago)
-
-    Ponyhook - for being a reference
--- \\
-
--- REMOTE NAMES IN "REMAKE"
-
-> Stomp (Stomps players)
-> Update (Updates your FOV)
-> Drag (Starts drag)
-> Touch (Used for melee)
-> Shoot (Used for guns)
-> Groups (Used for groups)
-]]--
-
-if getgenv().Mawborn.Source then
+if Getgenv().Mawborn.Source then
     return;
 end
 
@@ -45,7 +11,7 @@ end
 
 local OsTime = (tick or os and os.time)();
 
-getgenv().Mawborn.Source = true;
+Getgenv().Mawborn.Source = true;
 
 local Network = Import('UI/Network.lua');
 local Watermark = Import('UI/Watermark.lua');
@@ -61,14 +27,14 @@ local FileHandler = Import('Utils/FileHandler.lua');
 local TextProperties = Import('Utils/TextProperties.lua');
 local CommandHandler = Import('Utils/Comands.lua');
 
-getgenv().Mawborn.Utils = true;
-getgenv().Mawborn.Logger = true;
-getgenv().Mawborn.Commands = true;
-getgenv().Mawborn.FileHandler = true;
-getgenv().Mawborn.TextProperties = true;
+Getgenv().Mawborn.Utils = true;
+Getgenv().Mawborn.Logger = true;
+Getgenv().Mawborn.Commands = true;
+Getgenv().Mawborn.FileHandler = true;
+Getgenv().Mawborn.TextProperties = true;
 
-getgenv().Mawborn.Library.String = true;
-getgenv().Mawborn.Library.Enumerations = true;
+Getgenv().Mawborn.Library.String = true;
+Getgenv().Mawborn.Library.Enumerations = true;
 
 local Host = Utils.Players and Utils.Players.LocalPlayer;
 local Body, Head, Humanoid, Root, Torso;
@@ -224,8 +190,8 @@ local Circle = NewInstance('Draw', 'Circle', {
     NumSides = 250;
 })
 
-local Select = Menu.Select;
-local Boolean = Menu.Boolean;
+local Select = Select;
+local Boolean = Boolean;
 
 local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
 local CommandCenter = Network:MakeCommandCenter(mawborn)
@@ -2004,10 +1970,7 @@ end
 local function SendKnockedAttributes(Player: Player)
     if not Player then return end
 
-    local Character = Utils.Body(Player, 'SendKnockedAttributes');
-    if not Character then return end
-
-    local _Head = Character:FindFirstChild('Head');
+    local _Head = Utils.Head(Player);
     if not _Head then return end
 
     local function UpdateAttribute()
@@ -2030,7 +1993,7 @@ local function SendKnockedAttributes(Player: Player)
 end
 
 
-local function Cash() : number -- Creds to whoever on devforums
+local function Cash() : number
     local Cash = CashUi.Text
 
     if not Cash then
@@ -2467,18 +2430,15 @@ end
 
 
 local function HookData()
-    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(...)
-        local self = select(1, ...);
+    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(self, ...)
         local Index = select(2, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetIndex(...);
+            return GetIndex(self, ...);
         end
 
-        local Self = tostring(self)
-
         if Utils.BothOriginal and Boolean.InfiniteStam.Value then
-            if Self == 'Stamina' and Index == 'Value' then
+            if tostring(self) == 'Stamina' and Index == 'Value' then
                 return 100;
             end
         end
@@ -2486,71 +2446,58 @@ local function HookData()
         if self == Humanoid then
             if Index == 'WalkSpeed' then
                 return Originals.WalkSpeed;
-            end
 
-            if Index == 'JumpPower' then
+            elseif Index == 'JumpPower' then
                 return Originals.JumpPower;
-            end
 
-            if Index == 'HipHeight' then
+            elseif Index == 'HipHeight' then
                 return Originals.HipHeight;
             end
-        end
 
-        if self == Utils.Workspace then
+        elseif self == Utils.Workspace then
             if Index == 'Gravity' then
                 return Originals.Gravity;
             end
-        end
 
-        if self == Camera then 
+        elseif self == Camera then 
             if Index == 'FieldOfView' then
                 return Originals.FOV;
             end
         end
 
-        return GetIndex(...);
+        return GetIndex(self, ...);
     end));
 
 
-    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(...)
-        local self = select(1, ...);
+    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(self, ...)
         local Index = select(2, ...);
         local Value = select(3, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-           return GetNewIndex(...);
+           return GetNewIndex(self, ...);
         end
-
-        Utils.StarterGui:SetCore('ResetButtonCallback', true)
 
         if self == Humanoid then
             if Index == 'JumpPower' then
                 Value = Select.JumpPower.Value or Originals.JumpPower;
-            end
 
-            if Index == 'Jump' and Boolean.InfiniteStam.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            elseif Index == 'Jump' and Boolean.InfiniteStam.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) then
                 Value = true;
-            end
 
-            if Index == 'Health' then -- Detectable
+            elseif Index == 'Health' then
                 return;
-            end
 
-            if Index == 'AutoRotate' then
+            elseif Index == 'AutoRotate' then
                 Value = true;
-            end
 
-            if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
+            elseif Index == 'WalkSpeed' and Boolean.NoSlow.Value then
                 if Value == 0 or Value == 2 then
                     return Select.WalkSpeed.Value or Originals.WalkSpeed;
-                end
 
-                if Debounce.Crouching then
+                elseif Debounce.Crouching then
                     Value = Select.CrouchSpeed.Value or 8 or 7.9;
-                end
 
-                if Movement.W or Movement.A or Movement.S or Movement.D then
+                elseif Movement.W or Movement.A or Movement.S or Movement.D then
                     if not Debounce.Crouching then
                         Value = Select.WalkSpeed.Value or Originals.WalkSpeed;
                     
@@ -2569,55 +2516,43 @@ local function HookData()
                     Value = Select.WalkSpeed.Value;
                 end
             end
-        end
 
-        if self == Root then -- Detectable
+        elseif self == Root then
             if Index == 'CFrame' or Index == 'Position' then
                 return
             end
-        end
 
-        if self == Utils.Workspace then
+        elseif self == Utils.Workspace then
             if Index == 'Gravity' and Boolean.Gravity.Value then
                 Value = Select.Gravity.Value or Originals.Gravity;
             end
-        end
 
-        if Utils.BothOriginal and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then -- Detectable if InfiniteStam is true
+        elseif Utils.BothOriginal and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then
             if Index == 'Value' then
                 return 100;
             end
-        end
 
-        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then -- Creds to Ponyhook because I'm not that great with hookfunction
+        elseif self.Name == 'GetMouse' and Index == 'OnClientInvoke' then
             Value = HookMouse;
-        end -- Detectable
 
-        if self == Camera then
+        elseif self == Camera then
             if Index == 'FieldOfView' then -- Because of the new chat commands
                 Value = Select.FOV.Value or Originals.FOV;
             end
         end
 
-        return GetNewIndex(...);
+        return GetNewIndex(self, ...);
     end));
 
 
-    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
-        local self = select(1, ...);
+    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
         local Arguments = { select(2, ...) };
 
-        local GetMethod = getnamecallmethod or get_namecall_method;
-        local IndexMethod = nil;
-
-        if GetMethod then
-            IndexMethod = GetMethod();
-        end
-
-        local SetMethod = String.sentenceCase(IndexMethod);
+        local Getnamecallmethod = getnamecallmethod or get_namecall_method;
+        local SetMethod = Getnamecallmethod and String.sentenceCase(Getnamecallmethod);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetNameCalls(...);
+            return GetNameCalls(self, ...);
         end
 
         if SetMethod == 'FireServer' then
@@ -2632,14 +2567,12 @@ local function HookData()
                         Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
                         Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                     end
-                end
 
-                if self.Parent == Utils.ReplicatedStorage and self.Name == 'lIIl' then
+                elseif self.Parent == Utils.ReplicatedStorage and self.Name == 'lIIl' then
                     return;
                 end
-            end
 
-            if Utils.Remake then
+            elseif Utils.Remake then
                 if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
                     if Arguments[1] == 'Shoot' then
                         Arguments[2] = Mouse.Hit;
@@ -2653,9 +2586,8 @@ local function HookData()
                         end
                     end
                 end
-            end
 
-            if Utils.Streets then
+            elseif Utils.Streets then
                 local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
                 local Dragging = {'e', 'drag', 'dragoff'}
 
@@ -2674,36 +2606,30 @@ local function HookData()
                         end
 
                         os.clock();
-                    end
 
-                    if table.find(Blacklisted, Arguments[1]) then
+                    elseif table.find(Blacklisted, Arguments[1]) then
                         return;
-                    end
 
-                    if table.find(Dragging, Arguments[1]) then
+                    elseif table.find(Dragging, Arguments[1]) then
                         Arguments = {Arguments[1], {}}
                     end
                 end
             end
-        end
 
-        if self.ClassName == 'RemoteEvent' and SetMethod == 'OnClientEvent' then
+        elseif self.ClassName == 'RemoteEvent' and SetMethod == 'OnClientEvent' then
             if self.Name == 'ScreenShake' and Boolean.NoCameraShake.Value then
                 return;
-            end
 
-            if self.Name == 'Flashbang' then
+            elseif self.Name == 'Flashbang' then
                 return;
             end
-        end
 
-        if self == Body then -- Detectable
+        elseif self == Body then
             if SetMethod == 'BreakJoints' or SetMethod == 'Destroy' or SetMethod == 'ClearAllChildren' then
                 return;
             end
-        end
 
-        if self == Utils.Workspace then -- Detectable
+        elseif self == Utils.Workspace then
             if SetMethod == 'ClearAllChildren' then
                 return;
             end
@@ -2715,13 +2641,8 @@ local function HookData()
             end
         end]]
     
-        return GetNameCalls(...);
+        return GetNameCalls(self, ...);
     end))
-
-
-    local HookKick; HookKick = hookfunction(Host.Kick or Host.kick, newcclosure(function(self: Instance, ...)
-        return HookKick(self, ...)
-    end));
 end
 
 -- Commands []
@@ -3138,7 +3059,7 @@ Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
-local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. getgenv().Mawborn.Version .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
+local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. Getgenv().Mawborn.Version .. ' | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
 
 FileMenu:SetLibrary(Menu)
 ThemeMenu:SetLibrary(Menu)
@@ -4641,7 +4562,7 @@ local function CheatData()
 
     Debounce.ScriptLoaded = true;
 
-    if String.trim(getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion(MawbornVersion)) then
+    if String.trim(Getgenv().Mawborn.Version) ~= String.trim(Utils.GetVersion(MawbornVersion)) then
         Notify(Utils.Title(2), 'Mawborn.xml is outdated, consider using newer version on github.com @Not-Kyle', 6);
     end
 end
