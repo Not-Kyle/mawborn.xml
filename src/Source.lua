@@ -2620,15 +2620,13 @@ local function HookData()
                     Arguments[1] = Mouse.Hit;
                     Arguments[2] = Mouse.Target;
 
-                    if AimlockTarget and not Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) then
-                        return;
-                    end
-
-                    if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                    if Boolean.Aimlock.Value and AimlockTarget and Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) and Select.AimlockMode.Value == 'Manual' then
                         local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
                         Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
                         Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                    else
+                        return;
                     end
                 end
 
@@ -2637,21 +2635,19 @@ local function HookData()
                 end
             end
 
-            if Utils.Remake then
+            if Utils.Remake then -- Probably shouldnt even still support these two
                 if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
                     if Arguments[1] == 'Shoot' then
                         Arguments[2] = Mouse.Hit;
                         Arguments[3] = Mouse.Target;
 
-                        if AimlockTarget and not Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) then
-                            return;
-                        end
-
-                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                        if Boolean.Aimlock.Value and AimlockTarget and Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
                             Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
                             Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                        else
+                            return;
                         end
                     end
                 end
@@ -2668,15 +2664,13 @@ local function HookData()
                         Arguments[2].shift = false;
                         Arguments[2].mousetarget = Mouse.Target;
 
-                        if AimlockTarget and not Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) then
-                            return;
-                        end
-
-                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                        if Boolean.Aimlock.Value and AimlockTarget and Utils.Players.FindFirstChild(Utils.Players, AimlockTarget.Name) and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
                             Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
                             Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                        else
+                            return;
                         end
 
                         os.clock();
