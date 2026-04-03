@@ -69,6 +69,7 @@ debcdde -> 0.9.99
 66c28bd -> 0.9.97
 ```
 <br />
+
 >[!NOTE]
 > ### Version: 1.0.0
 > 1. Fixed some bugs and reworked the Drawing Lib to be faster and safer!
