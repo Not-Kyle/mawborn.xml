@@ -1,5 +1,6 @@
-local httpService = game:GetService('HttpService')
+local Menu = Import('UI/NewMenu.lua');
 
+local HttpService = game:GetService('HttpService')
 local SaveManager = {} do
 	SaveManager.Folder = 'LinoriaLibSettings'
 	SaveManager.Ignore = {}
@@ -9,8 +10,8 @@ local SaveManager = {} do
 				return { type = 'Toggle', idx = idx, value = object.Value } 
 			end,
 			Load = function(idx, data)
-				if Boolean[idx] then 
-					Boolean[idx]:SetValue(data.value)
+				if Menu.Boolean[idx] then 
+					Menu.Boolean[idx]:SetValue(data.value)
 				end
 			end,
 		},
@@ -19,8 +20,8 @@ local SaveManager = {} do
 				return { type = 'Slider', idx = idx, value = tostring(object.Value) }
 			end,
 			Load = function(idx, data)
-				if Select[idx] then 
-					Select[idx]:SetValue(data.value)
+				if Menu.Select[idx] then 
+					Menu.Select[idx]:SetValue(data.value)
 				end
 			end,
 		},
@@ -29,8 +30,8 @@ local SaveManager = {} do
 				return { type = 'Dropdown', idx = idx, value = object.Value, mutli = object.Multi }
 			end,
 			Load = function(idx, data)
-				if Select[idx] then 
-					Select[idx]:SetValue(data.value)
+				if Menu.Select[idx] then 
+					Menu.Select[idx]:SetValue(data.value)
 				end
 			end,
 		},
@@ -39,8 +40,8 @@ local SaveManager = {} do
 				return { type = 'ColorPicker', idx = idx, value = object.Value:ToHex() }
 			end,
 			Load = function(idx, data)
-				if Select[idx] then 
-					Select[idx]:SetValueRGB(Color3.fromHex(data.value))
+				if Menu.Select[idx] then 
+					Menu.Select[idx]:SetValueRGB(Color3.fromHex(data.value))
 				end
 			end,
 		},
@@ -49,8 +50,8 @@ local SaveManager = {} do
 				return { type = 'KeyPicker', idx = idx, mode = object.Mode, key = object.Value }
 			end,
 			Load = function(idx, data)
-				if Select[idx] then 
-					Select[idx]:SetValue({ data.key, data.mode })
+				if Menu.Select[idx] then 
+					Menu.Select[idx]:SetValue({ data.key, data.mode })
 				end
 			end,
 		}
@@ -74,20 +75,20 @@ local SaveManager = {} do
 			objects = {}
 		}
 
-		for idx, toggle in next, Boolean do
+		for idx, toggle in next, Menu.Boolean do
 			if self.Ignore[idx] then continue end
 
 			table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
 		end
 
-		for idx, option in next, Select do
+		for idx, option in next, Menu.Select do
 			if not self.Parser[option.Type] then continue end
 			if self.Ignore[idx] then continue end
 
 			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
 		end	
 
-		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+		local success, encoded = pcall(HttpService.JSONEncode, HttpService, data)
 		if not success then
 			return false, 'failed to encode data'
 		end
@@ -100,7 +101,7 @@ local SaveManager = {} do
 		local file = self.Folder .. '/settings/' .. name .. '.json'
 		if not isfile(file) then return false, 'invalid file' end
 
-		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
+		local success, decoded = pcall(HttpService.JSONDecode, HttpService, readfile(file))
 		if not success then return false, 'decode error' end
 
 		for _, option in next, decoded.objects do
@@ -191,7 +192,7 @@ local SaveManager = {} do
 		section:AddDivider()
 
 		section:AddButton('Create config', function()
-			local name = Select.SaveManager_ConfigName.Value
+			local name = Menu.Select.SaveManager_ConfigName.Value
 
 			if name:gsub(' ', '') == '' then 
 				return self.Library:Notify('Invalid config name (empty)', 2)
@@ -204,11 +205,11 @@ local SaveManager = {} do
 
 			self.Library:Notify(string.format('Created config %q', name))
 
-			Select.SaveManager_ConfigList.Values = self:RefreshConfigList()
-			Select.SaveManager_ConfigList:SetValues()
-			Select.SaveManager_ConfigList:SetValue(nil)
+			Menu.Select.SaveManager_ConfigList.Values = self:RefreshConfigList()
+			Menu.Select.SaveManager_ConfigList:SetValues()
+			Menu.Select.SaveManager_ConfigList:SetValue(nil)
 		end):AddButton('Load config', function()
-			local name = Select.SaveManager_ConfigList.Value
+			local name = Menu.Select.SaveManager_ConfigList.Value
 
 			local success, err = self:Load(name)
 			if not success then
@@ -219,7 +220,7 @@ local SaveManager = {} do
 		end)
 
 		section:AddButton('Overwrite config', function()
-			local name = Select.SaveManager_ConfigList.Value
+			local name = Menu.Select.SaveManager_ConfigList.Value
 
 			local success, err = self:Save(name)
 			if not success then
@@ -230,16 +231,16 @@ local SaveManager = {} do
 		end)
 		
 		section:AddButton('Autoload config', function()
-			local name = Select.SaveManager_ConfigList.Value
+			local name = Menu.Select.SaveManager_ConfigList.Value
 			writefile(self.Folder .. '/settings/autoload.txt', name)
 			SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. name)
 			self.Library:Notify(string.format('Set %q to auto load', name))
 		end)
 
 		section:AddButton('Refresh config list', function()
-			Select.SaveManager_ConfigList.Values = self:RefreshConfigList()
-			Select.SaveManager_ConfigList:SetValues()
-			Select.SaveManager_ConfigList:SetValue(nil)
+			Menu.Select.SaveManager_ConfigList.Values = self:RefreshConfigList()
+			Menu.Select.SaveManager_ConfigList:SetValues()
+			Menu.Select.SaveManager_ConfigList:SetValue(nil)
 		end)
 
 		SaveManager.AutoloadLabel = section:AddLabel('Current autoload config: none', true)
