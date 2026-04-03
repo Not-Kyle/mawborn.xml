@@ -190,8 +190,8 @@ local Circle = NewInstance('Draw', 'Circle', {
     NumSides = 250;
 })
 
-local Select = Select;
-local Boolean = Boolean;
+local Select = Menu.Select;
+local Boolean = Menu.Boolean;
 
 local PerformanceMonitor, OuterWatermark = Watermark:MakeWatermark(mawborn)
 local CommandCenter = Network:MakeCommandCenter(mawborn)
