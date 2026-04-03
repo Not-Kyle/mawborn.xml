@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local Import = Import;
 local Getgenv = getgenv;
 
@@ -2461,15 +2462,18 @@ end
 
 
 local function HookData()
-    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(self, ...)
+    local GetIndex; GetIndex = hookmetamethod(game, '__index', newcclosure(function(...)
+        local self = select(1, ...);
         local Index = select(2, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetIndex(self, ...);
+            return GetIndex(...);
         end
 
+        local Self = tostring(self)
+
         if Utils.BothOriginal and Boolean.InfiniteStam.Value then
-            if tostring(self) == 'Stamina' and Index == 'Value' then
+            if Self == 'Stamina' and Index == 'Value' then
                 return 100;
             end
         end
@@ -2477,58 +2481,71 @@ local function HookData()
         if self == Humanoid then
             if Index == 'WalkSpeed' then
                 return Originals.WalkSpeed;
-
-            elseif Index == 'JumpPower' then
-                return Originals.JumpPower;
-
-            elseif Index == 'HipHeight' then
-                return Originals.HipHeight;
             end
 
-        elseif self == Utils.Workspace then
+            if Index == 'JumpPower' then
+                return Originals.JumpPower;
+            end
+
+            if Index == 'HipHeight' then
+                return Originals.HipHeight;
+            end
+        end
+
+        if self == Utils.Workspace then
             if Index == 'Gravity' then
                 return Originals.Gravity;
             end
+        end
 
-        elseif self == Camera then 
+        if self == Camera then 
             if Index == 'FieldOfView' then
                 return Originals.FOV;
             end
         end
 
-        return GetIndex(self, ...);
+        return GetIndex(...);
     end));
 
 
-    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(self, ...)
+    local GetNewIndex; GetNewIndex = hookmetamethod(game, '__newindex', newcclosure(function(...)
+        local self = select(1, ...);
         local Index = select(2, ...);
         local Value = select(3, ...);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-           return GetNewIndex(self, ...);
+           return GetNewIndex(...);
         end
+
+        Utils.StarterGui:SetCore('ResetButtonCallback', true)
 
         if self == Humanoid then
             if Index == 'JumpPower' then
                 Value = Select.JumpPower.Value or Originals.JumpPower;
+            end
 
-            elseif Index == 'Jump' and Boolean.InfiniteStam.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            if Index == 'Jump' and Boolean.InfiniteStam.Value and Utils.UserInputService:IsKeyDown(Enum.KeyCode.Space) then
                 Value = true;
+            end
 
-            elseif Index == 'Health' then
+            if Index == 'Health' then -- Detectable
                 return;
+            end
 
-            elseif Index == 'AutoRotate' then
+            if Index == 'AutoRotate' then
                 Value = true;
+            end
 
-            elseif Index == 'WalkSpeed' and Boolean.NoSlow.Value then
+            if Index == 'WalkSpeed' and Boolean.NoSlow.Value then
                 if Value == 0 or Value == 2 then
                     return Select.WalkSpeed.Value or Originals.WalkSpeed;
+                end
 
-                elseif Debounce.Crouching then
+                if Debounce.Crouching then
                     Value = Select.CrouchSpeed.Value or 8 or 7.9;
+                end
 
-                elseif Movement.W or Movement.A or Movement.S or Movement.D then
+                if Movement.W or Movement.A or Movement.S or Movement.D then
                     if not Debounce.Crouching then
                         Value = Select.WalkSpeed.Value or Originals.WalkSpeed;
                     
@@ -2547,31 +2564,29 @@ local function HookData()
                     Value = Select.WalkSpeed.Value;
                 end
             end
+        end
 
-        elseif self == Root then
+        if self == Root then -- Detectable
             if Index == 'CFrame' or Index == 'Position' then
                 return
             end
+        end
 
-        elseif self == Utils.Workspace then
+        if self == Utils.Workspace then
             if Index == 'Gravity' and Boolean.Gravity.Value then
                 Value = Select.Gravity.Value or Originals.Gravity;
             end
+        end
 
-        elseif Utils.BothOriginal and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then
+        if Utils.BothOriginal and Boolean.InfiniteStam.Value and self.Parent == Body and self.Name == 'Stamina' or self.Name == 'Stam' then -- Detectable if InfiniteStam is true
             if Index == 'Value' then
                 return 100;
             end
-
-        elseif self == Camera then
-            if Index == 'FieldOfView' then -- Because of the new chat commands
-                Value = Select.FOV.Value or Originals.FOV;
-            end
         end
 
-        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then
+        if self.Name == 'GetMouse' and Index == 'OnClientInvoke' then -- Creds to Ponyhook because I'm not that great with hookfunction
             Value = HookMouse;
-        end
+        end -- Detectable
 
         if self == Camera then
             if Index == 'FieldOfView' then -- Because of the new chat commands
@@ -2579,21 +2594,70 @@ local function HookData()
             end
         end
 
-        return GetNewIndex(self, ...);
+        return GetNewIndex(...);
     end));
 
 
-    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
+    local GetNameCalls; GetNameCalls = hookmetamethod(game, '__namecall', newcclosure(function(...)
+        local self = select(1, ...);
         local Arguments = { select(2, ...) };
 
-        local Getnamecallmethod = getnamecallmethod or get_namecall_method;
-        local SetMethod = Getnamecallmethod and String.sentenceCase(Getnamecallmethod);
+        local GetMethod = getnamecallmethod or get_namecall_method;
+        local IndexMethod = nil;
+
+        if GetMethod then
+            IndexMethod = GetMethod();
+        end
+
+        local SetMethod = String.sentenceCase(IndexMethod);
 
         if typeof(self) ~= 'Instance' or checkcaller() then
-            return GetNameCalls(self, ...);
+            return GetNameCalls(...);
         end
 
         if SetMethod == 'FireServer' then
+            if Utils.Prison then
+                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
+                    Arguments[1] = Mouse.Hit;
+                    Arguments[2] = Mouse.Target;
+
+                    if not Players:FindFirstChild(AimlockTarget.Name) then
+                        return;
+                    end
+
+                    if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                        local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
+                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                        Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                    end
+                end
+
+                if self.Parent == Utils.ReplicatedStorage and self.Name == 'lIIl' then
+                    return;
+                end
+            end
+
+            if Utils.Remake then
+                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
+                    if Arguments[1] == 'Shoot' then
+                        Arguments[2] = Mouse.Hit;
+                        Arguments[3] = Mouse.Target;
+
+                        if not Players:FindFirstChild(AimlockTarget.Name) then
+                            return;
+                        end
+
+                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
+                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
+
+                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
+                        end
+                    end
+                end
+            end
+
             if Utils.Streets then
                 local Blacklisted = {'checkin1', 'checkin2', 'checkin3', 'bv', 'ws', 'hb'}
                 local Dragging = {'e', 'drag', 'dragoff'}
@@ -2604,6 +2668,10 @@ local function HookData()
                         Arguments[2].velo = 16;
                         Arguments[2].shift = false;
                         Arguments[2].mousetarget = Mouse.Target;
+
+                        if not Players:FindFirstChild(AimlockTarget.Name) then
+                            return;
+                        end
 
                         if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
@@ -2623,53 +2691,26 @@ local function HookData()
                         Arguments = {Arguments[1], {}}
                     end
                 end
-
-            elseif Utils.Prison then
-                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and table.find({'GlockFire', 'ShottyFire', 'UziFire', 'Fire', 'Shoot'}, self.Name) and self.ClassName == 'RemoteEvent' then
-                    Arguments[1] = Mouse.Hit;
-                    Arguments[2] = Mouse.Target;
-
-                    if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
-                        local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
-
-                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
-                        Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
-                    end
-
-                elseif self.Parent == Utils.ReplicatedStorage and self.Name == 'lIIl' then
-                    return;
-                end
-
-            elseif Utils.Remake then
-                if table.find({Utils.ReplicatedStorage, Backpack}, self.Parent) and self.Name == 'Game' and self.ClassName == 'RemoteEvent' then
-                    if Arguments[1] == 'Shoot' then
-                        Arguments[2] = Mouse.Hit;
-                        Arguments[3] = Mouse.Target;
-
-                        if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
-                            local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
-
-                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
-                            Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
-                        end
-                    end
-                end
             end
+        end
 
-        elseif self.ClassName == 'RemoteEvent' and SetMethod == 'OnClientEvent' then
+        if self.ClassName == 'RemoteEvent' and SetMethod == 'OnClientEvent' then
             if self.Name == 'ScreenShake' and Boolean.NoCameraShake.Value then
                 return;
-
-            elseif self.Name == 'Flashbang' then
-                return;
             end
 
-        elseif self == Body then
+            if self.Name == 'Flashbang' then
+                return;
+            end
+        end
+
+        if self == Body then -- Detectable
             if SetMethod == 'BreakJoints' or SetMethod == 'Destroy' or SetMethod == 'ClearAllChildren' then
                 return;
             end
+        end
 
-        elseif self == Utils.Workspace then
+        if self == Utils.Workspace then -- Detectable
             if SetMethod == 'ClearAllChildren' then
                 return;
             end
@@ -2681,7 +2722,7 @@ local function HookData()
             end
         end]]
     
-        return GetNameCalls(self, ...);
+        return GetNameCalls(...);
     end))
 end
 
