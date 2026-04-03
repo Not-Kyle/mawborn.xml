@@ -54,6 +54,12 @@ mawborn.IgnoreGuiInset = true
 local Bools = {};
 local Selected = {};
 
+local Bools = {};
+local Selected = {};
+
+getgenv().Boolean = Bools;
+getgenv().Select = Selected; -- Just gonna leave it like this
+
 local Library = {
     Boolean = Bools;
     Select = Selected;
@@ -2515,7 +2521,7 @@ function Library:CreateWindow(...)
     function Window:SetWindowTitle(Title)
         WindowLabel.Text = Title;
     end;
-
+    
     function Window:AddTab(Name)
         local Tab = {
             Groupboxes = {};
