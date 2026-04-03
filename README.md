@@ -60,11 +60,11 @@
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
-# Updates [Current Version 0.9.99] <br />
+# Updates [Current Version 1.0.0] <br />
 
 >[!NOTE]
-> ### Version: 0.9.99
-> 1. Small security and micro optimization update!
+> ### Version: 1.0.0
+> 1. Fixed some bugs and reworked the Drawing Lib to be faster and safer!
 
 # Loadstring <br />
 
