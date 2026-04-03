@@ -1,4 +1,3 @@
-local Players = game:GetService("Players")
 local Import = Import;
 local Getgenv = getgenv;
 
