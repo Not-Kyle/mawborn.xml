@@ -61,6 +61,13 @@
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
 # Updates [Current Version 1.0.0] <br />
+### All Stable Versions
+```
+ffc9662 -> 1.0.0
+debcdde -> 0.9.99
+7ac6b4c -> 0.9.98
+66c28bd -> 0.9.97
+```
 
 >[!NOTE]
 > ### Version: 1.0.0
@@ -68,6 +75,6 @@
 
 # Loadstring <br />
 
- ```md
+```
 loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua'))();
-  ```
+```
