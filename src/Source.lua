@@ -2620,7 +2620,7 @@ local function HookData()
                     Arguments[1] = Mouse.Hit;
                     Arguments[2] = Mouse.Target;
 
-                    if not Utils.Players:FindFirstChild(AimlockTarget.Name) then
+                    if AimlockTarget and not Utils.Players:FindFirstChild(AimlockTarget.Name) then
                         return;
                     end
 
@@ -2643,7 +2643,7 @@ local function HookData()
                         Arguments[2] = Mouse.Hit;
                         Arguments[3] = Mouse.Target;
 
-                        if not Utils.Players:FindFirstChild(AimlockTarget.Name) then
+                        if AimlockTarget and not Utils.Players:FindFirstChild(AimlockTarget.Name) then
                             return;
                         end
 
@@ -2668,7 +2668,7 @@ local function HookData()
                         Arguments[2].shift = false;
                         Arguments[2].mousetarget = Mouse.Target;
 
-                        if not Utils.Players:FindFirstChild(AimlockTarget.Name) then
+                        if AimlockTarget and not Utils.Players:FindFirstChild(AimlockTarget.Name) then
                             return;
                         end
 
