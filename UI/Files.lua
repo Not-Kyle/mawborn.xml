@@ -1,5 +1,13 @@
 local Menu = Import('UI/NewMenu.lua');
 
+if Menu.Select then
+    print('Found Select');
+elseif Menu.Boolean then
+    print('Found Boolean');
+else
+    print('None');
+end
+
 local HttpService = game:GetService('HttpService')
 local SaveManager = {} do
 	SaveManager.Folder = 'LinoriaLibSettings'
