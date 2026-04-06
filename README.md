@@ -75,6 +75,6 @@ debcdde -> 0.9.99
 
 # Loadstring <br />
 
-```
+```lua
 loadstring(game:HttpGet('https://raw.githubusercontent.com/Not-Kyle/batch/refs/heads/main/Lua/MawbornLoader.lua'))();
 ```
