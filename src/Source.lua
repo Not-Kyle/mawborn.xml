@@ -4560,17 +4560,17 @@ local function CheatData()
     Utils.UserInputService.InputBegan:Connect(OnInput);
     Utils.UserInputService.InputEnded:Connect(OnEnded);
 
-    --Utils.RunService.RenderStepped:Connect(OnRenderStepped);
-    --Utils.RunService.Heartbeat:Connect(OnHeartbeat);
+    Utils.RunService.RenderStepped:Connect(OnRenderStepped);
+    Utils.RunService.Heartbeat:Connect(OnHeartbeat);
 
     Host.CharacterAdded:Connect(OnCharacterAdded);
     Host.Chatted:Connect(CommandHandler.Execute);
 
-    --Utils.Players.PlayerAdded:Connect(OnPlayerAdded);
-    --Utils.Players.PlayerRemoving:Connect(OnPlayerRemoving);
+    Utils.Players.PlayerAdded:Connect(OnPlayerAdded);
+    Utils.Players.PlayerRemoving:Connect(OnPlayerRemoving);
 
-    --Body.DescendantAdded:Connect(BodyDescendantAdded);
-    --Utils.Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
+    Body.DescendantAdded:Connect(BodyDescendantAdded);
+    Utils.Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
 
     Humanoid:GetPropertyChangedSignal('Health'):Connect(AutoHeal)
 
