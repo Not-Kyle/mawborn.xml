@@ -961,68 +961,68 @@ local function UpdateEsp()
     end
 
     for Property, Index in next, EspConfig do
-        local Player = Property and Property.Character -- I should take the time to rename this for readability
+        local Player = Property and Property.Character; -- I should take the time to rename this for readability
         local UserId = Property and Property.UserId;
 
         local Creator = Utils.CreatorCheck(UserId)
-        local Moderator = Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Property)
-        local KosCheck = Boolean.KosCheck.Value and Utils.KosCheck(UserId)
+        local Moderator = Boolean.AdminDetection.Value and Utils.AdminCheck(UserId, Property);
+        local KosCheck = Boolean.KosCheck.Value and Utils.KosCheck(UserId);
 
-        local EspHumanoid = Player and Player:FindFirstChildOfClass('Humanoid')
-        local EspHead = Player and Player:FindFirstChild('Head')
-        local EspRoot = Player and Player:FindFirstChild('HumanoidRootPart') or (EspHumanoid and EspHumanoid.RootPart)
+        local EspHumanoid = Player and Player:FindFirstChildOfClass('Humanoid');
+        local EspHead = Player and Player:FindFirstChild('Head');
+        local EspRoot = Player and Player:FindFirstChild('HumanoidRootPart') or (EspHumanoid and EspHumanoid.RootPart);
 
         if not EspHumanoid or not EspHead or not EspRoot or EspHumanoid.Health <= 0 then
-            SetVisible(Index, false)
+            SetVisible(Index, false);
 
-            continue
+            continue;
         end
 
         if Boolean.Esp.Value and Player and EspHumanoid and EspHead then
             local Orientation, Size = Player:GetBoundingBox();
 
-            local TopPosition = Orientation.Position + Vector3.new(0, Size.Y / 2, 0)
-            local BottomPosition = Orientation.Position - Vector3.new(0, Size.Y / 2, 0)
+            local TopPosition = Orientation.Position + Vector3.new(0, Size.Y / 2, 0);
+            local BottomPosition = Orientation.Position - Vector3.new(0, Size.Y / 2, 0);
 
-            local TopPos = Camera:WorldToViewportPoint(TopPosition)
-            local BottomPos = Camera:WorldToViewportPoint(BottomPosition)
-            local ScreenPos, OnScreen = Camera:WorldToViewportPoint(Orientation.Position)
+            local TopPos = Camera:WorldToViewportPoint(TopPosition);
+            local BottomPos = Camera:WorldToViewportPoint(BottomPosition);
+            local ScreenPos, OnScreen = Camera:WorldToViewportPoint(Orientation.Position);
 
-            local Height = math.abs(TopPos.Y - BottomPos.Y)
-            local Width = Height / 1.6
-            local BoxPos = Vector2.new(ScreenPos.X - Width / 2, ScreenPos.Y - Height / 2)
+            local Height = math.abs(TopPos.Y - BottomPos.Y);
+            local Width = Height / 1.6;
+            local BoxPos = Vector2.new(ScreenPos.X - Width / 2, ScreenPos.Y - Height / 2);
 
-            local Raycast = Utils.WallCheck(Body, Player, EspHead)
+            local Raycast = Utils.WallCheck(Body, Player, EspHead);
 
             if Creator then
-                Index.Box.Color = CycleHSV
-                Index.Tracer.Color = CycleHSV
-                Index.Chams.FillColor = CycleHSV
+                Index.Box.Color = CycleHSV;
+                Index.Tracer.Color = CycleHSV;
+                Index.Chams.FillColor = CycleHSV;
 
             elseif Moderator then
-                Index.Box.Color = Select.Colors.ModeratorColor.Value
-                Index.Tracer.Color = Select.Colors.ModeratorColor.Value
-                Index.Chams.FillColor = Select.Colors.ModeratorColor.Value
+                Index.Box.Color = Select.Colors.ModeratorColor.Value;
+                Index.Tracer.Color = Select.Colors.ModeratorColor.Value;
+                Index.Chams.FillColor = Select.Colors.ModeratorColor.Value;
 
             elseif KosCheck then
-                Index.Box.Color = Select.KosColor.Value
-                Index.Tracer.Color = Select.KosColor.Value
-                Index.Chams.FillColor = Select.KosColor.Value
+                Index.Box.Color = Select.KosColor.Value;
+                Index.Tracer.Color = Select.KosColor.Value;
+                Index.Chams.FillColor = Select.KosColor.Value;
 
             elseif Boolean.HitCheck.Value and StudDistance(EspHead) >= 156 then
-                Index.Box.Color = Select.HitCheckColor.Value
-                Index.Tracer.Color = Select.HitCheckColor.Value
-                Index.Chams.FillColor = Select.HitCheckColor.Value
+                Index.Box.Color = Select.HitCheckColor.Value;
+                Index.Tracer.Color = Select.HitCheckColor.Value;
+                Index.Chams.FillColor = Select.HitCheckColor.Value;
                 
             elseif Boolean.EspTargetColor.Value and AimlockTarget == Property then
-                Index.Box.Color = Select.TargetColorPicker.Value
-                Index.Tracer.Color = Select.TargetColorPicker.Value
-                Index.Chams.FillColor = Select.TargetColorPicker.Value
+                Index.Box.Color = Select.TargetColorPicker.Value;
+                Index.Tracer.Color = Select.TargetColorPicker.Value;
+                Index.Chams.FillColor = Select.TargetColorPicker.Value;
 
             else
-                Index.Box.Color = Colors.ScriptColor
-                Index.Tracer.Color = Colors.ScriptColor
-                Index.Chams.FillColor = Colors.ScriptColor
+                Index.Box.Color = Colors.ScriptColor;
+                Index.Tracer.Color = Colors.ScriptColor;
+                Index.Chams.FillColor = Colors.ScriptColor;
             end
 
             Index.Box.Thickness = Select.DrawingThickness.Value;
@@ -1039,14 +1039,14 @@ local function UpdateEsp()
             EspHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
             
             if OnScreen and Select.StudDistance.Value >= StudDistance(EspHead) then
-                Index.TopText.Text = string.format('%s [%s]', Property.DisplayName, StudDistance(EspHead))
+                Index.TopText.Text = string.format('%s [%s]', Property.DisplayName, StudDistance(EspHead));
 
                 if KosCheck then
-                    Index.TopText.Text = string.format('%s [%s] Level: %s', Property.DisplayName, StudDistance(EspHead), Utils.Kos()[UserId].Level)
+                    Index.TopText.Text = string.format('%s [%s] Level: %s', Property.DisplayName, StudDistance(EspHead), Utils.Kos()[UserId].Level);
                 end
 
                 if Creator then
-                    Index.TopText.Text = string.format('DEVELOPER: %s [%s]', Property.DisplayName, StudDistance(EspHead))
+                    Index.TopText.Text = string.format('DEVELOPER: %s [%s]', Property.DisplayName, StudDistance(EspHead));
                 end
 
                 Index.SideText.Text = Raycast and '[visible]' or '[not visible]';
@@ -1062,13 +1062,13 @@ local function UpdateEsp()
                 Index.HealthBarOutline.Visible = Boolean.EspHealthBar.Value;
 
                 Index.SideText.Color = Raycast and Color3.fromRGB(0, 225, 0) or Color3.fromRGB(225, 0, 0);
-                Index.Chams.OutlineColor = Boolean.ChamsOutline.Value and Select.ChamsOutlineColor.Value or Index.Chams.OutlineColor
+                Index.Chams.OutlineColor = Boolean.ChamsOutline.Value and Select.ChamsOutlineColor.Value or Index.Chams.OutlineColor;
 
-                Index.Chams.OutlineTransparency = Boolean.ChamsOutline.Value and 0 or 1
+                Index.Chams.OutlineTransparency = Boolean.ChamsOutline.Value and 0 or 1;
 
-                Index.Chams.Enabled = Boolean.EspChams.Value
+                Index.Chams.Enabled = Boolean.EspChams.Value;
 
-                Index.Chams.DepthMode = Select.ChamsDepth.Value == 'Occluded' and Enum.HighlightDepthMode.Occluded or Enum.HighlightDepthMode.AlwaysOnTop
+                Index.Chams.DepthMode = Select.ChamsDepth.Value == 'Occluded' and Enum.HighlightDepthMode.Occluded or Enum.HighlightDepthMode.AlwaysOnTop;
 
                 for _, Data in next, Player:GetChildren() do
                     if Data:IsA('Tool') and Boolean.EspTool.Value then
@@ -1083,7 +1083,7 @@ local function UpdateEsp()
                                 Data.Name,
                                 Clips and Clips.Value or 'n/a',
                                 Ammo and Ammo.Value or 'n/a'
-                            )
+                            );
 
                             Debounce.EspToolHasAmmo = true;
                         else
@@ -1091,55 +1091,55 @@ local function UpdateEsp()
                             Debounce.EspToolHasAmmo = false;
                         end
                     else
-                        Index.BottomText.Text = ''
+                        Index.BottomText.Text = '';
                         Debounce.EspHoldingTool = false;
                     end
                 end
 
-                Index.Box.Size = Vector2.new(Width, Height)
-                Index.BoxOutline.Size = Vector2.new(Width, Height)
+                Index.Box.Size = Vector2.new(Width, Height);
+                Index.BoxOutline.Size = Vector2.new(Width, Height);
 
                 Index.Box.Position = BoxPos;
                 Index.BoxOutline.Position = BoxPos;
 
-                Index.HealthBar.Size = Vector2.new(1, Height * (EspHumanoid.Health / EspHumanoid.MaxHealth))
-                Index.HealthBarOutline.Size = Vector2.new(4, Height + 2)
+                Index.HealthBar.Size = Vector2.new(1, Height * (EspHumanoid.Health / EspHumanoid.MaxHealth));
+                Index.HealthBarOutline.Size = Vector2.new(4, Height + 2);
 
-                Index.HealthBar.Position = Vector2.new(BoxPos.X - 5, BottomPos.Y - (Height * (EspHumanoid.Health / EspHumanoid.MaxHealth)))
-                Index.HealthBarOutline.Position = Vector2.new(BoxPos.X - 6, BoxPos.Y - 1)
+                Index.HealthBar.Position = Vector2.new(BoxPos.X - 5, BottomPos.Y - (Height * (EspHumanoid.Health / EspHumanoid.MaxHealth)));
+                Index.HealthBarOutline.Position = Vector2.new(BoxPos.X - 6, BoxPos.Y - 1);
 
-                Index.HealthBar.Color = Color3.fromRGB(255 * (1 - (EspHumanoid.Health / EspHumanoid.MaxHealth)), 255 * (EspHumanoid.Health / EspHumanoid.MaxHealth), 0)
+                Index.HealthBar.Color = Color3.fromRGB(255 * (1 - (EspHumanoid.Health / EspHumanoid.MaxHealth)), 255 * (EspHumanoid.Health / EspHumanoid.MaxHealth), 0);
 
-                Index.Tracer.From = SnaplineMethod
-                Index.Tracer.To = Vector2.new(BottomPos.X, BottomPos.Y)
+                Index.Tracer.From = SnaplineMethod;
+                Index.Tracer.To = Vector2.new(BottomPos.X, BottomPos.Y);
 
-                Index.OutlineTracer.From = SnaplineMethod
-                Index.OutlineTracer.To = Vector2.new(BottomPos.X, BottomPos.Y)
+                Index.OutlineTracer.From = SnaplineMethod;
+                Index.OutlineTracer.To = Vector2.new(BottomPos.X, BottomPos.Y);
 
                 Index.TopText.Position = Vector2.new(ScreenPos.X, BoxPos.Y - (NoScale(13, EspHead)));
-                Index.BottomText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 1)
+                Index.BottomText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 1);
 
-                Index.TopText.Size = NoScale(12, EspHead)
-                Index.BottomText.Size = NoScale(12, EspHead)
-                Index.SideText.Size = NoScale(12, EspHead)
+                Index.TopText.Size = NoScale(12, EspHead);
+                Index.BottomText.Size = NoScale(12, EspHead);
+                Index.SideText.Size = NoScale(12, EspHead);
 
                 if Debounce.EspHoldingTool and not Debounce.EspToolHasAmmo then
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 11.5)
+                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 11.5);
 
                 elseif Debounce.EspHoldingTool and Debounce.EspToolHasAmmo then 
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 25)
+                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 25);
 
                 else
-                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 2.5)
+                    Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 2.5);
                 end
             else
-                SetVisible(Index, false)
+                SetVisible(Index, false);
             end
         else
-            SetVisible(Index, false)
+            SetVisible(Index, false);
 
             if EspHumanoid then
-                EspHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+                EspHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer;
             end
         end
     end
@@ -2210,7 +2210,7 @@ local function OnRenderStepped(Delta: number)
 
     if Debounce.ScriptLoaded then
         UpdateBulletCounter();
-        UpdateEsp();
+        --UpdateEsp();
         UpdateItemEsp();
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
@@ -4308,7 +4308,7 @@ end
 
 
 local function OnCharacterAdded(Character: Model)
-    Import('Utils/Library/Ignores.lua');
+    --Import('Utils/Library/Ignores.lua');
 
     Body = Character or Host.Character;
     Head = Body and Body:WaitForChild('Head');
