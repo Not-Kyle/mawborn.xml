@@ -1070,7 +1070,7 @@ local function UpdateEsp()
 
                 Index.Chams.DepthMode = Select.ChamsDepth.Value == 'Occluded' and Enum.HighlightDepthMode.Occluded or Enum.HighlightDepthMode.AlwaysOnTop;
 
-                for _, Data in next, Player:GetChildren() do
+                --[[for _, Data in next, Player:GetChildren() do
                     if Data:IsA('Tool') and Boolean.EspTool.Value then
 
                         Debounce.EspHoldingTool = true;
@@ -1094,7 +1094,7 @@ local function UpdateEsp()
                         Index.BottomText.Text = '';
                         Debounce.EspHoldingTool = false;
                     end
-                end
+                end]]--
 
                 Index.Box.Size = Vector2.new(Width, Height);
                 Index.BoxOutline.Size = Vector2.new(Width, Height);
@@ -2210,7 +2210,7 @@ local function OnRenderStepped(Delta: number)
 
     if Debounce.ScriptLoaded then
         UpdateBulletCounter();
-        --UpdateEsp();
+        UpdateEsp();
         UpdateItemEsp();
         UpdateInfoCursor();
         UpdateBulletCounterPositions();
@@ -4308,7 +4308,7 @@ end
 
 
 local function OnCharacterAdded(Character: Model)
-    --Import('Utils/Library/Ignores.lua');
+    Import('Utils/Library/Ignores.lua');
 
     Body = Character or Host.Character;
     Head = Body and Body:WaitForChild('Head');
