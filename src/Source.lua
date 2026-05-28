@@ -1070,7 +1070,7 @@ local function UpdateEsp()
 
                 Index.Chams.DepthMode = Select.ChamsDepth.Value == 'Occluded' and Enum.HighlightDepthMode.Occluded or Enum.HighlightDepthMode.AlwaysOnTop;
 
-                --[[for _, Data in next, Player:GetChildren() do
+                for _, Data in next, Player:GetChildren() do
                     if Data:IsA('Tool') and Boolean.EspTool.Value then
 
                         Debounce.EspHoldingTool = true;
@@ -1094,7 +1094,7 @@ local function UpdateEsp()
                         Index.BottomText.Text = '';
                         Debounce.EspHoldingTool = false;
                     end
-                end]]--
+                end
 
                 Index.Box.Size = Vector2.new(Width, Height);
                 Index.BoxOutline.Size = Vector2.new(Width, Height);
@@ -4560,17 +4560,17 @@ local function CheatData()
     Utils.UserInputService.InputBegan:Connect(OnInput);
     Utils.UserInputService.InputEnded:Connect(OnEnded);
 
-    Utils.RunService.RenderStepped:Connect(OnRenderStepped);
-    Utils.RunService.Heartbeat:Connect(OnHeartbeat);
+    --Utils.RunService.RenderStepped:Connect(OnRenderStepped);
+    --Utils.RunService.Heartbeat:Connect(OnHeartbeat);
 
     Host.CharacterAdded:Connect(OnCharacterAdded);
     Host.Chatted:Connect(CommandHandler.Execute);
 
-    Utils.Players.PlayerAdded:Connect(OnPlayerAdded);
-    Utils.Players.PlayerRemoving:Connect(OnPlayerRemoving);
+    --Utils.Players.PlayerAdded:Connect(OnPlayerAdded);
+    --Utils.Players.PlayerRemoving:Connect(OnPlayerRemoving);
 
-    Body.DescendantAdded:Connect(BodyDescendantAdded);
-    Utils.Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
+    --Body.DescendantAdded:Connect(BodyDescendantAdded);
+    --Utils.Workspace.DescendantAdded:Connect(WorkspaceDescendantAdded);
 
     Humanoid:GetPropertyChangedSignal('Health'):Connect(AutoHeal)
 
