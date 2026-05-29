@@ -3843,7 +3843,7 @@ Select.AimlockTargetKeybind:OnClick(function()
         AddEsp(AimlockTarget)
     end
 
-    Notify('Aimlock Target', 'Aimlock Target is now '..tostring(AimlockTarget.DisplayName) or tostring(AimlockTarget.Name));;
+    Notify('Aimlock Target', 'Aimlock Target is now '..tostring(AimlockTarget.DisplayName) or tostring(AimlockTarget.Name));
 end)
 
 
