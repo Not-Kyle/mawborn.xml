@@ -330,6 +330,20 @@ function Utils.Root(Player: Player) : BasePart
 end
 
 
+function Utils.IndexRoot(Player: Player) : BasePart
+    local Character = Utils.Body(Player, 'Utils.IndexRoot')
+
+    if not Character then
+        return
+    end
+
+    local Humanoid = Character.FindFirstChildOfClass(Character, 'Humanoid')
+    local Root = Character.FindFirstChild(Character, 'HumanoidRootPart')
+
+    return Root or (Humanoid and Humanoid.RootPart)
+end
+
+
 function Utils.Humanoid(Player: Player) : Humanoid
     local Character = Utils.Body(Player, 'Utils.Humanoid')
 
