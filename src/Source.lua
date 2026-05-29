@@ -2425,7 +2425,7 @@ local function FireAimlock()
     end
 
     local AimlockOnTarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
-    local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
+    local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.IndexRoot(AimlockTarget))) or Mouse.Hit;
 
     if Utils.Streets then
         local Input = Backpack:FindFirstChild('Input', true)
@@ -2464,7 +2464,7 @@ end
 
 local function HookMouse() : (CFrame, Instance?)
     if Boolean.Aimlock.Value and AimlockTarget then
-        return FindPlayersPart(AimlockTarget) or AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
+        return FindPlayersPart(AimlockTarget) or AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.IndexRoot(AimlockTarget))) or Mouse.Hit;
     end
 
     return Mouse.Hit, Mouse.Target
@@ -2638,7 +2638,7 @@ local function HookData()
                     if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                         local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
+                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.IndexRoot(AimlockTarget))) or Mouse.Hit;
                         Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                     end
                 end
@@ -2661,7 +2661,7 @@ local function HookData()
                         if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
+                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.IndexRoot(AimlockTarget))) or Mouse.Hit;
                             Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
                     end
@@ -2686,7 +2686,7 @@ local function HookData()
                         if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
+                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.IndexRoot(AimlockTarget))) or Mouse.Hit;
                             Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
 
