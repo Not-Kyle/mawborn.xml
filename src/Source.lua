@@ -2024,6 +2024,17 @@ local function SendKnockedAttributes(Player: Player)
 end
 
 
+local function CheckIfRotating(RootPart: BasePart) : boolean
+    local AngularVelocity = RootPart.AssemblyAngularVelocity;
+
+    if AngularVelocity.Magnitude > (Select.RotThreshold.Value or 0.5) then -- Defaulting to 0.5, eh.
+        return true;
+    end
+
+    return false;
+end
+
+
 local function Cash() : number
     local Cash = CashUi.Text
 
@@ -2414,7 +2425,7 @@ local function FireAimlock()
     end
 
     local AimlockOnTarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
-    local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+    local AimlockOnHit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
 
     if Utils.Streets then
         local Input = Backpack:FindFirstChild('Input', true)
@@ -2453,7 +2464,7 @@ end
 
 local function HookMouse() : (CFrame, Instance?)
     if Boolean.Aimlock.Value and AimlockTarget then
-        return FindPlayersPart(AimlockTarget) or AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+        return FindPlayersPart(AimlockTarget) or AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
     end
 
     return Mouse.Hit, Mouse.Target
@@ -2627,7 +2638,7 @@ local function HookData()
                     if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                         local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                        Arguments[1] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
                         Arguments[2] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                     end
                 end
@@ -2650,7 +2661,7 @@ local function HookData()
                         if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[2] = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
                             Arguments[3] = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
                     end
@@ -2675,7 +2686,7 @@ local function HookData()
                         if Boolean.Aimlock.Value and AimlockTarget and Select.AimlockMode.Value == 'Manual' then
                             local AimlockCharacter = AimlockTarget.Character or AimlockTarget.CharacterAdded:Wait() 
 
-                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, Boolean.RotationalVelocity.Value) or Mouse.Hit;
+                            Arguments[2].mousehit = AimlockConfig(Select.AimlockMethod.Value, Boolean.RandomVelocity.Value, CheckIfRotating(Utils.Root(AimlockTarget))) or Mouse.Hit;
                             Arguments[2].mousetarget = AimlockCharacter[Select.AimlockPart.Value] or Mouse.Target;
                         end
 
@@ -2910,8 +2921,6 @@ do
 
         if Arguments[1] and table.find(AimlockMethodIndex, Arguments[1]) then
 
-            Boolean.RotationalVelocity.Value = (Arguments[1] == 'cyrus')
-
             Select.AimlockMethod.Value = String.sentenceCase(Arguments[1])
             Notify('Aimlock Method', 'Aimlock Method is now '..tostring(Select.AimlockMethod.Value))
         end
@@ -2941,12 +2950,6 @@ do
 
         Select.AimlockVelocity.Value = Arguments[1]
         Notify('Aimlock Velocity', 'Aimlock Velocity is now '..tonumber(Select.AimlockVelocity.Value))
-    end)
-
-
-    CommandHandler.Add('rotvelocity', {'rotationalvelocity', 'rotationvelocity'}, 'Toggles on Cyrus\'s RotVelocity (Must be using AimlockMethod Cyrus)', '', true, function()
-        Boolean.RotationalVelocity.Value = not Boolean.RotationalVelocity.Value
-        Notify('Cyrus Rotational Velocity', 'Cyrus Rotational Velocity is now '..tostring(Boolean.RotationalVelocity.Value))
     end)
 
 
@@ -3289,8 +3292,6 @@ ThemeMenu:ApplyToTab(Tabs.Data);
 -- Combat [] Aimlock Box
 
 CombatTab.AimlockTab:AddToggle('Aimlock', { Text = 'Aimlock', Tooltip = 'Turns on aimlock (DONT USE ON PRISON)' }):AddKeyPicker('AimlockKeybind', { Default = 'Q', SyncToggleState = true, Mode = 'Toggle', Text = 'Aimlock' }); Boolean.Aimlock:OnChanged(function()
-    UpdateLabel()
-
     if Utils.Prison then
         Boolean.Aimlock.Value = false;
     end
@@ -3310,9 +3311,7 @@ CombatTab.AimlockTab:AddBlank(5)
 
 CombatTab.AimlockTab:AddDropdown('AimlockPart', { Text = 'Aimlock Part', Tooltip = 'Changes your aimlock part', Values = {'Head', 'Torso', 'HumanoidRootPart'}, Default = 'HumanoidRootPart', Multi = false })
 
-CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Ponyhook', Multi = false }):OnChanged(function()
-    UpdateLabel()
-end)
+CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Ponyhook', Multi = false });
 
 CombatTab.AimlockTab:AddDropdown('AimlockMode', { Text = 'Aimlock Mode', Tooltip = 'Changes the way your aimlock fires (RECOMMEND USING AUTO-RELOAD)', Values = {'Manual', 'New Manual', 'Automatic', 'Ciazware'}, Default = 'Manual', Multi = false })
 
@@ -3324,27 +3323,17 @@ CombatTab.AimlockTab:AddDivider();
 CombatTab.AimlockTab:AddLabel('Advanced')
 CombatTab.AimlockTab:AddBlank(2);
 
-CombatTab.AimlockTab:AddToggle('RandomVelocity', { Text = 'Random Velocity', Tooltip = 'Must be using Ponyhook aimlock', Default = true }):OnChanged(function()
-    UpdateLabel()
-end);
+CombatTab.AimlockTab:AddToggle('RandomVelocity', {Text = 'Random Velocity', Tooltip = 'Must be using Ponyhook aimlock', Default = true});
 
-CombatTab.AimlockTab:AddToggle('RotationalVelocity', { Text = 'Rotational Velocity', Tooltip = 'Must be using Cyrus aimlock', Default = true }):OnChanged(function()
-    UpdateLabel()
-end);
+CombatTab.AimlockTab:AddSlider('RotThreshold', {Text = 'Rotational Threshold', Default = 0.5, Min = 0, Max = 5, Rounding = 2});
 
 CombatTab.AimlockTab:AddBlank(3);
 
-CombatTab.AimlockTab:AddSlider('AimlockVelocity', { Text = 'Aimlock Velocity', Default = 0.031, Min = 0, Max = 1, Rounding = 3}):OnChanged(function()
-    UpdateLabel()
-end);
+CombatTab.AimlockTab:AddSlider('AimlockVelocity', { Text = 'Aimlock Velocity', Default = 0.031, Min = 0, Max = 1, Rounding = 3});
 
-CombatTab.AimlockTab:AddSlider('PonyhookVelocity', { Text = 'Ponyhook Velocity', Tooltip = 'Must be using Ponyhook aimlock', Default = 1, Min = 0.1, Max = 10, Rounding = 2 }):OnChanged(function()
-    UpdateLabel()
-end);
+CombatTab.AimlockTab:AddSlider('PonyhookVelocity', { Text = 'Ponyhook Velocity', Tooltip = 'Must be using Ponyhook aimlock', Default = 1, Min = 0.1, Max = 10, Rounding = 2 });
 
-CombatTab.AimlockTab:AddSlider('Humanization', { Text = 'Humanization', Tooltip = 'Must be using Velocity aimlock', Default = 1, Min = 0.1, Max = 2, Rounding = 1 }):OnChanged(function()
-    UpdateLabel()
-end);
+CombatTab.AimlockTab:AddSlider('Humanization', { Text = 'Humanization', Tooltip = 'Must be using Velocity aimlock', Default = 1, Min = 0.1, Max = 2, Rounding = 1 });
 
 -- [] Camlock Box
 
@@ -3552,9 +3541,7 @@ end)
 
 MovementTab.FlyTab:AddBlank(3);
 
-MovementTab.FlyTab:AddSlider('FlySpeed', {Text = 'Flight Speed', Tooltip = 'Changes your flying speed', Default = 4, Min = 1, Max = 40, Rounding = 0}):OnChanged(function()
-    UpdateLabel()
-end)
+MovementTab.FlyTab:AddSlider('FlySpeed', {Text = 'Flight Speed', Tooltip = 'Changes your flying speed', Default = 4, Min = 1, Max = 40, Rounding = 0});
 
 -- [] Player Box
 
@@ -3564,15 +3551,12 @@ MovementTab.PlayerTab:AddToggle('InfiniteJump', {Text = 'Infinite Jump', Tooltip
     SetInfiniteJump(Boolean.InfiniteJump.Value)
 end);
 
-MovementTab.PlayerTab:AddToggle('InfiniteStam', {Text = 'Infinite Stamina', Tooltip = 'Toggles infinite stamina'}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.PlayerTab:AddToggle('InfiniteStam', {Text = 'Infinite Stamina', Tooltip = 'Toggles infinite stamina'});
 
 MovementTab.PlayerTab:AddToggle('NoClip', {Text = 'No Clip', Tooltip = 'Toggles noclip'}):AddKeyPicker('NoClipKeybind', {Default = 'G', SyncToggleState = true, Mode = 'Toggle', Text = 'NoClip'}); Select.NoClipKeybind:OnClick(function()
     Notify('Noclip', 'Noclip is now '..tostring(Boolean.NoClip.Value))
 
-    OnNoclip(Boolean.NoClip.Value)
-    UpdateLabel();
+    OnNoclip(Boolean.NoClip.Value);
 end);
 
 MovementTab.PlayerTab:AddToggle('NoSit', {Text = 'No Sit', Tooltip = 'Toggles no sit', Default = true}):OnChanged(function()
@@ -3587,9 +3571,7 @@ MovementTab.PlayerTab:AddToggle('NoVehicleSit', {Text = 'No Vehicle Sit', Toolti
     end
 end);
 
-MovementTab.PlayerTab:AddToggle('NoSlow', {Text = 'No Slow', Tooltip = 'Toggles no slow', Default = true}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.PlayerTab:AddToggle('NoSlow', {Text = 'No Slow', Tooltip = 'Toggles no slow', Default = true});
 
 MovementTab.PlayerTab:AddToggle('Airwalk', {Text = 'Airwalk', Tooltip = 'Toggles airwalk'}):AddKeyPicker('AirwalkKeybind', {Default = '', SyncToggleState = true, Mode = 'Toggle', Text = 'Airwalk'}) Boolean.Airwalk:OnChanged(function()
     if Boolean.Airwalk.Value then Airwalk() else KillAirwalk() end
@@ -3597,17 +3579,11 @@ end);
 
 MovementTab.PlayerTab:AddDivider();
 
-MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed', Default = Originals.WalkSpeed, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.PlayerTab:AddSlider('WalkSpeed', {Text = 'Walking Speed', Tooltip = 'Changes your walking speed', Default = Originals.WalkSpeed, Min = 1, Max = 500, Rounding = 0});
 
-MovementTab.PlayerTab:AddSlider('RunSpeed', {Text = 'Running Speed', Tooltip = 'Changes your running speed', Default = 25, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.PlayerTab:AddSlider('RunSpeed', {Text = 'Running Speed', Tooltip = 'Changes your running speed', Default = 25, Min = 1, Max = 500, Rounding = 0});
 
-MovementTab.PlayerTab:AddSlider('CrouchSpeed', {Text = 'Crouch Speed', Tooltip = 'Changes your crouching speed', Default = 8, Min = 1, Max = 500, Rounding = 0}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.PlayerTab:AddSlider('CrouchSpeed', {Text = 'Crouch Speed', Tooltip = 'Changes your crouching speed', Default = 8, Min = 1, Max = 500, Rounding = 0});
 
 MovementTab.PlayerTab:AddSlider('HipHeight', {Text = 'Hip Height', Tooltip = 'Changes your hip height', Default = Originals.HipHeight , Min = 0, Max = 50, Rounding = 1}):OnChanged(function()
     Humanoid.HipHeight = Select.HipHeight.Value or Originals.HipHeight
@@ -3619,21 +3595,16 @@ MovementTab.PlayerTab:AddSlider('JumpPower', {Text = 'Jump Power', Tooltip = 'Ch
 
 MovementTab.BlinkTab:AddToggle('Blink', {Text = 'Blink', Tooltip = 'Makes allows you to run', Default = true}):AddKeyPicker('BlinkKeybind', {Default = 'B', SyncToggleState = true, Mode = 'Toggle', Text = 'Blink'}) Boolean.Blink:OnChanged(function()
     Notify('Blink', 'Blink is now '..tostring(Boolean.Blink.Value))
-
-    UpdateLabel();
+;
 end)
 
 MovementTab.BlinkTab:AddToggle('LoopBlink', {Text = 'Loop Blink', Tooltip = 'Keeps blink on so you dont have to hold shift', Default = false})
 
 MovementTab.BlinkTab:AddBlank(3);
 
-MovementTab.BlinkTab:AddSlider('BlinkSpeed', {Text = 'Blink Speed', Tooltip = 'Changes your blink speed', Default = 4, Min = 0, Max = 250, Rounding = 0}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.BlinkTab:AddSlider('BlinkSpeed', {Text = 'Blink Speed', Tooltip = 'Changes your blink speed', Default = 4, Min = 0, Max = 250, Rounding = 0});
 
-MovementTab.BlinkTab:AddDropdown('BlinkMethod', {Text = 'Blink Method', Tooltip = 'Changes how your blink moves', Values = {'Movedirection', 'Cframe', 'Lookvector'}, Default = 'Movedirection', Multi = false}):OnChanged(function()
-    UpdateLabel()
-end);
+MovementTab.BlinkTab:AddDropdown('BlinkMethod', {Text = 'Blink Method', Tooltip = 'Changes how your blink moves', Values = {'Movedirection', 'Cframe', 'Lookvector'}, Default = 'Movedirection', Multi = false});
 
 -- [] Teleport Box
 
@@ -3872,8 +3843,7 @@ Select.AimlockTargetKeybind:OnClick(function()
         AddEsp(AimlockTarget)
     end
 
-    Notify('Aimlock Target', 'Aimlock Target is now '..tostring(AimlockTarget.DisplayName) or tostring(AimlockTarget.Name));
-    UpdateLabel();
+    Notify('Aimlock Target', 'Aimlock Target is now '..tostring(AimlockTarget.DisplayName) or tostring(AimlockTarget.Name));;
 end)
 
 
