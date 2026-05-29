@@ -2028,9 +2028,11 @@ local function CheckIfRotating(RootPart: BasePart) : boolean
     local AngularVelocity = RootPart.AssemblyAngularVelocity;
 
     if AngularVelocity.Magnitude > (Select.RotThreshold.Value or 0.5) then -- Defaulting to 0.5, eh.
+        print('Is On')
         return true;
     end
 
+    print('Not On')
     return false;
 end
 
@@ -2113,7 +2115,7 @@ local function AutoReload()
                 local Ammo = Weapon.Ammo;
                 local Clips = Weapon.Clips;
 
-                if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 and not Utils.TagSystem().has(Body, 'reloading') then
+                if Ammo and Clips and Ammo.Value == 0 and Clips.Value > 0 then
                     ProcessHandler();
                 end
             end
