@@ -73,7 +73,7 @@ Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
 
-for _, Connection in next, getconnections(Utils.ScriptContext.Error) do
+for _, Connection in next, getconnections(Utils.ScriptContext.Error) do -- // Temp fix until I get some issues resolved | I have a job :(
     if getfenv(Connection.Function).script == PlayerGui.LocalScript then
         Connection:Disable()
     end
