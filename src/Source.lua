@@ -1126,7 +1126,7 @@ local function UpdateEsp()
                 if Debounce.EspHoldingTool and not Debounce.EspToolHasAmmo then
                     Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 11.5);
 
-                elseif Debounce.EspHoldingTool and Debounce.EspToolHasAmmo then 
+                elseif Debounce.EspHoldingTool and Debounce.EspToolHasAmmo then
                     Index.SideText.Position = Vector2.new(ScreenPos.X, BoxPos.Y + Height + 25);
 
                 else
@@ -2391,7 +2391,7 @@ local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boole
                 
             end
 
-            return (SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36)) / IsRotVelocity)
+            return (SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36))) + IsRotVelocity
         end
 
         if Method == 'Movedirection' then
