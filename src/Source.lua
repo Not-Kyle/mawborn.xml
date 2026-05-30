@@ -2259,7 +2259,7 @@ local function OnRenderStepped(Delta: number)
         Camera.CameraSubject = FindPlayersPart(ViewTarget, 'Find', 'Head');
     end
 
-    if Boolean.Camlock.Value and CamlockTarget and FindPlayersPart(CamlockTarget) then
+    if Boolean.Camlock.Value and CamlockTarget and FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value) then
         Camera.CFrame = CFrame.new(Camera.CFrame.Position, FindPlayersPart(CamlockTarget, 'Find', Select.CamlockPart.Value).CFrame.Position)
     end
 
