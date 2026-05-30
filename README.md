@@ -60,7 +60,7 @@
 > ### How to contact me
 > 1. @killserver on discord, or add me on RBLX @hellokittysouljia or @mawborn
 
-# Updates [Current Version 1.0.0] <br />
+# Updates [Current Version 1.0.1A] <br />
 ### All Stable Versions
 ```
 ffc9662 -> 1.0.0
@@ -71,7 +71,7 @@ debcdde -> 0.9.99
 
 >[!NOTE]
 > ### Version: 1.0.1A
-> 1. Fixed some bugs and reworked the Drawing Lib to be faster and safer!
+> 1. Fixed some bugs!
 
 # Loadstring <br />
 
