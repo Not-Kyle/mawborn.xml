@@ -1502,7 +1502,7 @@ end
 
 
 local function UpdateBulletCounter()
-    if not Weapon or not Weapon.Tool or not Weapon.Clips then 
+    if not Weapon or not Weapon.Tool or not Weapon.Clips then
         return
     end
 
@@ -2926,8 +2926,8 @@ do
     end)
 
 
-    CommandHandler.Add('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, newcyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
-        local AimlockMethodIndex = {'cyrus', 'newcyrus', 'movedirection', 'ponyhook', 'vector', 'velocity'}
+    CommandHandler.Add('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
+        local AimlockMethodIndex = {'cyrus', 'movedirection', 'ponyhook', 'vector', 'velocity'}
 
         if Arguments[1] and table.find(AimlockMethodIndex, Arguments[1]) then
 
@@ -3321,7 +3321,7 @@ CombatTab.AimlockTab:AddBlank(5)
 
 CombatTab.AimlockTab:AddDropdown('AimlockPart', { Text = 'Aimlock Part', Tooltip = 'Changes your aimlock part', Values = {'Head', 'Torso', 'HumanoidRootPart'}, Default = 'HumanoidRootPart', Multi = false })
 
-CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'NewCyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Cyrus', Multi = false });
+CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Velocity', Multi = false });
 
 CombatTab.AimlockTab:AddDropdown('AimlockMode', { Text = 'Aimlock Mode', Tooltip = 'Changes the way your aimlock fires (RECOMMEND USING AUTO-RELOAD)', Values = {'Manual', 'New Manual', 'Automatic', 'Ciazware'}, Default = 'Manual', Multi = false })
 
@@ -3337,7 +3337,7 @@ CombatTab.AimlockTab:AddToggle('RandomVelocity', {Text = 'Random Velocity', Tool
 
 CombatTab.AimlockTab:AddBlank(3);
 
-CombatTab.AimlockTab:AddSlider('RotThreshold', {Text = 'Rotational Threshold', Tooltip = 'For Cyrus aimlock, it handles the automatic rotating predictions', Default = 0.15, Min = 0, Max = 1, Rounding = 2});
+CombatTab.AimlockTab:AddSlider('RotThreshold', {Text = 'Rotational Threshold', Tooltip = 'For Cyrus aimlock, it handles the automatic rotating predictions', Default = 0.4, Min = 0, Max = 1, Rounding = 2});
 
 CombatTab.AimlockTab:AddSlider('AimlockVelocity', { Text = 'Aimlock Velocity', Default = 0.031, Min = 0, Max = 1, Rounding = 3});
 
