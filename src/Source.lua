@@ -2388,10 +2388,9 @@ local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boole
 
             if IsCyrus then
                 IsRotVelocity = (VelocityType('RotVelocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36));
-                
             end
 
-            return (SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36))) + IsRotVelocity
+            return SetHitBox.CFrame + (Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36)) + IsRotVelocity)
         end
 
         if Method == 'Movedirection' then
