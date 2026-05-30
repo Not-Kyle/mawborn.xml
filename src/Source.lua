@@ -2027,12 +2027,10 @@ end
 local function CheckIfRotating(RootPart: BasePart) : boolean
     local AngularVelocity = RootPart.AssemblyAngularVelocity;
 
-    if AngularVelocity.Magnitude > (Select.RotThreshold.Value or 0.5) then -- Defaulting to 0.5, eh.
-        print('Is On')
+    if AngularVelocity.Magnitude > (Select.RotThreshold.Value or 0.15) then -- Defaulting to 0.15, eh.
         return true;
     end
 
-    print('Not On')
     return false;
 end
 
@@ -3327,9 +3325,9 @@ CombatTab.AimlockTab:AddBlank(2);
 
 CombatTab.AimlockTab:AddToggle('RandomVelocity', {Text = 'Random Velocity', Tooltip = 'Must be using Ponyhook aimlock', Default = true});
 
-CombatTab.AimlockTab:AddSlider('RotThreshold', {Text = 'Rotational Threshold', Default = 0.5, Min = 0, Max = 5, Rounding = 2});
-
 CombatTab.AimlockTab:AddBlank(3);
+
+CombatTab.AimlockTab:AddSlider('RotThreshold', {Text = 'Rotational Threshold', Tooltip = 'For Cyrus aimlock, it handles the automatic rotating predictions', Default = 0.15, Min = 0, Max = 1, Rounding = 2});
 
 CombatTab.AimlockTab:AddSlider('AimlockVelocity', { Text = 'Aimlock Velocity', Default = 0.031, Min = 0, Max = 1, Rounding = 3});
 
