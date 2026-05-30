@@ -2383,15 +2383,26 @@ local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boole
             return SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / IsRotVelocity)
         end
 
+        if Method == 'NewCyrus' then
+            local IsRotVelocity = 1;
+
+            if IsCyrus then
+                IsRotVelocity = (VelocityType('RotVelocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36));
+                
+            end
+
+            return (SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / (Ping < 0.36)) / IsRotVelocity)
+        end
+
         if Method == 'Movedirection' then
             return SetHitBox.CFrame + Vector3.new(VelocityType('MoveDirection', AimlockedTarget.Humanoid, SetAimlockVelocity))
         end
 
         if Method == 'Ponyhook' then -- Like the name suggests, It's Ponyhooks aimlock
             local IsRandomVelocity = Vector3.new();
-            local Vel = SetHitBox.AssemblyLinearVelocity -- It's an attribute in Ponyhook named Velocity, I'm just going to assume that its the targets velocity
+            local Vel = SetHitBox.AssemblyLinearVelocity -- It's an attribute in Ponyhook named Velocity, I'm just going to assume that its the targets velocity (Update 2026: I didn't have the full version of Ponyhook until a few months ago)
 
-            Vel *= Vector3.new(1, 0, 1); 
+            Vel *= Vector3.new(1, 0, 1);
             Vel *= Select.PonyhookVelocity.Value;
 
             if IsPonyhook then
@@ -2405,8 +2416,8 @@ local function AimlockConfig(Method: string, IsPonyhook: boolean, IsCyrus: boole
             return SetHitBox.CFrame + Vector3.new(1, 0, 1) + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity));
         end
         
-        if Method == 'Velocity' then -- Test Methods
-            return SetHitBox.CFrame + Vector3.new(VelocityType('Velocity', SetHitBox, SetAimlockVelocity) / Select.Humanization.Value)
+        if Method == 'Velocity' then
+            return SetHitBox.CFrame + Vector3.new((SetHitBox.Velocity.X * SetAimlockVelocity) / Select.Humanization.Value, 0, (SetHitBox.Velocity.Z * SetAimlockVelocity) / Select.Humanization.Value)
         end
     end
 
@@ -2916,8 +2927,8 @@ do
     end)
 
 
-    CommandHandler.Add('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
-        local AimlockMethodIndex = {'cyrus', 'movedirection', 'ponyhook', 'vector', 'velocity'}
+    CommandHandler.Add('aimlockmethod', {'aimmethod', 'am'}, 'Changes your aimlock functionality', 'cyrus, newcyrus, movedirection, ponyhook, vector, velocity', true, function(Arguments)
+        local AimlockMethodIndex = {'cyrus', 'newcyrus', 'movedirection', 'ponyhook', 'vector', 'velocity'}
 
         if Arguments[1] and table.find(AimlockMethodIndex, Arguments[1]) then
 
@@ -3311,7 +3322,7 @@ CombatTab.AimlockTab:AddBlank(5)
 
 CombatTab.AimlockTab:AddDropdown('AimlockPart', { Text = 'Aimlock Part', Tooltip = 'Changes your aimlock part', Values = {'Head', 'Torso', 'HumanoidRootPart'}, Default = 'HumanoidRootPart', Multi = false })
 
-CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Ponyhook', Multi = false });
+CombatTab.AimlockTab:AddDropdown('AimlockMethod', { Text = 'Aimlock Method', Tooltip = 'Changes your aimlock method', Values = {'Cyrus', 'NewCyrus', 'Ponyhook', 'Movedirection', 'Velocity', 'Vector'}, Default = 'Cyrus', Multi = false });
 
 CombatTab.AimlockTab:AddDropdown('AimlockMode', { Text = 'Aimlock Mode', Tooltip = 'Changes the way your aimlock fires (RECOMMEND USING AUTO-RELOAD)', Values = {'Manual', 'New Manual', 'Automatic', 'Ciazware'}, Default = 'Manual', Multi = false })
 
