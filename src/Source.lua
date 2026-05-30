@@ -3152,7 +3152,7 @@ Menu:OnUnload(function()
     Menu.Unloaded = true
 end);
 
-local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. Getgenv().Mawborn.Version .. '[' .. tostring(Getgenv().Mawborn.Commit) .. '] | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
+local Window = Menu:CreateWindow({Title = Utils.Title(2) .. ' [verison]: ' .. Getgenv().Mawborn.Version .. ' [' .. tostring(Getgenv().Mawborn.Commit) .. '] | ' .. Utils.GameTitle(), Center = true, AutoShow = true}) do
 
 FileMenu:SetLibrary(Menu)
 ThemeMenu:SetLibrary(Menu)
