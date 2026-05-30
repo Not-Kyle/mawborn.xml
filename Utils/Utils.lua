@@ -93,7 +93,7 @@ local Moderators = { -- Don't care about remake, gets taken down in 30 mins xd
     [57372642]  = {Name = 'Kotojo', Level = 5},
     [155145543] = {Name = 'Kaiits', Level = 4},
     [853076852] = {Name = 'Kaiits', Level = 4},
-    [5162665695] = {Name = 'Cyrus', Level = 4},
+    --[5162665695] = {Name = 'Cyrus', Level = 4},
     [14321011]  = {Name = 'AfroVs', Level = 4},
 
     -- Unknown Game Mods []
@@ -103,7 +103,7 @@ local Moderators = { -- Don't care about remake, gets taken down in 30 mins xd
     Prison = {
         --[4370541]     = {Name = 'Chosen', Level = 3},
         [2323183756] = {Name = 'e8llie', Level = 3},
-        [74287496]   = {Name = 'ImmScarrr', Level = 3},
+        --[74287496]   = {Name = 'ImmScarrr', Level = 3},
         --[1189253064]  = {Name = 'digitalbows', Level = 3}, -- Unconfirmed but was in godmode when trying to kill
         --[7763803027]  = {Name = 'dttmfocus', Level = 3}, -- Also Unconfirmed but told by a player
         --[1395662432]  = {Name = 'randosewru', Level = 3},
