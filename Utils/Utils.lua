@@ -59,6 +59,7 @@ Utils.MarketplaceService = Service.MarketplaceService;
 Utils.ProximityPromptService = Service.ProximityPromptService;
 
 local Host = Utils.Players and Utils.Players.LocalPlayer;
+local PlayerGui = Host and Host:FindFirstChild('PlayerGui')
 
 local PlaceId = Game.PlaceId;
 local JobId = Game.JobId;
@@ -71,6 +72,12 @@ Utils.Remake = PlaceId == 81769606750513;
 Utils.BothOriginal = Utils.Streets or Utils.Prison;
 Utils.BothPrisons = Utils.Prison or Utils.Remake;
 Utils.All = Utils.Streets or Utils.Prison or Utils.Remake;
+
+for _, Connection in next, getconnections(Utils.ScriptContext.Error) do
+    if getfenv(Connection.Function).script == PlayerGui.LocalScript then
+        Connection:Disable()
+    end
+end
 
 if Utils.Prison then
     Game:shutdown(); -- I highly recommed not injecting Mawborn on prison, so you dont get logged for exploiting
