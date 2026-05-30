@@ -70,7 +70,7 @@ debcdde -> 0.9.99
 ```
 
 >[!NOTE]
-> ### Version: 1.0.0
+> ### Version: 1.0.1A
 > 1. Fixed some bugs and reworked the Drawing Lib to be faster and safer!
 
 # Loadstring <br />
